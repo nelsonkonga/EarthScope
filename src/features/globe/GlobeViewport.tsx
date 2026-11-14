@@ -40,7 +40,9 @@ export function GlobeViewport() {
         ? fr.webgl
         : status.message === "key"
           ? fr.globeKeyMissing
-          : fr.globeFailed
+          : status.message === "ion"
+            ? fr.ionFailed
+            : fr.globeFailed
       : null;
 
   return (

@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { selectBasemap } from "../../config/globe";
 import { fr } from "../../config/strings.fr";
 import { formatAltitude, formatLatLon } from "../../domain/format";
 import { getCameraSample, subscribeCamera } from "../globe/cameraBridge";
@@ -20,7 +21,7 @@ export function StatusBar({ fixture, notice, loadingZones }: { fixture: boolean;
       </span>
       <span className="sources">
         {fixture ? `${fr.fixture} · ` : ""}
-        {fr.sources}
+        {selectBasemap(import.meta.env.VITE_GOOGLE_MAPS_API_KEY) === "google" ? fr.sourcesGoogle : fr.sourcesIon}
       </span>
     </footer>
   );

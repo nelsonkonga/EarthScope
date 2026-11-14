@@ -9,6 +9,8 @@ import {
   Color,
   Ellipsoid,
   HeightReference,
+  ImageryLayer,
+  Ion,
   KeyboardEventModifier,
   LabelCollection,
   LabelStyle,
@@ -18,11 +20,12 @@ import {
   ScreenSpaceEventHandler,
   ScreenSpaceEventType,
   SkyAtmosphere,
+  Terrain,
   VerticalOrigin,
   Viewer,
 } from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { DISC_HEIGHT_METERS, FLY_HEIGHT_METERS, FLY_PITCH_DEGREES, FLY_SECONDS, HOME_CAMERA, LABEL_HEIGHT_METERS, SYMBOL_RADIUS_METERS } from "../../config/globe";
+import { DISC_HEIGHT_METERS, FLY_HEIGHT_METERS, FLY_PITCH_DEGREES, FLY_SECONDS, HOME_CAMERA, LABEL_HEIGHT_METERS, selectBasemap, SYMBOL_RADIUS_METERS } from "../../config/globe";
 import { niceDistance } from "../../domain/format";
 import { publishCamera } from "./cameraBridge";
 import { registerGlobe, type GlobeController, type GlobeStatus, type MarkerSpec } from "./globeApi";
@@ -101,6 +104,12 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
   }
 
   RequestScheduler.requestsByServer["tile.googleapis.com:443"] = 18;
+  const googleKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim();
+  const basemap = selectBasemap(googleKey);
+  if (basemap === "ion") {
+    const ionToken = import.meta.env.VITE_CESIUM_ION_TOKEN?.trim();
+    if (ionToken) Ion.defaultAccessToken = ionToken;
+  }
   const viewer = new Viewer(container, {
     animation: false,
     timeline: false,
@@ -113,12 +122,11 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
     infoBox: false,
     selectionIndicator: false,
     baseLayer: false,
-    globe: false,
     requestRenderMode: true,
     creditContainer: credits,
-    skyAtmosphere: new SkyAtmosphere(),
+    ...(basemap === "google" ? { globe: false as const, skyAtmosphere: new SkyAtmosphere() } : {}),
   });
-  if (viewer.scene.skyAtmosphere) viewer.scene.skyAtmosphere.show = false;
+  if (basemap === "google" && viewer.scene.skyAtmosphere) viewer.scene.skyAtmosphere.show = false;
   viewer.scene.backgroundColor = Color.BLACK;
   const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   if (memory && memory <= 4) {
@@ -197,8 +205,8 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
             semiMajorAxis: SYMBOL_RADIUS_METERS,
             semiMinorAxis: SYMBOL_RADIUS_METERS,
             material: Color.fromCssColorString(spec.fill).withAlpha(spec.dimmed ? 0.18 : 0.38),
-            heightReference: HeightReference.CLAMP_TO_3D_TILE,
-            classificationType: ClassificationType.CESIUM_3D_TILE,
+            heightReference: basemap === "google" ? HeightReference.CLAMP_TO_3D_TILE : HeightReference.CLAMP_TO_GROUND,
+            classificationType: basemap === "google" ? ClassificationType.CESIUM_3D_TILE : ClassificationType.TERRAIN,
           },
         });
       }
@@ -260,14 +268,40 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
     viewer.camera.zoomIn(height * 0.35);
   }, ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 
-  const loadTileset = () => {
-    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim();
-    if (!key) {
+  const loadBasemap = () => {
+    if (basemap === "ion") {
+      hooks.onStatus({ phase: "loading" });
+      try {
+        viewer.imageryLayers.removeAll();
+        viewer.imageryLayers.add(ImageryLayer.fromWorldImagery({}));
+        const terrain = Terrain.fromWorldTerrain();
+        const layer = viewer.imageryLayers.get(0);
+        let imageryReady = false;
+        const fail = () => {
+          if (!imageryReady) hooks.onStatus({ phase: "error", message: "ion" });
+        };
+        terrain.errorEvent.addEventListener(fail);
+        layer?.errorEvent.addEventListener(fail);
+        const markReady = () => {
+          imageryReady = true;
+          viewer.scene.requestRender();
+          hooks.onStatus({ phase: "ready" });
+        };
+        layer?.readyEvent.addEventListener(markReady);
+        if (layer?.ready) markReady();
+        viewer.scene.setTerrain(terrain);
+        viewer.scene.requestRender();
+      } catch {
+        hooks.onStatus({ phase: "error", message: "ion" });
+      }
+      return;
+    }
+    if (!googleKey) {
       hooks.onStatus({ phase: "error", message: "key" });
       return;
     }
     hooks.onStatus({ phase: "loading" });
-    const url = `https://tile.googleapis.com/v1/3dtiles/root.json?key=${encodeURIComponent(key)}`;
+    const url = `https://tile.googleapis.com/v1/3dtiles/root.json?key=${encodeURIComponent(googleKey)}`;
     void Cesium3DTileset.fromUrl(url, { showCreditsOnScreen: true })
       .then((next) => {
         if (tileset) viewer.scene.primitives.remove(tileset);
@@ -282,7 +316,7 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
 
   homeView();
   publish(true);
-  loadTileset();
+  loadBasemap();
 
   const api: GlobeController = {
     destroy: () => {
@@ -321,7 +355,7 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
       drawMarkers();
     },
     resize: () => viewer.resize(),
-    reload: loadTileset,
+    reload: loadBasemap,
   };
   registerGlobe(api);
   return api;

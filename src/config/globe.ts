@@ -1,3 +1,10 @@
+export type Basemap = "google" | "ion";
+
+/** Google Photorealistic 3D Tiles when a key is set. Otherwise Cesium ion. */
+export function selectBasemap(googleKey: string | undefined): Basemap {
+  return googleKey?.trim() ? "google" : "ion";
+}
+
 export const HOME_CAMERA = {
   longitude: 0,
   latitude: 0,
