@@ -1,0 +1,19 @@
+:root {
+  --panel: rgba(10, 14, 18, 0.88);
+  --panel-solid: #12181e;
+  --ink: #ebe7df;
+  --muted: #a7b0b8;
+  --line: rgba(255, 255, 255, 0.12);
+  --accent: #8eabc4;
+  --danger: #d08070;
+  --zone-1: #d4a017;
+  --zone-2: #6ea8fe;
+  --zone-3: #7dcea0;
+  --zone-4: #d98cb3;
+  --zone-5: #e09f6d;
+  --zone-6: #b8a1e3;
+  color-scheme: dark;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+}
