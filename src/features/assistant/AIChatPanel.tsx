@@ -38,6 +38,8 @@ export function AIChatPanel({ catalog }: { catalog: CatalogIndex }) {
       }
     },
     retry: false,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
