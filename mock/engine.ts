@@ -12,7 +12,10 @@ import type {
   Trend,
   Variable,
   Zone,
-} from "../src/domain/types";
+} from "../src/domain/types.js";
+
+const activateFor = (variable: Variable | undefined): AssistantAction[] =>
+  variable ? [{ type: "ACTIVATE_VARIABLES", variableIds: [variable.id], mode: "replace" }] : [];
 
 export const DATASET = "fixture-1";
 const START_YEAR = 2000;
@@ -350,9 +353,7 @@ export function answer(text: string, context: {
     };
   }
 
-  const activate = variable
-    ? [{ type: "ACTIVATE_VARIABLES", variableIds: [variable.id], mode: "replace" } as const]
-    : [];
+  const activate = activateFor(variable);
 
   if (folded.includes("compar") && variable) {
     if (places.matched.length >= 2) {

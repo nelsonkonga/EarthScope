@@ -1,5 +1,5 @@
-import type { ChatMessage, ChatSession } from "../src/domain/types";
-import { answer, categories, DATASET, layerFor, rank, seriesFor, SUGGESTED_PROMPTS, variables, zones } from "./engine";
+import type { ChatMessage, ChatSession } from "../src/domain/types.js";
+import { answer, categories, DATASET, layerFor, rank, seriesFor, SUGGESTED_PROMPTS, variables, zones } from "./engine.js";
 
 type StoredSession = ChatSession & { expiresAt: number };
 

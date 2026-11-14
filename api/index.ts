@@ -1,4 +1,4 @@
-import { dispatch } from "../mock/router";
+import { dispatch } from "../mock/router.js";
 
 type NodeRequest = {
   method?: string;
@@ -30,14 +30,8 @@ function requestUrl(req: NodeRequest): URL {
 async function readBody(req: NodeRequest): Promise<unknown> {
   if (req.method === "GET" || req.method === "HEAD") return undefined;
   if (typeof req.body === "string") return req.body ? (JSON.parse(req.body) as unknown) : {};
-  if (req.body && typeof req.body === "object") return req.body;
-  const stream = req as AsyncIterable<Uint8Array | string>;
-  if (typeof stream[Symbol.asyncIterator] !== "function") return {};
-  const chunks: Buffer[] = [];
-  for await (const chunk of stream) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-  const raw = Buffer.concat(chunks).toString("utf8");
-  if (!raw) return {};
-  return JSON.parse(raw) as unknown;
+  if (req.body != null && typeof req.body === "object") return req.body;
+  return {};
 }
 
 export default async function handler(req: NodeRequest, res: NodeResponse) {
