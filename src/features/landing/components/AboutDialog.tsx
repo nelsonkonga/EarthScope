@@ -1,120 +1,65 @@
-import { useEffect, useRef } from "react";
-import { format, monthYear, useI18n } from "../../../i18n";
-import { useCatalogFacts } from "../hooks/useCatalogFacts";
-import { Dialog } from "./Dialog";
-import { Icon } from "./Icon";
+import { useEffect, useRef } from 'react';
+import type { LandingCatalog } from '../api/landingData';
+import { format, useLandingLanguage } from '../context/LandingContext';
+import { PHOTOS, type PhotoSlot } from '../photos';
+import { AccessibleDialog } from './AccessibleDialog';
+import { ArrowUpRight, CheckIcon } from './Icons';
+import { Photo } from './Photo';
 
-export type AboutSection = "intro" | "sources" | "methods" | "freshness" | "transparency";
+const PHOTO_ORDER: PhotoSlot[] = ['hero', 'agriculture', 'ecosystem', 'water', 'satellite', 'fieldwork'];
 
-export function AboutDialog({ onClose, section = "intro" }: { onClose: () => void; section?: AboutSection }) {
-  const { t, locale } = useI18n();
-  const a = t.about;
-  const facts = useCatalogFacts();
-  const body = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const dates = { start: monthYear(facts.start, locale), end: monthYear(facts.end, locale) };
+export function AboutDialog({ open, onClose, catalog, section }: { open: boolean; onClose: () => void; catalog: LandingCatalog; section?: 'credits' }) {
+  const { t, locale } = useLandingLanguage();
+  const credits = useRef<HTMLElement>(null);
+  const month = (value?: string) => (value ? new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(value)) : '—');
+  const dates = { start: month(catalog.periodStart), end: month(catalog.periodEnd) };
+  const photos = PHOTO_ORDER.flatMap((slot) => (PHOTOS[slot] ? [{ slot, photo: PHOTOS[slot]! }] : []));
 
   useEffect(() => {
-    if (section === "intro") return;
-    body.current?.querySelector(`#ts-about-${section}`)?.scrollIntoView({ block: "start" });
-  }, [section]);
-
-  const jump = (id: AboutSection) => {
-    const target = body.current?.querySelector<HTMLElement>(`#ts-about-${id}`);
-    target?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
-    target?.focus({ preventScroll: true });
-  };
+    if (open && section === 'credits') window.setTimeout(() => credits.current?.scrollIntoView({ block: 'start' }), 50);
+  }, [open, section]);
 
   return (
-    <Dialog labelledBy="ts-about-title" variant="wide" onClose={onClose} initialFocus={closeRef}>
-      <header className="ts-panel-head">
-        <div>
-          <p className="ts-overline">{t.brand}</p>
-          <h2 id="ts-about-title">{a.title}</h2>
+    <AccessibleDialog open={open} onClose={onClose} title={t.about.title} size="large">
+      <div className="ts-about-content">
+        <Photo slot="fieldwork" className="ts-about-photo" sizes="(max-width: 900px) 100vw, 760px" />
+        <p className="ts-dialog-lead">{t.about.intro}</p>
+        <div className="ts-about-grid">
+          <section className="ts-about-block"><span className="ts-overline">{t.about.scopeLabel}</span><h3>{t.about.scopeTitle}</h3><p>{format(t.about.scopeText, dates)}</p></section>
+          <section className="ts-about-block"><h3>{t.about.kindsTitle}</h3><p>{t.about.kindsText}</p></section>
+          <section className="ts-about-block ts-about-block--sources"><span className="ts-overline">{t.about.sourcesLabel}</span><h3>{t.about.sourcesTitle}</h3><p>{t.about.sourcesText}</p>
+            <ul className="ts-about-source-list">
+              {t.about.sources.map((source) => (
+                <li key={source.name}>
+                  <a href={source.url} target="_blank" rel="noreferrer noopener">{source.name} <ArrowUpRight size={14} /><span className="ts-sr-only"> ({t.common.externalLink})</span></a>
+                  <span>{source.detail}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+          <section className="ts-about-block ts-about-methods"><span className="ts-overline">{t.about.methodLabel}</span><h3>{t.about.methodTitle}</h3>
+            <article><h4>{t.about.mkTitle}</h4><p>{t.about.mkText}</p></article>
+            <article><h4>{t.about.tsTitle}</h4><p>{t.about.tsText}</p></article>
+            <article><h4>{t.about.shapTitle}</h4><p>{t.about.shapText}</p></article>
+          </section>
+          <section className="ts-about-block ts-about-block--note"><span className="ts-about-check" aria-hidden="true"><CheckIcon /></span><div><h3>{t.about.updatedTitle}</h3><p>{format(t.about.updatedText, dates)}</p></div></section>
+          {photos.length > 0 && (
+            <section ref={credits} className="ts-about-block ts-about-block--credits" aria-labelledby="ts-photo-credits">
+              <h3 id="ts-photo-credits">{t.footer.photoCredits}</h3>
+              <ul className="ts-about-source-list">
+                {photos.map(({ slot, photo }) => (
+                  <li key={slot}>
+                    <a href={photo.pexelsUrl} target="_blank" rel="noreferrer noopener">{format(t.photos.credit, { name: photo.photographer })} <ArrowUpRight size={14} /><span className="ts-sr-only"> ({t.common.externalLink})</span></a>
+                    <span>{photo.alt[locale === 'fr-FR' ? 'fr' : 'en'] || t.photos.illustration}</span>
+                  </li>
+                ))}
+              </ul>
+              <p>{t.photos.illustration}.</p>
+            </section>
+          )}
         </div>
-        <button ref={closeRef} type="button" className="ts-icon-btn" onClick={onClose} aria-label={a.close}>
-          <Icon name="close" />
-        </button>
-      </header>
-      <nav className="ts-about-tabs" aria-label={a.sectionsLabel}>
-        {(Object.keys(a.sections) as AboutSection[]).map((key) => (
-          <button key={key} type="button" onClick={() => jump(key)}>
-            {a.sections[key]}
-          </button>
-        ))}
-      </nav>
-      <div ref={body} className="ts-panel-body ts-about">
-        <section id="ts-about-intro" tabIndex={-1} aria-label={a.sections.intro}>
-          {a.intro.map((paragraph) => (
-            <p key={paragraph} className="ts-about-lead">
-              {paragraph}
-            </p>
-          ))}
-        </section>
-
-        <section id="ts-about-sources" tabIndex={-1} aria-labelledby="ts-about-sources-title">
-          <h3 id="ts-about-sources-title">{a.sources.title}</h3>
-          <p>{a.sources.intro}</p>
-          <ul className="ts-source-list">
-            {a.sources.items.map((source) => (
-              <li key={source.name}>
-                <a href={source.url} target="_blank" rel="noreferrer noopener" className="ts-source-name">
-                  {source.name}
-                  <Icon name="external" size={14} />
-                  <span className="ts-sr">({t.dialog.newTab})</span>
-                </a>
-                <dl>
-                  <div>
-                    <dt>{a.sources.identifier}</dt>
-                    <dd>
-                      <code>{source.id}</code>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>{a.sources.role}</dt>
-                    <dd>{source.role}</dd>
-                  </div>
-                  {source.limits && (
-                    <div>
-                      <dt>{a.sources.limits}</dt>
-                      <dd>{source.limits}</dd>
-                    </div>
-                  )}
-                </dl>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section id="ts-about-methods" tabIndex={-1} aria-labelledby="ts-about-methods-title">
-          <h3 id="ts-about-methods-title">{a.methods.title}</h3>
-          <dl className="ts-method-list">
-            {a.methods.items.map((method) => (
-              <div key={method.name}>
-                <dt>{method.name}</dt>
-                <dd>{method.text}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-
-        <section id="ts-about-freshness" tabIndex={-1} aria-labelledby="ts-about-freshness-title">
-          <h3 id="ts-about-freshness-title">{a.freshness.title}</h3>
-          <p>{format(a.freshness.text, dates)}</p>
-        </section>
-
-        <section id="ts-about-transparency" tabIndex={-1} aria-labelledby="ts-about-transparency-title">
-          <h3 id="ts-about-transparency-title">{a.transparency.title}</h3>
-          <dl className="ts-method-list">
-            {a.transparency.items.map((item) => (
-              <div key={item.label}>
-                <dt>{item.label}</dt>
-                <dd>{format(item.text, dates)}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
+        <p className="ts-about-disclaimer">{t.about.disclaimer}</p>
       </div>
-    </Dialog>
+    </AccessibleDialog>
   );
 }

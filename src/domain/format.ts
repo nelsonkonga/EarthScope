@@ -1,6 +1,6 @@
 import type { Trend } from "./types";
 
-const numberFormat = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
+const numberFormat = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
 
 export function formatNumber(value: number): string {
   return numberFormat.format(value);
@@ -9,12 +9,12 @@ export function formatNumber(value: number): string {
 export function formatDegrees(value: number): string {
   const abs = Math.abs(value);
   const fixed = abs.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
-  return fixed.replace(".", ",");
+  return fixed;
 }
 
 export function formatLatLon(latitude: number, longitude: number): string {
   const latHemisphere = latitude >= 0 ? "N" : "S";
-  const lonHemisphere = longitude >= 0 ? "E" : "O";
+  const lonHemisphere = longitude >= 0 ? "E" : "W";
   return `${formatDegrees(latitude)}° ${latHemisphere}, ${formatDegrees(longitude)}° ${lonHemisphere}`;
 }
 
@@ -39,25 +39,25 @@ export function niceDistance(meters: number): string {
 export function formatDate(date: string): string {
   const [year, month, day] = date.split("-");
   if (!year || !month || !day) return date;
-  return `${day}/${month}/${year}`;
+  return `${month}/${day}/${year}`;
 }
 
 export function formatTrend(trend: Trend | undefined, unit: string): string {
   if (!trend || trend.direction === "insufficient" || trend.changePerDecade == null) {
-    return "Tendance non calculée (données insuffisantes).";
+    return "Trend not computed (not enough data).";
   }
-  const signed = new Intl.NumberFormat("fr-FR", {
+  const signed = new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 2,
     signDisplay: "exceptZero",
   }).format(trend.changePerDecade);
-  const word = trend.direction === "up" ? "hausse" : trend.direction === "down" ? "baisse" : "stable";
-  return `${signed} ${unit} par décennie (${word}).`;
+  const word = trend.direction === "up" ? "increase" : trend.direction === "down" ? "decrease" : "stable";
+  return `${signed} ${unit} per decade (${word}).`;
 }
 
 export function statusWord(status: "observed" | "missing" | "estimated" | undefined): string {
-  if (status === "estimated") return "estimée";
-  if (status === "observed") return "mesurée";
-  return "indisponible";
+  if (status === "estimated") return "estimated";
+  if (status === "observed") return "measured";
+  return "unavailable";
 }
 
 export function foldText(value: string): string {

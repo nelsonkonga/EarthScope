@@ -1,22 +1,22 @@
 import { navigate } from "../../app/router";
-import { fr } from "../../config/strings.fr";
+import { ui } from "../../config/strings";
 import type { PanelId } from "../../domain/types";
 import { Icon } from "../../ui/icons";
 import { IconButton } from "../../ui/IconButton";
 
 export function LeftToolbar({ active, onSelect }: { active: PanelId | null; onSelect: (panel: PanelId) => void }) {
   return (
-    <nav className="toolbar" aria-label={fr.appName}>
-      <IconButton label={fr.backHome} onClick={() => navigate("/")}>
+    <nav className="toolbar" aria-label={ui.appName}>
+      <IconButton label={ui.backHome} onClick={() => navigate("/")}>
         <Icon name="home" />
       </IconButton>
-      <IconButton label={fr.variables} pressed={active === "variables"} onClick={() => onSelect("variables")}>
+      <IconButton label={ui.variables} pressed={active === "variables"} onClick={() => onSelect("variables")}>
         <Icon name="variables" />
       </IconButton>
-      <IconButton label={fr.zones} pressed={active === "zones"} onClick={() => onSelect("zones")}>
+      <IconButton label={ui.zones} pressed={active === "zones"} onClick={() => onSelect("zones")}>
         <Icon name="zones" />
       </IconButton>
-      <IconButton label={fr.assistant} pressed={active === "assistant"} onClick={() => onSelect("assistant")}>
+      <IconButton label={ui.assistant} pressed={active === "assistant"} onClick={() => onSelect("assistant")}>
         <Icon name="chat" />
       </IconButton>
     </nav>

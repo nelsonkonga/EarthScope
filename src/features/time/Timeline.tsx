@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { fetchLayer } from "../../api/resources";
-import { fr } from "../../config/strings.fr";
+import { ui } from "../../config/strings";
 import { buildSteps, nearestStep, shiftStep } from "../../domain/time";
 import type { Variable } from "../../domain/types";
 import { formatDate } from "../../domain/format";
@@ -70,24 +70,24 @@ export function Timeline({ variables }: { variables: Variable[] }) {
 
   const disabled = steps.length === 0;
   return (
-    <section className="timeline" aria-label={fr.timeline}>
+    <section className="timeline" aria-label={ui.timeline}>
       <div className="timeline-controls">
-        <IconButton label={fr.stepBack} disabled={disabled || index <= 0} onClick={() => date && setDate(shiftStep(steps, date, -1) ?? date)}>
+        <IconButton label={ui.stepBack} disabled={disabled || index <= 0} onClick={() => date && setDate(shiftStep(steps, date, -1) ?? date)}>
           <Icon name="back" />
         </IconButton>
         <IconButton
-          label={playback === "playing" ? fr.pause : fr.play}
+          label={playback === "playing" ? ui.pause : ui.play}
           disabled={disabled}
           onClick={() => setPlayback(playback === "playing" ? "paused" : "playing")}
         >
           <Icon name={playback === "playing" ? "pause" : "play"} />
         </IconButton>
-        <IconButton label={fr.stepForward} disabled={disabled || index >= steps.length - 1} onClick={() => date && setDate(shiftStep(steps, date, 1) ?? date)}>
+        <IconButton label={ui.stepForward} disabled={disabled || index >= steps.length - 1} onClick={() => date && setDate(shiftStep(steps, date, 1) ?? date)}>
           <Icon name="forward" />
         </IconButton>
         <label className="speed">
-          {fr.speed}
-          <select value={speed} aria-label={fr.speed} onChange={(event) => setSpeed(Number(event.target.value) as 1 | 2 | 4)}>
+          {ui.speed}
+          <select value={speed} aria-label={ui.speed} onChange={(event) => setSpeed(Number(event.target.value) as 1 | 2 | 4)}>
             <option value={1}>1×</option>
             <option value={2}>2×</option>
             <option value={4}>4×</option>

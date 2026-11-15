@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { fr } from "../../config/strings.fr";
+import { ui } from "../../config/strings";
 import type { CatalogIndex } from "../../domain/actions";
 import { useWorkspace } from "../../state/workspaceStore";
 import { ChatMessageView } from "./ChatMessage";
@@ -47,19 +47,19 @@ export function AIChatPanel({ catalog }: { catalog: CatalogIndex }) {
     if (await conversation.send(text)) setDraft("");
   }
 
-  const prompts = conversation.suggestedPrompts.length ? conversation.suggestedPrompts : fr.fallbackPrompts;
+  const prompts = conversation.suggestedPrompts.length ? conversation.suggestedPrompts : ui.fallbackPrompts;
   const messages = conversation.messages;
 
   return (
     <div className="panel-body chat-panel">
-      <h2>{fr.assistant}</h2>
-      {expired && <p className="hint">{fr.expired}</p>}
+      <h2>{ui.assistant}</h2>
+      {expired && <p className="hint">{ui.expired}</p>}
       <div className="thread" aria-live="polite">
-        {messages.length === 0 && <p>{fr.assistantEmpty}</p>}
+        {messages.length === 0 && <p>{ui.assistantEmpty}</p>}
         {messages.map((message) => (
           <ChatMessageView key={message.id} message={message} catalog={catalog} />
         ))}
-        {pending && <p className="hint">{fr.assistantWorking}</p>}
+        {pending && <p className="hint">{ui.assistantWorking}</p>}
         <div ref={endRef} />
       </div>
       {messages.length === 0 && (
@@ -73,9 +73,9 @@ export function AIChatPanel({ catalog }: { catalog: CatalogIndex }) {
       )}
       {failedText && (
         <p className="hint">
-          {fr.assistantFailed}{" "}
+          {ui.assistantFailed}{" "}
           <button type="button" className="text-btn" onClick={() => void send(failedText)}>
-            {fr.retry}
+            {ui.retry}
           </button>
         </p>
       )}
@@ -90,13 +90,13 @@ export function AIChatPanel({ catalog }: { catalog: CatalogIndex }) {
         <input
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder={fr.assistantPlaceholder}
-          aria-label={fr.assistantPlaceholder}
+          placeholder={ui.assistantPlaceholder}
+          aria-label={ui.assistantPlaceholder}
           disabled={pending || !sessionId}
           maxLength={2000}
         />
         <button type="submit" disabled={pending || !sessionId || draft.trim().length === 0}>
-          {fr.send}
+          {ui.send}
         </button>
       </form>
     </div>

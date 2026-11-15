@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAnalyticsQuery, useMultivariableQuery, useSeriesQueries } from "../../api/queries";
-import { fr } from "../../config/strings.fr";
+import { ui } from "../../config/strings";
 import { formatDate, formatNumber } from "../../domain/format";
 import type { AnalyticsView, ClimatologyMonth, Variable, Zone } from "../../domain/types";
 import { useWorkspace } from "../../state/workspaceStore";
@@ -10,18 +10,18 @@ import { InteractiveTimeSeriesChart, type ChartLine } from "./InteractiveTimeSer
 import { MultivariableInsightCard } from "./MultivariableInsightCard";
 
 const MONTHS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
-const MONTH_NAMES = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function trendWord(direction: string) {
-  if (direction === "up") return "hausse";
-  if (direction === "down") return "baisse";
+  if (direction === "up") return "increase";
+  if (direction === "down") return "decrease";
   if (direction === "flat") return "stable";
-  return "données insuffisantes";
+  return "not enough data";
 }
 
 function pText(value: number | null) {
-  if (value == null) return "p non calculée";
-  if (value < 0.001) return "p < 0,001";
+  if (value == null) return "p not computed";
+  if (value < 0.001) return "p < 0.001";
   return `p = ${formatNumber(value)}`;
 }
 
@@ -37,7 +37,7 @@ function SeasonalBoxplot({ climatology, color, unit, large = false }: { climatol
   const y = (value: number) => pad.t + (1 - (value - min) / span) * (height - pad.t - pad.b);
   const box = large ? 22 : 6;
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="boxplot" role="img" aria-label={fr.seasonal}>
+    <svg viewBox={`0 0 ${width} ${height}`} className="boxplot" role="img" aria-label={ui.seasonal}>
       {large && (
         <>
           <text x={4} y={pad.t + 10} className="axis-label">
@@ -141,19 +141,19 @@ export function AnalyticsPanel({ zone, variables }: { zone: Zone; variables: Var
 
   return (
     <section className="zone-section analytics">
-      <h3>{fr.analytics}</h3>
+      <h3>{ui.analytics}</h3>
       <div className="view-switch">
         {([
-          ["single", fr.viewSingle],
-          ["superposition", fr.viewSuperposition],
-          ["normalized", fr.viewNormalized],
+          ["single", ui.viewSingle],
+          ["superposition", ui.viewSuperposition],
+          ["normalized", ui.viewNormalized],
         ] as const).map(([mode, label]) => (
           <button key={mode} type="button" aria-pressed={view === mode} onClick={() => setView(mode as AnalyticsView)} disabled={mode !== "single" && available.length < 2}>
             {label}
           </button>
         ))}
       </div>
-      {view === "superposition" && available.length > 2 && <p className="hint">{fr.dualNeedsTwo}</p>}
+      {view === "superposition" && available.length > 2 && <p className="hint">{ui.dualNeedsTwo}</p>}
       {effective === "single" && available.length > 1 && (
         <div className="view-switch">
           {available.map((variable) => (
@@ -165,24 +165,24 @@ export function AnalyticsPanel({ zone, variables }: { zone: Zone; variables: Var
       )}
       {effective === "single" && analytics.isError && (
         <p>
-          {fr.statsFailed}{" "}
+          {ui.statsFailed}{" "}
           <button type="button" className="text-btn" onClick={() => analytics.refetch()}>
-            {fr.retry}
+            {ui.retry}
           </button>
         </p>
       )}
       {effective === "single" && sen && kendall && (
         <p className="hint">
-          {sen.changePerDecade == null ? "Pente non calculée." : `Pente de Sen : ${formatNumber(sen.changePerDecade)} ${primary?.unit ?? ""} par décennie.`}{" "}
-          {kendall.method} : {trendWord(kendall.trend)}
+          {sen.changePerDecade == null ? "Slope not computed." : `Sen slope: ${formatNumber(sen.changePerDecade)} ${primary?.unit ?? ""} per decade.`}{" "}
+          {kendall.method}: {trendWord(kendall.trend)}
           {kendall.pValue != null ? ` (${pText(kendall.pValue)})` : ""}.
         </p>
       )}
       {effective === "single" && climatology.some((row) => row.count > 0) && (
         <div>
-          <p className="hint">{fr.seasonal}</p>
+          <p className="hint">{ui.seasonal}</p>
           <ExpandableFigure
-            title={`${fr.seasonal} · ${primary?.name ?? ""}`}
+            title={`${ui.seasonal} · ${primary?.name ?? ""}`}
             subtitle={`${zone.name} · ${primary?.unit ?? ""}`}
             large={() => <SeasonalBoxplot climatology={climatology} color={primary?.color ?? "currentColor"} unit={primary?.unit ?? ""} large />}
           >
@@ -192,22 +192,22 @@ export function AnalyticsPanel({ zone, variables }: { zone: Zone; variables: Var
       )}
       {effective !== "single" && multi.isError && (
         <p>
-          {fr.statsFailed}{" "}
+          {ui.statsFailed}{" "}
           <button type="button" className="text-btn" onClick={() => multi.refetch()}>
-            {fr.retry}
+            {ui.retry}
           </button>
         </p>
       )}
       {effective !== "single" && multi.data && multi.data.pairs.length > 0 && (
-        <ExpandableFigure title={fr.correlation} subtitle={`${zone.name} · ${available.map((variable) => variable.name).join(", ")}`}>
+        <ExpandableFigure title={ui.correlation} subtitle={`${zone.name} · ${available.map((variable) => variable.name).join(", ")}`}>
           <MultivariableInsightCard pairs={multi.data.pairs} />
         </ExpandableFigure>
       )}
       {effective !== "single" && multi.data && multi.data.pairs.length === 0 && <MultivariableInsightCard pairs={[]} />}
       {lines.length > 0 && lines.some((line) => line.points.some((point) => point.value != null)) && (
         <>
-          <p className="hint">{fr.gapHint}</p>
-          <ExpandableFigure interactive title={primary?.name ?? fr.chartStage} onExpand={() => primary && setExpanded(primary.id)}>
+          <p className="hint">{ui.gapHint}</p>
+          <ExpandableFigure interactive title={primary?.name ?? ui.chartStage} onExpand={() => primary && setExpanded(primary.id)}>
           <InteractiveTimeSeriesChart
             lines={lines}
             mode={effective}
@@ -226,7 +226,7 @@ export function AnalyticsPanel({ zone, variables }: { zone: Zone; variables: Var
       {expandedId && lines.length > 0 && (
         <Modal
           wide
-          title={lines.find((line) => line.id === expandedId)?.name ?? primary?.name ?? fr.chartStage}
+          title={lines.find((line) => line.id === expandedId)?.name ?? primary?.name ?? ui.chartStage}
           onClose={() => setExpanded(null)}
           onKeyDown={(event) => {
             if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
@@ -256,9 +256,9 @@ export function AnalyticsPanel({ zone, variables }: { zone: Zone; variables: Var
           </div>
           {effective === "single" && sen && kendall && (
             <p className="hint">
-              {sen.changePerDecade == null ? "Pente non calculée." : `Pente de Sen : ${formatNumber(sen.changePerDecade)} ${primary?.unit ?? ""} par décennie.`}{" "}
-              {kendall.method} : {trendWord(kendall.trend)}
-              {kendall.pValue != null ? ` (${pText(kendall.pValue)})` : ""}. {primary?.availableDateRange.start} – {primary?.availableDateRange.end}.
+              {sen.changePerDecade == null ? "Slope not computed." : `Sen slope: ${formatNumber(sen.changePerDecade)} ${primary?.unit ?? ""} per decade.`}{" "}
+              {kendall.method}: {trendWord(kendall.trend)}
+              {kendall.pValue != null ? ` (${pText(kendall.pValue)})` : ""}. {primary ? `${formatDate(primary.availableDateRange.start)} – ${formatDate(primary.availableDateRange.end)}` : ""}.
             </p>
           )}
           <InteractiveTimeSeriesChart
@@ -276,14 +276,14 @@ export function AnalyticsPanel({ zone, variables }: { zone: Zone; variables: Var
           />
           {windowed && (
             <button type="button" className="text-btn" onClick={() => setWindowed(null)}>
-              {fr.resetZoom}
+              {ui.resetZoom}
             </button>
           )}
         </Modal>
       )}
       {windowed && (
         <button type="button" className="text-btn" onClick={() => setWindowed(null)}>
-          {fr.resetZoom}
+          {ui.resetZoom}
         </button>
       )}
     </section>

@@ -1,4 +1,4 @@
-import { fr } from "../../config/strings.fr";
+import { ui } from "../../config/strings";
 import type { Variable, VariableCategory } from "../../domain/types";
 import { useWorkspace } from "../../state/workspaceStore";
 import { useZoneCatalog } from "../../api/queries";
@@ -18,12 +18,12 @@ export function VariablePanel({ variables, categories }: { variables: Variable[]
   return (
     <div className="panel-body">
       <div className="panel-head">
-        <h2>{fr.variables}</h2>
+        <h2>{ui.variables}</h2>
         <button type="button" className="text-btn" onClick={clear} disabled={active.length === 0}>
-          {fr.clearAll}
+          {ui.clearAll}
         </button>
       </div>
-      {variables.length === 0 && <p className="hint">{fr.noVariables}</p>}
+      {variables.length === 0 && <p className="hint">{ui.noVariables}</p>}
       {groups.map((category) => {
         const items = variables.filter((variable) => variable.categoryId === category.id);
         if (items.length === 0) return null;
@@ -44,7 +44,7 @@ export function VariablePanel({ variables, categories }: { variables: Variable[]
       })}
       {extras && (
         <section className="variable-group">
-          <h3>{fr.otherCategory}</h3>
+          <h3>{ui.otherCategory}</h3>
           {variables
             .filter((variable) => !known.has(variable.categoryId))
             .map((variable) => (

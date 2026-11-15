@@ -2,7 +2,7 @@ import { useState } from "react";
 import { derivedStops } from "../../domain/colorScale";
 import type { MapLayer, Variable } from "../../domain/types";
 import { formatDate, formatNumber } from "../../domain/format";
-import { fr } from "../../config/strings.fr";
+import { ui } from "../../config/strings";
 
 export type LegendEntry = {
   variable: Variable;
@@ -54,7 +54,7 @@ export function VariableLegend({
     <aside className="legend" aria-label={primary.name}>
       {narrow && (
         <button type="button" className="text-btn" onClick={() => setOpen(false)}>
-          {fr.close}
+          {ui.close}
         </button>
       )}
       <div className="legend-title">
@@ -76,9 +76,9 @@ export function VariableLegend({
       </div>
       {date && <p className="hint">{formatDate(date)}</p>}
       {caption && <p className="hint">{caption}</p>}
-      <p className="hint">{fr.legendFootprint}</p>
+      <p className="hint">{ui.legendFootprint}</p>
       {entries.find((entry) => entry.primary)?.legend && <p className="hint">{entries.find((entry) => entry.primary)?.legend}</p>}
-      {layer && reading == null && <p className="hint">{fr.legendGap}</p>}
+      {layer && reading == null && <p className="hint">{ui.legendGap}</p>}
       {entries.some((entry) => !entry.primary) && (
         <ul className="legend-rings">
           {entries
@@ -95,9 +95,9 @@ export function VariableLegend({
             ))}
         </ul>
       )}
-      {unsupported && <p className="hint">{fr.unsupportedLayer}</p>}
-      {updating && <p className="hint">{fr.updating}</p>}
-      {failed && <p className="hint">{fr.updateFailed}</p>}
+      {unsupported && <p className="hint">{ui.unsupportedLayer}</p>}
+      {updating && <p className="hint">{ui.updating}</p>}
+      {failed && <p className="hint">{ui.updateFailed}</p>}
     </aside>
   );
 }

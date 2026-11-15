@@ -25,6 +25,7 @@ CATALOGUE_VARIABLES = [
         "source": "giovanni",
         "couverture": "2002-2014",
         "titre": "Humidité du sol en surface (0–10 cm)",
+        "title_en": "Surface soil moisture (0–10 cm)",
         "description": "Teneur en eau et saturation de la couche supérieure du sol près de la surface, stagnation de l'eau, surface soil moisture.",
     },
     {
@@ -34,6 +35,7 @@ CATALOGUE_VARIABLES = [
         "source": "giovanni",
         "couverture": "2002-2014",
         "titre": "Humidité du sol en profondeur (10–40 cm)",
+        "title_en": "Deep soil moisture (10–40 cm)",
         "description": "Réserve d'eau plus profonde, sécheresse du sol profond, root zone water, humidité racinaire approchée par la couche 10-40 cm.",
     },
     {
@@ -43,6 +45,7 @@ CATALOGUE_VARIABLES = [
         "source": "climat_villes",
         "couverture": "2003-2026",
         "titre": "Précipitations mensuelles (mm)",
+        "title_en": "Monthly precipitation (mm)",
         "description": "Quantité de pluie tombée chaque mois, pluviométrie mensuelle, orages, monthly rainfall precipitation.",
     },
     {
@@ -52,6 +55,7 @@ CATALOGUE_VARIABLES = [
         "source": "giovanni",
         "couverture": "2002-2014",
         "titre": "Température du sol (°C)",
+        "title_en": "Soil temperature (°C)",
         "description": "Température du sol en degrés Celsius, chaleur thermique de la terre en surface, soil temperature.",
     },
     {
@@ -61,6 +65,7 @@ CATALOGUE_VARIABLES = [
         "source": "giovanni",
         "couverture": "2002-2014",
         "titre": "Température du sol profond (10–40 cm)",
+        "title_en": "Deep soil temperature (10–40 cm)",
         "description": "Température du sol en profondeur, couche 10 à 40 cm, chaleur plus sourde, deep soil temperature.",
     },
     {
@@ -70,6 +75,7 @@ CATALOGUE_VARIABLES = [
         "source": "giovanni",
         "couverture": "2002-2014",
         "titre": "Évaporation mensuelle",
+        "title_en": "Monthly evaporation",
         "description": "Perte d'eau du sol vers l'atmosphère, évaporation, bilan hydrique, evapotranspiration.",
     },
     {
@@ -79,6 +85,7 @@ CATALOGUE_VARIABLES = [
         "source": "soilgrids_regions",
         "couverture": "statique_0_200cm",
         "titre": "Teneur en argile du sous-sol (%)",
+        "title_en": "Subsoil clay content (%)",
         "description": "Composition naturelle du terrain, texture argileuse qui bloque l'absorption de l'eau et favorise la stagnation, soil clay content.",
     },
     {
@@ -88,6 +95,7 @@ CATALOGUE_VARIABLES = [
         "source": "soilgrids_regions",
         "couverture": "statique_0_200cm",
         "titre": "Azote total du sol",
+        "title_en": "Total soil nitrogen",
         "description": "Richesse nutritive des terres, nutriments naturels, fertilité agricole, soil nitrogen fertility.",
     },
     {
@@ -97,6 +105,7 @@ CATALOGUE_VARIABLES = [
         "source": "soilgrids_regions",
         "couverture": "statique_0_200cm",
         "titre": "Carbone organique du sol",
+        "title_en": "Soil organic carbon",
         "description": "Teneur en matière organique, humus, santé biologique des sols, soil organic carbon.",
     },
     {
@@ -106,6 +115,7 @@ CATALOGUE_VARIABLES = [
         "source": "soilgrids_regions",
         "couverture": "statique_0_200cm",
         "titre": "Potentiel hydrogène (pH eau)",
+        "title_en": "Soil pH (water)",
         "description": "Degré d'acidité ou d'alcalinité chimique du sol, soil pH acidity.",
     },
     {
@@ -115,6 +125,7 @@ CATALOGUE_VARIABLES = [
         "source": "giovanni",
         "couverture": "2002-2014",
         "titre": "Ruissellement de surface (NASA GLDAS)",
+        "title_en": "Surface runoff (NASA GLDAS)",
         "description": "Écoulements d'eau à la surface du sol après les pluies, érosion, surface water runoff.",
     },
     {
@@ -124,11 +135,12 @@ CATALOGUE_VARIABLES = [
         "source": "giovanni",
         "couverture": "2002-2014",
         "titre": "Épaisseur optique des aérosols (NASA MODIS)",
+        "title_en": "Aerosol optical depth (NASA MODIS)",
         "description": "Matières et poussières transportées dans l'air, brume sèche de l'Harmattan, atmospheric dust aerosols, épaisseur optique.",
     },
 ]
 
-VAR_TEXTS = [f"{item['titre']}. {item['description']}" for item in CATALOGUE_VARIABLES]
+VAR_TEXTS = [f"{item['titre']}. {item['title_en']}. {item['description']}" for item in CATALOGUE_VARIABLES]
 REFERENTIEL_VILLES = {
     "maroua": ("Maroua", "Extreme-Nord"),
     "kaele": ("Maroua", "Extreme-Nord"),
@@ -310,6 +322,7 @@ def analyser_requete(requete: str, top_k: int = 3) -> dict:
                 "id": variable["id"],
                 "earthscope_id": variable["earthscope_id"],
                 "titre": variable["titre"],
+                "title_en": variable["title_en"],
                 "source": variable["source"],
                 "score": round(score, 4),
             }

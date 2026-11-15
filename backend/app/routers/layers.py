@@ -17,12 +17,12 @@ def layer(variableId: str, date: str):
     catalog = get_catalog()
     variable = catalog.variable(variableId)
     if variable is None:
-        raise HTTPException(status_code=404, detail={"code": "VARIABLE_NOT_FOUND", "message": "Aucune variable pour cet identifiant."})
+        raise HTTPException(status_code=404, detail={"code": "VARIABLE_NOT_FOUND", "message": "No variable matches this identifier."})
     if len(date) < 10:
-        raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "Date attendue au format YYYY-MM-DD."})
+        raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "Expected a date in YYYY-MM-DD format."})
     snapped = _snap(date, variable["defaultResolution"])
     if snapped < variable["availableDateRange"]["start"] or snapped > variable["availableDateRange"]["end"]:
-        raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "Date hors couverture."})
+        raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "Date outside the available coverage."})
     zone_values = []
     for series in catalog.series.values():
         if series.variable_id != variableId:

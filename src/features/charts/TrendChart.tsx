@@ -92,7 +92,7 @@ export function TrendChart({ series, color, selectedDate, label }: Props) {
       </svg>
       {hover && (
         <p className="chart-tip">
-          {formatDate(hover.date)} · {hover.value == null ? "indisponible" : `${formatNumber(hover.value)} ${series.unit}`} · {hover.status === "estimated" ? "estimée" : hover.status === "missing" ? "indisponible" : "mesurée"}
+          {formatDate(hover.date)} · {hover.value == null ? "unavailable" : `${formatNumber(hover.value)} ${series.unit}`} · {hover.status === "estimated" ? "estimated" : hover.status === "missing" ? "unavailable" : "measured"}
         </p>
       )}
     </div>
@@ -112,7 +112,7 @@ export function ComparisonChart({
   const height = large ? 460 : 180;
   const pad = large ? { l: 64, r: 16, t: 20, b: 36 } : { l: 42, r: 10, t: 12, b: 28 };
   const observations = items.flatMap((item) => item.series.observations.filter((observation) => observation.value != null));
-  if (observations.length === 0) return <p className="hint">Pas de données pour cette comparaison.</p>;
+  if (observations.length === 0) return <p className="hint">No data for this comparison.</p>;
   const values = observations.map((item) => item.value as number);
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -125,7 +125,7 @@ export function ComparisonChart({
   const xOf = (date: string) => pad.l + ((Date.parse(date) - t0) / (t1 - t0 || 1)) * (width - pad.l - pad.r);
   const yOf = (value: number) => pad.t + (1 - (value - y0) / (y1 - y0)) * (height - pad.t - pad.b);
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Comparaison des séries">
+    <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Series comparison">
       <line x1={pad.l} y1={pad.t} x2={pad.l} y2={height - pad.b} className="axis" />
       <line x1={pad.l} y1={height - pad.b} x2={width - pad.r} y2={height - pad.b} className="axis" />
       <text x={4} y={pad.t + 8} className="axis-label">

@@ -1,0 +1,228 @@
+{
+  "meta": {
+    "title": "Terra Sense — Observer la Terre, comprendre ses changements",
+    "description": "Terra Sense transforme les données d'observation de la Terre de la NASA en tendances du sol que chacun peut explorer et vérifier."
+  },
+  "nav": {
+    "about": "À propos",
+    "assistant": "Assistant",
+    "visualization": "Visualisation",
+    "menu": "Ouvrir le menu",
+    "language": "Langue",
+    "theme": "Apparence",
+    "homeLabel": "Terra Sense — retour en haut",
+    "navigationLabel": "Navigation principale",
+    "skip": "Aller au contenu principal"
+  },
+  "hero": {
+    "eyebrow": "NASA Space Apps Challenge · Soil Trend Detective",
+    "titleA": "Ce qui se passe",
+    "titleB": "sous nos pieds",
+    "titleC": "ne devrait plus rester invisible.",
+    "description": "L'humidité du sol conditionne les cultures, la végétation et l'eau disponible. Les données d'observation de la Terre de la NASA en gardent la trace mois après mois. Terra Sense vous aide à lire ces changements et à vérifier s'ils sont réels.",
+    "primaryCta": "Entrer dans le laboratoire",
+    "primaryCtaHint": "Ouvre l'espace de visualisation interactif",
+    "secondaryCta": "Découvrir notre approche",
+    "visualLabel": "Regarder sous la surface",
+    "visualCaption": "Une illustration pédagogique des couches du sol. Ce n'est ni une carte ni une mesure.",
+    "liveCatalog": "Catalogue en direct",
+    "catalogLoading": "Lecture du catalogue de la plateforme…",
+    "catalogUnavailable": "Le catalogue de données est indisponible pour le moment. Aucun chiffre n'est affiché à sa place.",
+    "zones": "zones publiées",
+    "variables": "variables référencées",
+    "period": "couverture mensuelle",
+    "periodUnavailable": "à confirmer",
+    "dataNote": "Chiffres lus en direct dans le catalogue de la plateforme.",
+    "artTop": "NOTE DE TERRAIN / 001",
+    "artSystem": "SYSTÈMES DU SOL",
+    "artSurface": "SURFACE / ZONE RACINAIRE",
+    "artProfile": "PROFIL DU SOL",
+    "artObserve": "OBSERVER",
+    "artInterpret": "INTERPRÉTER",
+    "artCaption": "Coupe conceptuelle d'un sol vivant",
+    "visualAria": "Illustration conceptuelle des couches du sol et de la circulation de l'eau",
+    "scrollNext": "Défiler pour explorer",
+    "sequence": "OBSERVER / COMPRENDRE / EXPLORER"
+  },
+  "problem": {
+    "eyebrow": "Le problème",
+    "title": "Que se passe-t-il lorsque le sol perd son équilibre ?",
+    "intro": "L'humidité du sol n'est pas une mesure isolée. Elle relie la pluie, la végétation, les cultures et l'eau qui s'infiltre plus bas. Quand elle change durablement, ces systèmes changent avec elle.",
+    "cards": [
+      {
+        "number": "01",
+        "tag": "Agriculture",
+        "title": "Des terres agricoles fragilisées",
+        "text": "Moins d'eau dans les premiers centimètres, c'est un stress plus précoce pour les semis et des besoins d'irrigation plus élevés. La croissance des cultures dépend directement de cette réserve.",
+        "note": ""
+      },
+      {
+        "number": "02",
+        "tag": "Écosystèmes",
+        "title": "Des écosystèmes sous pression",
+        "text": "La végétation, les zones humides et le bétail dépendent de l'eau disponible. Une saison sèche plus marquée réduit le couvert végétal et les points d'abreuvement.",
+        "note": ""
+      },
+      {
+        "number": "03",
+        "tag": "Cycle de l'eau",
+        "title": "Une eau invisible mais essentielle",
+        "text": "Une partie de l'eau du sol s'infiltre et recharge les nappes. Un sol durablement plus sec peut réduire cette recharge.",
+        "note": "L'humidité du sol décrit les couches supérieures du sol. Ce n'est pas une mesure des nappes, et Terra Sense n'affiche aucune donnée d'eau souterraine."
+      }
+    ]
+  },
+  "mission": {
+    "eyebrow": "Notre approche",
+    "titleA": "La NASA fournit les données.",
+    "titleB": "Terra Sense les rend",
+    "titleC": "compréhensibles.",
+    "description": "Transformer l'observation en compréhension : chaque résultat affiché peut être retracé jusqu'au jeu de données dont il provient.",
+    "capabilities": [
+      {
+        "label": "Données d'observation de la Terre",
+        "title": "Observer la Terre",
+        "text": "Les séries viennent de NASA Giovanni, qui moyenne sur la zone des produits GLDAS Noah (sol) et MODIS (aérosols). Des années de valeurs mensuelles permettent de distinguer une saison d'une évolution durable."
+      },
+      {
+        "label": "Analyse statistique",
+        "title": "Identifier les tendances",
+        "text": "Le test de Mann-Kendall indique si une évolution régulière est statistiquement étayée ou compatible avec le hasard. La pente de Theil-Sen en estime l'ampleur. Ni l'un ni l'autre n'établit une cause."
+      },
+      {
+        "label": "Exploration assistée",
+        "title": "Comprendre les résultats",
+        "text": "L'assistant explique une tendance, une valeur p ou une méthode à partir des calculs de la plateforme. C'est un outil d'interprétation : il cite ses sources et dit ce qu'il ne sait pas. Les explications SHAP sont un objectif futur, non actif aujourd'hui."
+      }
+    ]
+  },
+  "science": {
+    "eyebrow": "Méthodologie",
+    "title": "Lire une tendance, pas seulement une valeur",
+    "description": "Un mois isolé dit peu de choses. Une série de mois, testée avec des statistiques robustes, dit si un changement est réel.",
+    "methods": [
+      {
+        "label": "Test de tendance",
+        "title": "Mann-Kendall",
+        "text": "Compare chaque mesure à toutes les suivantes pour savoir si une série monte ou descend de façon régulière. Les séries mensuelles utilisent la version saisonnière. Une tendance est dite significative lorsque p < 0,05. Elle ne prouve pas une cause."
+      },
+      {
+        "label": "Estimation de pente",
+        "title": "Theil-Sen",
+        "text": "La médiane des pentes entre toutes les paires de mesures. Elle estime la vitesse du changement par an ou par décennie et résiste aux valeurs extrêmes."
+      },
+      {
+        "label": "Transparence",
+        "title": "Traçabilité des données",
+        "text": "Les sources, périodes, unités et mois manquants restent visibles, pour que chaque résultat soit lu avec la prudence qu'il mérite."
+      }
+    ],
+    "trendLoading": "Chargement de la série…",
+    "trendEmpty": "Une série apparaîtra ici dès que l'API publiera une zone et une variable compatibles.",
+    "trendError": "La série n'a pas pu être chargée : le service de données est indisponible. Aucune courbe n'est dessinée à sa place.",
+    "footnote": "Données réelles de la plateforme : moyennes mensuelles renvoyées par l'API ({start} – {end}). Les trous sont des mois manquants. Ligne pointillée : pente de Theil-Sen.",
+    "verdict": "{method} : {direction} ({p}). Pente de Theil-Sen : {slope} {unit} par décennie.",
+    "seasonalMethod": "Mann-Kendall saisonnier",
+    "plainMethod": "Mann-Kendall",
+    "directions": {
+      "up": "hausse significative",
+      "down": "baisse significative",
+      "flat": "pas de tendance significative",
+      "insufficient": "données insuffisantes"
+    },
+    "variableFallback": "Variable environnementale",
+    "seriesLabel": "Moyenne mensuelle",
+    "trendLabel": "Tendance de Theil-Sen",
+    "sources": "Données et documentation"
+  },
+  "about": {
+    "title": "À propos de Terra Sense",
+    "intro": "Terra Sense est une plateforme d'exploration des tendances du sol, développée pour le NASA Space Apps Challenge autour du concept Soil Trend Detective. Les séries d'observation de la Terre existent, mais elles sont difficiles à lire et plus encore à interpréter : Terra Sense les affiche sur un globe, les trace dans le temps et teste si leurs évolutions sont statistiquement étayées.",
+    "scopeLabel": "01 / Périmètre",
+    "scopeTitle": "Périmètre et limites",
+    "scopeText": "Une zone aujourd'hui : Yaoundé, tracée selon ses sept arrondissements. Les valeurs sont des moyennes mensuelles Giovanni sur le rectangle 11,4–11,65 °E, 3,75–3,98 °N, de {start} à {end}. Les mailles GLDAS (0,25°) et MODIS (1°) sont plus grandes que la ville : elles décrivent une moyenne régionale. Les mois manquants restent vides ; rien n'est interpolé ni remplacé par zéro.",
+    "sourcesLabel": "02 / Sources",
+    "sourcesTitle": "Sources des données",
+    "sourcesText": "Toutes les variables ne viennent pas du même produit. Chaque série est rattachée à son jeu d'origine.",
+    "sources": [
+      { "name": "NASA Giovanni", "detail": "Séries temporelles mensuelles moyennées sur la zone, exportées en CSV.", "url": "https://giovanni.gsfc.nasa.gov/giovanni/" },
+      { "name": "GLDAS Noah 0,25° mensuel, v2.0", "detail": "GLDAS_NOAH025_M_2.0 — humidité du sol 0–10 et 10–40 cm, température du sol 0–10 cm. Estimations de modèle ; la version 2.0 s'arrête en 2014.", "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.0/summary" },
+      { "name": "GLDAS Noah 0,25° mensuel, v2.1", "detail": "GLDAS_NOAH025_M_2.1 — évaporation, ruissellement de surface, température du sol 10–40 cm.", "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.1/summary" },
+      { "name": "MODIS Aqua MYD08_M3 v6.1", "detail": "Épaisseur optique des aérosols Deep Blue à 550 nm. Mesure satellitaire sur une maille de 1°.", "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3" },
+      { "name": "NASA Earthdata", "detail": "Portail d'accès et documentation de GLDAS et MODIS.", "url": "https://www.earthdata.nasa.gov/" },
+      { "name": "geoBoundaries gbOpen CMR ADM3", "detail": "Contour de Yaoundé (union des arrondissements I à VII), CC BY 4.0. Sert uniquement au tracé.", "url": "https://www.geoboundaries.org/" }
+    ],
+    "methodLabel": "03 / Méthodes",
+    "methodTitle": "Méthodologie",
+    "mkTitle": "Mann-Kendall",
+    "mkText": "Un test non paramétrique qui indique si une série présente une tendance monotone statistiquement détectable. Les séries mensuelles utilisent la version saisonnière ou la correction de Hamed et Rao pour l'autocorrélation. Il ne démontre pas de cause.",
+    "tsTitle": "Theil-Sen",
+    "tsText": "Un estimateur robuste de la pente, construit à partir des pentes entre toutes les paires d'observations.",
+    "shapTitle": "SHAP",
+    "shapText": "Objectif futur. Aucun modèle prédictif ni explication SHAP n'est publié aujourd'hui.",
+    "updatedTitle": "Fraîcheur des données",
+    "updatedText": "Le catalogue ne fournit pas de date de mise à jour. Dernière observation publiée : {end}.",
+    "kindsTitle": "Observation, modèle, statistique",
+    "kindsText": "MODIS est une mesure satellitaire. GLDAS est une estimation par modèle. Les tendances, pentes et valeurs p sont des résultats dérivés, calculés par la plateforme. Les photographies de cette page sont des illustrations Pexels, pas des données.",
+    "disclaimer": "Terra Sense est un projet indépendant développé pour le NASA Space Apps Challenge. L'attribution de données à la NASA ne signifie pas que la NASA approuve la plateforme."
+  },
+  "footer": {
+    "tagline": "Explorer les données. Comprendre les tendances. Mieux observer la Terre.",
+    "project": "Un projet développé pour le NASA Space Apps Challenge, autour du concept Soil Trend Detective.",
+    "links": "Explorer",
+    "resources": "Ressources",
+    "about": "À propos",
+    "visualization": "Visualisation",
+    "assistant": "Assistant",
+    "dataPolicy": "Données et transparence",
+    "photoCredits": "Crédits photo",
+    "copyright": "Données NASA librement accessibles ; voir les conditions de chaque source.",
+    "signature": "OBSERVATION DE LA TERRE"
+  },
+  "assistant": {
+    "title": "Assistant Terra Sense",
+    "welcome": "Bonjour ! Je suis l'assistant de Terra Sense. Je peux vous aider à explorer les tendances environnementales et à comprendre les méthodes utilisées.",
+    "status": "Réponses issues des calculs de la plateforme",
+    "connecting": "Connexion…",
+    "empty": "Choisissez une question pour commencer.",
+    "suggestions": [
+      "Comment interpréter une tendance d'humidité du sol ?",
+      "Explique-moi le test de Mann-Kendall.",
+      "Quelle est la différence entre GLDAS et MERRA-2 ?",
+      "Comment interpréter une pente de Theil-Sen ?"
+    ],
+    "inputLabel": "Votre question",
+    "placeholder": "Posez une question sur les données ou les méthodes…",
+    "send": "Envoyer",
+    "sending": "Analyse…",
+    "unavailable": "L'assistant est indisponible : le service de données ne répond pas. Les sources et la méthode restent consultables dans À propos.",
+    "error": "La réponse n'a pas pu être récupérée.",
+    "retry": "Réessayer",
+    "you": "Vous",
+    "bot": "Terra Sense",
+    "sourceGemini": "Rédigé par Gemini à partir des calculs de la plateforme",
+    "sourceRules": "Issu du moteur statistique de la plateforme",
+    "openInWorkspace": "Voir sur la visualisation",
+    "disclaimer": "Les réponses peuvent être incomplètes. Vérifiez les chiffres dans la visualisation avant toute conclusion scientifique."
+  },
+  "photos": {
+    "credit": "Photo : {name} / Pexels",
+    "illustration": "Photo d'illustration, pas une donnée du projet"
+  },
+  "common": {
+    "fr": "FR",
+    "en": "EN",
+    "frName": "Français",
+    "enName": "English",
+    "light": "Clair",
+    "dark": "Sombre",
+    "dusk": "Tamisé",
+    "close": "Fermer",
+    "externalLink": "Ouvre dans un nouvel onglet"
+  },
+  "closing": {
+    "eyebrow": "Terra Sense · Soil Trend Detective",
+    "title": "La prochaine découverte commence par une question.",
+    "cta": "Entrer dans le laboratoire"
+  }
+}

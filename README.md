@@ -6,7 +6,7 @@ Le blueprint d’implémentation est dans [docs/earthscope-specification.md](doc
 
 ## Pages
 
-- `/` : page d’accueil **Terra Sense** (projet Soil Trend Detective, NASA Space Apps Challenge). FR/EN, thèmes clair, sombre et tamisé, À propos, assistant. Composants dans `src/features/landing/components/`, textes dans `src/i18n/fr.json` et `src/i18n/en.json` (parité vérifiée par `src/i18n/translations.test.ts`).
+- `/` : page d’accueil **Terra Sense** (module `src/features/landing`, issu du brief Pexels). Anglais américain par défaut, français via le sélecteur ; thèmes clair, sombre et tamisé ; À propos ; assistant (même session que l’espace de visualisation). Textes dans `src/i18n/translations/{en,fr}.json`, parité vérifiée par `src/features/landing/translation-parity.test.ts`. Photos Pexels locales dans `public/images/`, déclarées dans `src/features/landing/photos.ts` et `public/images/PEXELS-SOURCES.md`.
 - `/app` : le poste de travail (globe, variables, graphiques). Tous les graphiques s’agrandissent d’un clic.
 
 Yaoundé est dessinée selon son contour réel : union des arrondissements Yaoundé I à VII (geoBoundaries gbOpen CMR ADM3, CC BY 4.0), dans `backend/data/yaounde_boundary.geojson`. La couleur reste la moyenne Giovanni de la maille ; elle glisse d’une valeur à l’autre sans inventer de mesure intermédiaire.
