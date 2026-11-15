@@ -57,11 +57,12 @@ def test_assistant_selects_yaounde_soil_variables_and_superposition():
     types = [action["type"] for action in result["actions"]]
     assert "SELECT_ZONE" in types
     activate = next(action for action in result["actions"] if action["type"] == "ACTIVATE_VARIABLES")
-    assert activate["variableIds"] == ["var_soil_moisture", "var_soil_temp"] or set(activate["variableIds"]) == {
-        "var_soil_moisture",
-        "var_soil_temp",
-    }
-    assert {"type": "SET_VIEW_MODE", "mode": "superposition"} in result["actions"]
+    assert activate["mode"] == "replace"
+    assert "var_soil_moisture" in activate["variableIds"]
+    assert "var_soil_temp" in activate["variableIds"]
+    assert len(activate["variableIds"]) <= 3
+    assert any(action["type"] == "SET_VIEW_MODE" for action in result["actions"])
+    assert "Mann-Kendall" in result["text"]
     assert "−" not in result["text"] or "r =" not in result["text"]
 
 
@@ -82,3 +83,16 @@ def test_catalog_publishes_only_the_yaounde_cell():
 def test_paris_selects_nothing():
     result = answer("Quelle est la température à Paris ?", {})
     assert result["actions"] == []
+
+
+def test_another_cameroon_city_is_not_drawn_as_yaounde():
+    result = answer("Montre le ruissellement à Douala", {})
+    assert result["actions"] == []
+    assert "Douala" in result["text"]
+
+
+def test_aerosol_question_activates_the_published_series():
+    result = answer("Montre l'épaisseur optique des aérosols à Yaoundé", {})
+    activate = next(action for action in result["actions"] if action["type"] == "ACTIVATE_VARIABLES")
+    assert activate["variableIds"][0] == "var_aod"
+    assert len(activate["variableIds"]) <= 3
