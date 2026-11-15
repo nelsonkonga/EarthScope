@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { LandingPage } from "../features/landing/LandingPage";
+import { I18nProvider } from "../i18n";
 import { Providers } from "./providers";
 import { isWorkspacePath, usePath } from "./router";
 
@@ -11,11 +12,13 @@ export function EarthScopeApp() {
   return (
     <Providers>
       {isWorkspacePath(path) ? (
-        <Suspense fallback={<div className="workspace-loading" role="status" aria-label="Chargement de la visualisation" />}>
+        <Suspense fallback={<div className="workspace-loading" role="status" aria-label="Chargement de la visualisation Terra Sense" />}>
           <MainWorkspace />
         </Suspense>
       ) : (
-        <LandingPage />
+        <I18nProvider>
+          <LandingPage />
+        </I18nProvider>
       )}
     </Providers>
   );

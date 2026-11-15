@@ -46,3 +46,22 @@ def test_gemini_error_falls_back(monkeypatch):
     session = assistant.create_session()
     message = assistant.post_message(session["id"], "Montre le ruissellement à Yaoundé", {})
     assert message["source"] == "rules"
+
+
+def test_method_question_explains_without_globe_actions():
+    result = assistant.answer("Explique-moi le test de Mann-Kendall.", {"locale": "fr"})
+    assert result["actions"] == []
+    assert result["text"].startswith("Le test de Mann-Kendall")
+    assert "Ruissellement" not in result["text"]
+
+
+def test_method_question_follows_interface_language():
+    result = assistant.answer("What is the difference between GLDAS and MERRA-2?", {"locale": "en"})
+    assert result["actions"] == []
+    assert "land-surface model" in result["text"]
+
+
+def test_method_question_naming_a_variable_keeps_the_data_illustration():
+    result = assistant.answer("Comment interpréter une tendance d'humidité du sol ?", {"locale": "fr"})
+    assert result["actions"]
+    assert "Mann-Kendall" in result["text"]

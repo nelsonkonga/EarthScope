@@ -1,111 +1,54 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { createAssistantSession, fetchAssistantSession, postAssistantMessage } from "../../api/resources";
 import { fr } from "../../config/strings.fr";
 import type { CatalogIndex } from "../../domain/actions";
-import type { ChatMessage, ChatSession } from "../../domain/types";
 import { useWorkspace } from "../../state/workspaceStore";
 import { ChatMessageView } from "./ChatMessage";
+import { useAssistantConversation } from "./useAssistantConversation";
 
 const STORAGE_KEY = "earthscope.assistantSession";
 
 export function AIChatPanel({ catalog }: { catalog: CatalogIndex }) {
-  const queryClient = useQueryClient();
   const sessionId = useWorkspace((state) => state.assistantSessionId);
   const setSessionId = useWorkspace((state) => state.setAssistantSessionId);
   const [draft, setDraft] = useState("");
-  const [pending, setPending] = useState(false);
-  const [failedText, setFailedText] = useState<string | null>(null);
-  const [expired, setExpired] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const stored = sessionStorage.getItem(STORAGE_KEY);
-    if (stored) setSessionId(stored);
-  }, [setSessionId]);
-
-  const session = useQuery({
-    queryKey: ["assistant", sessionId],
-    enabled: Boolean(sessionId),
-    queryFn: async ({ signal }) => {
-      try {
-        return await fetchAssistantSession(sessionId as string, signal);
-      } catch (error) {
-        setExpired(true);
-        sessionStorage.removeItem(STORAGE_KEY);
-        setSessionId(null);
-        throw error;
-      }
+  const conversation = useAssistantConversation({
+    storageKey: STORAGE_KEY,
+    sessionId,
+    setSessionId,
+    context: () => {
+      const state = useWorkspace.getState();
+      return {
+        selectedZoneId: state.selectedZoneId,
+        activeVariableIds: state.activeVariableIds,
+        primaryVariableId: state.primaryVariableId,
+        selectedDate: state.selectedDate,
+      };
     },
-    retry: false,
+    onReply: (message) => ({ ...message, actionResults: useWorkspace.getState().applyAssistant(message.actions ?? [], catalog) }),
   });
-
-  useEffect(() => {
-    if (sessionId) return;
-    const controller = new AbortController();
-    void createAssistantSession(controller.signal)
-      .then((created) => {
-        sessionStorage.setItem(STORAGE_KEY, created.id);
-        setSessionId(created.id);
-        queryClient.setQueryData(["assistant", created.id], created);
-      })
-      .catch(() => undefined);
-    return () => controller.abort();
-  }, [queryClient, sessionId, setSessionId]);
+  const { pending, failedText, expired } = conversation;
 
   // A question handed over by the landing page assistant (/app?ask=…) is asked once, here.
   const handedOver = useRef<string | null>(new URLSearchParams(window.location.search).get("ask"));
   useEffect(() => {
     const question = handedOver.current?.trim();
-    if (!sessionId || !session.data || !question || catalog.zones.length === 0 || catalog.variables.length === 0) return;
+    if (!conversation.ready || !question || catalog.zones.length === 0 || catalog.variables.length === 0) return;
     handedOver.current = null;
     window.history.replaceState(null, "", window.location.pathname);
-    void send(question);
-    // send reads the latest state from the store; only the session matters here.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId, session.data, catalog.zones.length, catalog.variables.length]);
+    void conversation.send(question);
+  }, [conversation, catalog.zones.length, catalog.variables.length]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
-  }, [session.data?.messages.length, pending]);
+  }, [conversation.messages.length, pending]);
 
   async function send(text: string) {
-    const id = useWorkspace.getState().assistantSessionId;
-    if (!id || pending) return;
-    setPending(true);
-    setFailedText(null);
-    const state = useWorkspace.getState();
-    const userMessage: ChatMessage = {
-      id: `local-${Date.now()}`,
-      role: "user",
-      text,
-      createdAt: new Date().toISOString(),
-    };
-    queryClient.setQueryData<ChatSession>(["assistant", id], (current) =>
-      current ? { ...current, messages: [...current.messages, userMessage] } : current,
-    );
-    try {
-      const message = await postAssistantMessage(id, text, {
-        selectedZoneId: state.selectedZoneId,
-        activeVariableIds: state.activeVariableIds,
-        primaryVariableId: state.primaryVariableId,
-        selectedDate: state.selectedDate,
-      });
-      const results = useWorkspace.getState().applyAssistant(message.actions ?? [], catalog);
-      const stored = { ...message, actionResults: results };
-      queryClient.setQueryData<ChatSession>(["assistant", id], (current) =>
-        current ? { ...current, messages: [...current.messages, stored] } : current,
-      );
-      setDraft("");
-    } catch {
-      setFailedText(text);
-    } finally {
-      setPending(false);
-    }
+    if (await conversation.send(text)) setDraft("");
   }
 
-  const prompts = session.data?.suggestedPrompts?.length ? session.data.suggestedPrompts : fr.fallbackPrompts;
-  const messages = session.data?.messages ?? [];
+  const prompts = conversation.suggestedPrompts.length ? conversation.suggestedPrompts : fr.fallbackPrompts;
+  const messages = conversation.messages;
 
   return (
     <div className="panel-body chat-panel">

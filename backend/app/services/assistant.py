@@ -195,23 +195,65 @@ def _view_mode(text: str, count: int) -> str | None:
     return None
 
 
+# Method explanations, in both interface languages. Keys are matched on the accent-folded question.
 METHODS = (
-    (("mann-kendall", "mann kendall", "kendall"), "Le test de Mann-Kendall vérifie si une série monte ou descend de façon régulière plutôt que par hasard : il compare chaque mesure à toutes les suivantes. Une valeur p inférieure à 0,05 signifie qu'une tendance aussi nette aurait moins de 5 % de chances d'apparaître par hasard."),
-    (("theil", "pente de sen", "sen slope"), "La pente de Theil-Sen est la médiane des pentes entre toutes les paires de mesures : elle donne la vitesse du changement (par an ou par décennie) sans se laisser tromper par une valeur extrême."),
-    (("valeur p", "p-value", "p value"), "La valeur p mesure la probabilité d'observer une tendance au moins aussi forte si, en réalité, il n'y en avait aucune. Sous 0,05, la plateforme parle de tendance significative."),
-    (("shap",), "SHAP attribue à chaque facteur sa part dans une prédiction. La plateforme ne publie pas encore de modèle SHAP pour Yaoundé ; la section À propos décrit la méthode."),
+    (
+        ("mann-kendall", "mann kendall", "kendall"),
+        "Le test de Mann-Kendall vérifie si une série monte ou descend de façon régulière plutôt que par hasard : il compare chaque mesure à toutes les suivantes. Une valeur p inférieure à 0,05 signifie qu'une tendance aussi nette aurait moins de 5 % de chances d'apparaître par hasard. Il ne dit rien de la cause.",
+        "The Mann-Kendall test checks whether a series rises or falls consistently rather than by chance: it compares each measurement with every later one. A p-value below 0.05 means a trend this clear would have less than a 5% chance of appearing by chance. It says nothing about the cause.",
+    ),
+    (
+        ("theil", "pente de sen", "sen slope"),
+        "La pente de Theil-Sen est la médiane des pentes entre toutes les paires de mesures : elle donne la vitesse du changement (par an ou par décennie) sans se laisser tromper par une valeur extrême. Une pente non nulle n'est significative que si le test de Mann-Kendall l'est aussi.",
+        "The Theil-Sen slope is the median of the slopes between all pairs of measurements: it gives the speed of change (per year or per decade) without being misled by an extreme value. A non-zero slope only matters if the Mann-Kendall test is significant too.",
+    ),
+    (
+        ("valeur p", "p-value", "p value"),
+        "La valeur p mesure la probabilité d'observer une tendance au moins aussi forte si, en réalité, il n'y en avait aucune. Sous 0,05, la plateforme parle de tendance significative.",
+        "The p-value is the probability of seeing a trend at least this strong if there were in fact none. Below 0.05, the platform calls the trend significant.",
+    ),
+    (
+        ("shap",),
+        "SHAP attribue à chaque facteur sa part dans une prédiction. C'est un objectif futur : Terra Sense ne publie aujourd'hui aucun modèle SHAP.",
+        "SHAP assigns each factor its share of a prediction. It is future work: Terra Sense publishes no SHAP model today.",
+    ),
+    (
+        ("merra",),
+        "GLDAS est un modèle de surface terrestre : il calcule l'humidité et la température du sol à partir d'observations (pluie, rayonnement). MERRA-2 est une réanalyse atmosphérique globale, à maille plus grossière (environ 0,5° × 0,625°). La visualisation publiée utilise GLDAS Noah 0,25° et MODIS, pas MERRA-2.",
+        "GLDAS is a land-surface model: it computes soil moisture and soil temperature from observations (rainfall, radiation). MERRA-2 is a global atmospheric reanalysis on a coarser grid (about 0.5° × 0.625°). The published visualisation uses GLDAS Noah 0.25° and MODIS, not MERRA-2.",
+    ),
+    (
+        ("interpreter une tendance", "interpret a trend", "interpret a soil", "interpreter une evolution"),
+        "Une tendance se lit en deux temps : le test de Mann-Kendall dit si elle est assez régulière pour ne pas être due au hasard (p < 0,05), la pente de Theil-Sen dit à quelle vitesse la valeur change. Une tendance ne dit pas pourquoi elle existe.",
+        "A trend is read in two steps: the Mann-Kendall test says whether it is regular enough not to be chance (p < 0.05), the Theil-Sen slope says how fast the value changes. A trend does not say why it exists.",
+    ),
 )
 
 
-def _method_notes(folded: str) -> list[str]:
-    return [note for keys, note in METHODS if any(key in folded for key in keys)]
+def _method_notes(folded: str, locale: str = "fr") -> list[str]:
+    index = 2 if locale == "en" else 1
+    return [entry[index] for entry in METHODS if any(key in folded for key in entry[0])]
+
+
+def _names_data(text: str, catalog: Catalog) -> bool:
+    """True when the question names a zone or a variable, so a data illustration is relevant."""
+    if _zones_in(text, catalog) or _variables_in(text, None, catalog):
+        return True
+    folded = fold(text)
+    return any(word in folded for word in ("humid", "moisture", "temperat", "sol ", "soil", "evapor", "ruissel", "runoff", "aerosol"))
 
 
 def answer(text: str, context: dict, catalog: Catalog | None = None) -> dict:
+    catalog = catalog or get_catalog()
+    locale = "en" if context.get("locale") == "en" else "fr"
+    notes = _method_notes(fold(text), locale)
+    if notes and not _names_data(text, catalog):
+        # A method question: explain it, without opening unrelated series on the globe.
+        return {"text": " ".join(notes), "actions": [], "dataReferences": [], "suggestedFollowUps": []}
     result = _answer(text, context, catalog)
-    notes = _method_notes(fold(text))
     if notes:
-        result["text"] = " ".join(notes) + " Illustration sur les données : " + result["text"]
+        bridge = " Illustration on the data (computed in French by the statistical engine): " if locale == "en" else " Illustration sur les données : "
+        result["text"] = " ".join(notes) + bridge + result["text"]
     return result
 
 
