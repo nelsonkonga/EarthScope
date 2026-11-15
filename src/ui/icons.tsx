@@ -1,4 +1,4 @@
-type Name = "variables" | "zones" | "chat" | "plus" | "minus" | "compass" | "expand" | "close" | "play" | "pause" | "back" | "forward";
+type Name = "variables" | "zones" | "chat" | "plus" | "minus" | "compass" | "expand" | "close" | "play" | "pause" | "back" | "forward" | "home";
 
 export function Icon({ name }: { name: Name }) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
@@ -20,6 +20,7 @@ export function Icon({ name }: { name: Name }) {
       {name === "play" && <path {...common} d="M7 4.8v10.4l8-5.2-8-5.2Z" />}
       {name === "pause" && <path {...common} d="M7 5v10M13 5v10" />}
       {name === "back" && <path {...common} d="M12.5 4.8 7 10l5.5 5.2" />}
+      {name === "home" && <path {...common} d="M3.5 9.5 10 4l6.5 5.5M5.5 8v7.5h9V8" />}
       {name === "forward" && <path {...common} d="M7.5 4.8 13 10l-5.5 5.2" />}
     </svg>
   );

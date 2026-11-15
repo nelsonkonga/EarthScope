@@ -4,7 +4,14 @@ import { PARTICLE_BUDGET, strategyForKind, type FieldChannel, type FieldKind, ty
 
 export type { FieldKind } from "./visualStrategies";
 
-export type Footprint = { west: number; south: number; east: number; north: number };
+export type Footprint = {
+  west: number;
+  south: number;
+  east: number;
+  north: number;
+  /** Outer ring of the real boundary, [longitude, latitude]. The rectangle is used only without it. */
+  ring?: [number, number][];
+};
 
 export const GIOVANNI_FOOTPRINT: Footprint = { west: 11.4, south: 3.75, east: 11.65, north: 3.98 };
 
@@ -75,7 +82,15 @@ export function kindForRole(role: string | undefined): FieldKind | null {
   }
 }
 
-export function footprintOf(zone: { id: string; footprint?: [number, number, number, number] }): Footprint | null {
+type FootprintSource = { id: string; footprint?: [number, number, number, number]; boundary?: [number, number][] };
+
+export function footprintOf(zone: FootprintSource): Footprint | null {
+  if (zone.boundary && zone.boundary.length >= 4) {
+    const ring = zone.boundary;
+    const lons = ring.map(([lon]) => lon);
+    const lats = ring.map(([, lat]) => lat);
+    return { west: Math.min(...lons), south: Math.min(...lats), east: Math.max(...lons), north: Math.max(...lats), ring };
+  }
   if (zone.footprint?.length === 4) {
     const [west, south, east, north] = zone.footprint;
     return { west, south, east, north };
@@ -95,7 +110,7 @@ export function normalizeValue(value: number | null, scale: { min: number; max: 
 const GAP = "#c5ccd1";
 
 export function composeField(input: {
-  zone: { id: string; footprint?: [number, number, number, number] };
+  zone: FootprintSource;
   primary: Variable | null;
   secondaries: Variable[];
   valueOf: (variableId: string) => number | null;

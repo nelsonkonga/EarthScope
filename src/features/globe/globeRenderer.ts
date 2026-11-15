@@ -218,24 +218,66 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
     generic: 0,
   };
 
-  const applyTheme = (theme: string) => {
+  // The atmosphere tint glides toward the new theme instead of switching in one frame.
+  type Tint = { hue: number; saturation: number; sky: number; ground: number; skyBrightness: number; groundBrightness: number };
+  const tintOf = (theme: string): Tint => {
     const hue = themeHue[theme] ?? 0;
+    return {
+      hue,
+      saturation: 0,
+      sky: theme === "neutral" ? 0 : 0.28,
+      ground: theme === "neutral" ? 0 : 0.35,
+      skyBrightness: theme === "haze" ? -0.12 : 0,
+      groundBrightness: theme === "haze" ? -0.08 : 0,
+    };
+  };
+  let tint = tintOf("neutral");
+  let tintFrame = 0;
+  const setTint = (value: Tint) => {
+    tint = value;
     const atmosphere = viewer.scene.skyAtmosphere;
     if (atmosphere) {
-      atmosphere.hueShift = hue;
-      atmosphere.saturationShift = theme === "neutral" ? 0 : 0.28;
-      atmosphere.brightnessShift = theme === "haze" ? -0.12 : 0;
+      atmosphere.hueShift = value.hue;
+      atmosphere.saturationShift = value.sky;
+      atmosphere.brightnessShift = value.skyBrightness;
     }
     const globeScene = viewer.scene.globe;
     if (globeScene) {
-      globeScene.atmosphereHueShift = hue;
-      globeScene.atmosphereSaturationShift = theme === "neutral" ? 0 : 0.35;
-      globeScene.atmosphereBrightnessShift = theme === "haze" ? -0.08 : 0;
+      globeScene.atmosphereHueShift = value.hue;
+      globeScene.atmosphereSaturationShift = value.ground;
+      globeScene.atmosphereBrightnessShift = value.groundBrightness;
     }
+    viewer.scene.requestRender();
+  };
+
+  const applyTheme = (theme: string, durationMs: number) => {
+    const target = tintOf(theme);
+    cancelAnimationFrame(tintFrame);
+    if (durationMs <= 0 || reducedMotion()) {
+      setTint(target);
+      return;
+    }
+    const origin = { ...tint };
+    const begin = performance.now();
+    const step = (now: number) => {
+      const progress = Math.min(1, (now - begin) / durationMs);
+      const t = progress < 0.5 ? 4 * progress ** 3 : 1 - (-2 * progress + 2) ** 3 / 2;
+      const mix = (key: keyof Tint) => origin[key] + (target[key] - origin[key]) * t;
+      setTint({
+        hue: mix("hue"),
+        saturation: 0,
+        sky: mix("sky"),
+        ground: mix("ground"),
+        skyBrightness: mix("skyBrightness"),
+        groundBrightness: mix("groundBrightness"),
+      });
+      if (progress < 1) tintFrame = requestAnimationFrame(step);
+    };
+    tintFrame = requestAnimationFrame(step);
   };
 
   const paintScene = (field: GlobeField | null) => {
-    applyTheme(field?.theme ?? "neutral");
+    applyTheme(field?.theme ?? "neutral", Math.max(600, field?.transitionMs ?? 720));
     fieldPainter.show(field);
   };
 
@@ -343,6 +385,7 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
   const api: GlobeController = {
     destroy: () => {
       window.clearTimeout(clickTimer);
+      cancelAnimationFrame(tintFrame);
       fieldPainter.destroy();
       moveHandler.destroy();
       registerGlobe(null);

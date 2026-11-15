@@ -1,0 +1,146 @@
+{
+  "brand": "Terra Sense Cameroun",
+  "skip": "Aller au contenu",
+  "nav": {
+    "language": "Langue",
+    "theme": "Thème d'affichage",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "themeDim": "Tamisé",
+    "about": "À propos",
+    "assistant": "Assistant",
+    "assistantLabel": "Ouvrir l'assistant conversationnel",
+    "visualize": "Visualisation",
+    "menu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
+  },
+  "hero": {
+    "badge": "NASA Space Apps Challenge · Défi 02",
+    "titleStart": "La terre sous nos pieds",
+    "titleAccent": "se meurt.",
+    "titleEnd": "Et les",
+    "titleMark": "données",
+    "titleClose": "le prouvent.",
+    "lead": "Le stress hydrique des sols est une crise silencieuse : il réduit les récoltes, assèche les abreuvoirs et épuise les nappes. Les satellites de la NASA le mesurent chaque mois. Nous en tirons des preuves statistiques, lisibles par tous.",
+    "cta": "Entrer dans le laboratoire",
+    "ctaSecondary": "Comprendre la méthode",
+    "statsLabel": "Repères sur les données publiées",
+    "statYears": "{years} ans de séries mensuelles",
+    "statYearsDetail": "{start} – {end}, Yaoundé",
+    "statGrid": "Maille GLDAS 0,25°",
+    "statGridDetail": "moyenne mensuelle Giovanni",
+    "statVariables": "{count} variables sol et atmosphère",
+    "statVariablesDetail": "GLDAS NOAH et MODIS",
+    "statMethod": "Mann-Kendall et Theil-Sen",
+    "statMethodDetail": "dernière mesure : {end}",
+    "source": "Source : NASA GES DISC, via Giovanni"
+  },
+  "problem": {
+    "eyebrow": "Le problème",
+    "title": "Que se passe-t-il lorsque le sol s'assèche ?",
+    "lead": "L'humidité du sol est la réserve d'eau dont dépendent les cultures, les pâturages et, plus bas, les aquifères. Quand elle baisse durablement, les effets s'enchaînent.",
+    "cards": [
+      {
+        "icon": "crop",
+        "title": "Agriculture",
+        "text": "Un sol qui perd son humidité réduit les rendements dès la levée des semis. Les exploitants compensent par une irrigation qui puise davantage dans des ressources déjà fragiles."
+      },
+      {
+        "icon": "herd",
+        "title": "Écosystèmes et bétail",
+        "text": "La sécheresse vide les mares et les réservoirs. Le bétail parcourt de plus longues distances pour boire, et les habitats humides se contractent."
+      },
+      {
+        "icon": "aquifer",
+        "title": "Richesse souterraine",
+        "text": "Moins d'eau s'infiltre, et les aquifères se rechargent mal. Cet épuisement est invisible : on ne voit pas disparaître l'eau que l'on ne voit pas."
+      }
+    ]
+  },
+  "mission": {
+    "eyebrow": "Notre mission",
+    "titleStart": "La NASA fournit les données. Nous fournissons la",
+    "titleAccent": "preuve.",
+    "lead": "Chaque conclusion de la plateforme peut être retracée jusqu'à la mesure satellitaire qui la fonde.",
+    "cards": [
+      {
+        "icon": "satellite",
+        "title": "Données satellites",
+        "tag": "GLDAS · MODIS",
+        "text": "L'humidité, la température du sol et l'évaporation sont modélisées par GLDAS à partir d'observations spatiales, puis moyennées sur la ville par Giovanni."
+      },
+      {
+        "icon": "proof",
+        "title": "Preuve statistique",
+        "tag": "Mann-Kendall · Theil-Sen",
+        "text": "Le test de Mann-Kendall dit si une tendance est réelle ou due au hasard ; la pente de Theil-Sen dit à quelle vitesse elle évolue."
+      },
+      {
+        "icon": "explain",
+        "title": "IA explicable",
+        "tag": "Assistant · SHAP",
+        "text": "L'assistant répond à partir des calculs de la plateforme et cite ses sources. Il ne fabrique aucun chiffre."
+      }
+    ],
+    "cta": "Ouvrir la visualisation"
+  },
+  "footer": {
+    "project": "Un projet pour le NASA Space Apps Challenge",
+    "built": "Construit avec les données GLDAS, MODIS et Python",
+    "sources": "Sources",
+    "giovanni": "NASA Giovanni",
+    "earthdata": "NASA Earthdata",
+    "boundaries": "Limites : geoBoundaries (CC BY 4.0)",
+    "aboutLink": "Méthode et jeux de données",
+    "dataPolicy": "Politique de données",
+    "copyright": "© {year} Terra Sense Cameroun. Données NASA du domaine public."
+  },
+  "about": {
+    "title": "À propos de Terra Sense Cameroun",
+    "close": "Fermer",
+    "intro": [
+      "Terra Sense Cameroun est un observatoire du stress hydrique des sols, conçu pour le défi 02 du NASA Space Apps Challenge. Il rend lisibles des séries satellitaires que l'on consulte d'ordinaire dans des outils de spécialistes.",
+      "La visualisation colore le territoire de Yaoundé, délimité par ses sept arrondissements, selon la valeur mesurée le mois choisi. Les couleurs glissent d'un mois à l'autre, mais aucune valeur n'est inventée entre deux dates.",
+      "Pour chaque variable, la plateforme teste la présence d'une tendance et en estime la vitesse. Les résultats non significatifs sont affichés comme tels.",
+      "L'assistant conversationnel s'appuie sur ces mêmes calculs. Quand il ne sait pas, il le dit."
+    ],
+    "sourcesTitle": "Sources des données",
+    "sources": [
+      { "name": "NASA Giovanni", "url": "https://giovanni.gsfc.nasa.gov/giovanni/", "detail": "Moyennes de zone (area-averaged time series) exportées en CSV." },
+      { "name": "GLDAS Noah 0,25° mensuel v2.0 / v2.1", "url": "https://disc.gsfc.nasa.gov/datasets?keywords=GLDAS_NOAH025_M", "detail": "GLDAS_NOAH025_M_2.0 et 2.1 : SoilMoi0_10cm_inst, SoilMoi10_40cm_inst, SoilTMP0_10cm_inst, SoilTMP10_40cm_inst, Evap_tavg, Qs_acc." },
+      { "name": "MODIS Aqua MYD08_M3 v6.1", "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3", "detail": "Deep_Blue_Aerosol_Optical_Depth_550_Land_Mean_Mean." },
+      { "name": "MERRA-2", "url": "https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/", "detail": "Variables climatiques annuelles régionales (température, précipitations, humidité racinaire)." },
+      { "name": "NASA Earthdata", "url": "https://www.earthdata.nasa.gov/", "detail": "Portail d'accès et documentation des jeux de données." },
+      { "name": "geoBoundaries gbOpen CMR ADM3", "url": "https://www.geoboundaries.org/", "detail": "Contour de Yaoundé : union des arrondissements Yaoundé I à VII." }
+    ],
+    "methodTitle": "Méthodologie",
+    "methods": [
+      { "name": "Mann-Kendall", "text": "Compare chaque mesure à toutes les suivantes pour savoir si la série monte ou descend régulièrement. La correction de Hamed et Rao tient compte de l'autocorrélation des mois successifs. Seuil : p < 0,05." },
+      { "name": "Theil-Sen", "text": "Médiane des pentes entre toutes les paires de mesures. Elle donne la vitesse du changement, par an ou par décennie, et résiste aux valeurs extrêmes." },
+      { "name": "SHAP", "text": "Attribue à chaque facteur (pluie, évaporation, température) sa part dans une prédiction. Cette lecture n'est montrée que lorsqu'un modèle est publié pour la zone." }
+    ],
+    "updatedTitle": "Mise à jour",
+    "updated": "Dernière mesure publiée : {end}. Période couverte : {start} – {end}."
+  },
+  "assistant": {
+    "title": "Assistant",
+    "subtitle": "Réponses sourcées, calculées sur les données de la plateforme.",
+    "welcome": "Bonjour. Posez une question sur l'humidité, la température du sol ou les tendances mesurées. Je cite toujours la source de mes chiffres.",
+    "examplesLabel": "Exemples de questions",
+    "examples": [
+      "Quelle est la tendance de l'humidité du sol à Yaoundé ?",
+      "Explique-moi le test de Mann-Kendall",
+      "Comment évolue la température du sol à Yaoundé ?"
+    ],
+    "placeholder": "Votre question…",
+    "send": "Envoyer",
+    "working": "L'assistant consulte les données…",
+    "failed": "L'assistant n'a pas pu répondre. Le service de données est peut-être indisponible. Vous pouvez réessayer ou consulter la section À propos.",
+    "retry": "Réessayer",
+    "openAbout": "Ouvrir À propos",
+    "openGlobe": "Voir sur la visualisation",
+    "close": "Fermer l'assistant",
+    "gemini": "Rédigé par Gemini à partir des calculs de la plateforme.",
+    "rules": "Réponse du moteur statistique de la plateforme."
+  }
+}

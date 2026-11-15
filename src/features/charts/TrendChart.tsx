@@ -102,13 +102,15 @@ export function TrendChart({ series, color, selectedDate, label }: Props) {
 export function ComparisonChart({
   items,
   selectedDate,
+  large = false,
 }: {
   items: { series: TimeSeries; color: string; name: string }[];
   selectedDate: string | null;
+  large?: boolean;
 }) {
-  const width = 320;
-  const height = 180;
-  const pad = { l: 42, r: 10, t: 12, b: 28 };
+  const width = large ? 960 : 320;
+  const height = large ? 460 : 180;
+  const pad = large ? { l: 64, r: 16, t: 20, b: 36 } : { l: 42, r: 10, t: 12, b: 28 };
   const observations = items.flatMap((item) => item.series.observations.filter((observation) => observation.value != null));
   if (observations.length === 0) return <p className="hint">Pas de données pour cette comparaison.</p>;
   const values = observations.map((item) => item.value as number);
@@ -124,6 +126,14 @@ export function ComparisonChart({
   const yOf = (value: number) => pad.t + (1 - (value - y0) / (y1 - y0)) * (height - pad.t - pad.b);
   return (
     <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Comparaison des séries">
+      <line x1={pad.l} y1={pad.t} x2={pad.l} y2={height - pad.b} className="axis" />
+      <line x1={pad.l} y1={height - pad.b} x2={width - pad.r} y2={height - pad.b} className="axis" />
+      <text x={4} y={pad.t + 8} className="axis-label">
+        {formatNumber(y1)}
+      </text>
+      <text x={4} y={height - pad.b} className="axis-label">
+        {formatNumber(y0)}
+      </text>
       {items.map((item) => {
         let path = "";
         for (const observation of item.series.observations) {
@@ -133,7 +143,7 @@ export function ComparisonChart({
           }
           path += `${path.trim().endsWith(" ") || path === "" ? "M" : "L"} ${xOf(observation.date)} ${yOf(observation.value)} `;
         }
-        return <path key={item.name} d={path} fill="none" stroke={item.color} strokeWidth="1.5" />;
+        return <path key={item.name} d={path} fill="none" stroke={item.color} strokeWidth={large ? 2.2 : 1.5} />;
       })}
       {selectedDate && <line x1={xOf(selectedDate)} y1={pad.t} x2={xOf(selectedDate)} y2={height - pad.b} className="cursor-line" />}
     </svg>

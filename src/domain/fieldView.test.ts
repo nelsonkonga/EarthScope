@@ -107,3 +107,18 @@ describe("composeField", () => {
     expect(runoff?.directional).toBe(false);
   });
 });
+
+describe("footprintOf with a real boundary", () => {
+  it("keeps the ring and derives the bounding box from it", async () => {
+    const { footprintOf } = await import("./fieldView");
+    const ring: [number, number][] = [
+      [11.41, 3.8],
+      [11.5, 3.71],
+      [11.57, 3.85],
+      [11.48, 3.97],
+      [11.41, 3.8],
+    ];
+    const footprint = footprintOf({ id: "zone_yaounde", footprint: [11.4, 3.75, 11.65, 3.98], boundary: ring });
+    expect(footprint).toEqual({ west: 11.41, south: 3.71, east: 11.57, north: 3.97, ring });
+  });
+});
