@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from app.config import DATASET_VERSION
-from app.services.ingestion import Series, read_giovanni, read_regional
+from app.services.ingestion import Series, read_giovanni
 from app.services.statistics import (
     compute_climatology,
     compute_mann_kendall,
@@ -27,6 +27,7 @@ YAOUNDE = {
     "longitude": 11.525,
     "aliases": ["yaounde", "yaoundé"],
     "description": "Moyennes mensuelles GLDAS/MODIS sur l'emprise Giovanni 11,4–11,65 °E, 3,75–3,98 °N. Les coordonnées servent à la navigation.",
+    "footprint": [11.4, 3.75, 11.65, 3.98],
 }
 
 REGIONS = {
@@ -42,13 +43,13 @@ REGIONS = {
 }
 
 VARIABLES = {
-    "var_soil_temp": ("Température du sol (0–10 cm)", "GLDAS NOAH SoilTMP0_10cm, kelvin converti en °C.", "cat_soil", "°C", "#C4553A", "soil-temperature", "month"),
-    "var_soil_moisture": ("Humidité du sol (0–10 cm)", "GLDAS NOAH SoilMoi0_10cm, kg/m².", "cat_soil", "kg/m²", "#2F6F8F", "soil-moisture", "month"),
+    "var_soil_temp": ("Température du sol (0–10 cm)", "GLDAS NOAH SoilTMP0_10cm, kelvin converti en °C.", "cat_soil", "°C", "#E23B2F", "soil-temperature", "month"),
+    "var_soil_moisture": ("Humidité du sol (0–10 cm)", "GLDAS NOAH SoilMoi0_10cm, kg/m².", "cat_soil", "kg/m²", "#1F6F9A", "soil-moisture", "month"),
     "var_soil_temp_deep": ("Température du sol (10–40 cm)", "GLDAS NOAH SoilTMP10_40cm, kelvin converti en °C.", "cat_soil", "°C", "#8C2F1B", "soil-temperature-deep", "month"),
-    "var_soil_moisture_deep": ("Humidité du sol (10–40 cm)", "GLDAS NOAH SoilMoi10_40cm, kg/m².", "cat_soil", "kg/m²", "#1C4558", "soil-moisture-deep", "month"),
-    "var_evaporation": ("Évaporation", "GLDAS NOAH Evap_tavg 2.1, kg m⁻² s⁻¹ converti en mm/j.", "cat_soil", "mm/j", "#3D8B7A", "evaporation", "month"),
-    "var_runoff": ("Ruissellement de surface", "GLDAS NOAH Qs_acc, moyenne mensuelle dans l'unité du fichier (kg/m²).", "cat_soil", "kg/m²", "#6E8B6E", "runoff", "month"),
-    "var_aod": ("Épaisseur optique des aérosols", "MODIS Deep Blue AOD à 550 nm. La sentinelle −9999 reste un trou.", "cat_atmosphere", "", "#C4A35A", "aerosol-optical-depth", "month"),
+    "var_soil_moisture_deep": ("Humidité du sol (10–40 cm)", "GLDAS NOAH SoilMoi10_40cm, kg/m².", "cat_soil", "kg/m²", "#0E3A5C", "soil-moisture-deep", "month"),
+    "var_evaporation": ("Évaporation", "GLDAS NOAH Evap_tavg 2.1, kg m⁻² s⁻¹ converti en mm/j.", "cat_soil", "mm/j", "#1F6B62", "evaporation", "month"),
+    "var_runoff": ("Ruissellement de surface", "GLDAS NOAH Qs_acc, moyenne mensuelle dans l'unité du fichier (kg/m²).", "cat_soil", "kg/m²", "#1D6E93", "runoff", "month"),
+    "var_aod": ("Épaisseur optique des aérosols", "MODIS Deep Blue AOD à 550 nm. La sentinelle −9999 reste un trou.", "cat_atmosphere", "", "#C48A3A", "aerosol-optical-depth", "month"),
     "var_t2m": ("Température de l'air", "Moyenne annuelle régionale T2M, °C.", "cat_climate", "°C", "#D4764E", "air-temperature", "year"),
     "var_ts": ("Température de surface", "Moyenne annuelle régionale TS, °C.", "cat_climate", "°C", "#E09F6D", "surface-temperature", "year"),
     "var_precip": ("Précipitations", "Moyenne annuelle régionale PRECTOTCORR, mm/j.", "cat_climate", "mm/j", "#3E7CB1", "precipitation", "year"),
@@ -63,6 +64,17 @@ VARIABLES = {
     "var_cloud": ("Couverture nuageuse", "Moyenne annuelle régionale CLOUD_AMT, %.", "cat_atmosphere", "%", "#A7B0B8", "cloud-cover", "year"),
     "var_tropt": ("Température de la tropopause", "Moyenne annuelle régionale TROPT, °C.", "cat_atmosphere", "°C", "#D98CB3", "tropopause-temperature", "year"),
     "var_wind": ("Vent à 10 m", "Moyenne annuelle régionale WS10M, m/s.", "cat_atmosphere", "m/s", "#8EABC4", "wind", "year"),
+}
+
+# Positions 0–1. The measured cell uses one color from the ramp; the ramp is not a spatial map.
+COLOR_SCALES = {
+    "var_soil_temp": ["#1B2A6B", "#2255C9", "#2EC4E6", "#7DDE6A", "#F4E04D", "#F4A261", "#E23B2F", "#FFF1D6"],
+    "var_soil_temp_deep": ["#140E2E", "#1B3A7A", "#2A6F8F", "#3E8C6A", "#C9A227", "#C46B2C", "#8C2F1B"],
+    "var_soil_moisture": ["#E6D3A1", "#C4B48A", "#7FA07A", "#2F8F8A", "#1F6F9A", "#0E3A5C", "#071422"],
+    "var_soil_moisture_deep": ["#8AA07A", "#2F6B62", "#163E55", "#071820"],
+    "var_evaporation": ["#E7F6F2", "#9FD9CF", "#3D9B8F", "#1F6B62", "#0E3D38"],
+    "var_runoff": ["#E4E8D4", "#8FB573", "#2F8F7A", "#1D6E93", "#0C3A5C"],
+    "var_aod": ["#F4F7F8", "#E4D2A8", "#D09A45", "#A85A28", "#5C2E16", "#24160F"],
 }
 
 
@@ -128,8 +140,13 @@ class Catalog:
                     "datasetVersion": DATASET_VERSION,
                 }
             )
+            colors = COLOR_SCALES.get(variable_id)
+            if colors:
+                step = 1 / (len(colors) - 1)
+                rows[-1]["colorScale"] = {"stops": [{"at": index * step, "color": color} for index, color in enumerate(colors)]}
         rows.sort(key=lambda variable: variable["name"])
-        return categories, rows
+        used = {row["categoryId"] for row in rows}
+        return [category for category in categories if category["id"] in used], rows
 
     def _range(self, variable_id: str) -> tuple[str, str]:
         dates = [date for (_zone, vid), series in self.series.items() if vid == variable_id for date in series.dates]
@@ -148,8 +165,6 @@ class Catalog:
 def load_catalog() -> Catalog:
     catalog = Catalog()
     for series in read_giovanni().values():
-        catalog.series[(series.zone_id, series.variable_id)] = series
-    for series in read_regional():
         catalog.series[(series.zone_id, series.variable_id)] = series
     return catalog
 

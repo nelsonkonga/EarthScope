@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import { useLayerQuery, useRankingQuery, useVariableCatalog, useZoneCatalog } from "../api/queries";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useLayerQueries, useRankingQuery, useVariableCatalog, useZoneCatalog } from "../api/queries";
 import { fr } from "../config/strings.fr";
+import { composeField } from "../domain/fieldView";
 import { markerAppearance } from "../domain/markers";
 import { maxEnd } from "../domain/time";
 import { AIChatPanel } from "../features/assistant/AIChatPanel";
-import { globe, showMarkers } from "../features/globe/globeApi";
+import { globe, showField, showMarkers } from "../features/globe/globeApi";
 import { GlobeControls } from "../features/globe/GlobeControls";
 import { GlobeViewport } from "../features/globe/GlobeViewport";
 import { Timeline } from "../features/time/Timeline";
@@ -55,7 +56,43 @@ export function MainWorkspace() {
     .filter((id) => id !== primaryId)
     .map((id) => variables.find((variable) => variable.id === id))
     .filter((item): item is NonNullable<typeof item> => Boolean(item));
-  const layerQuery = useLayerQuery(primary);
+  const layerQueries = useLayerQueries(primary ? [primary, ...secondaries] : []);
+  const primaryLayer = layerQueries[0]?.data;
+  const studyZone = zones.find((zone) => zone.id === "zone_yaounde") ?? zones[0] ?? null;
+  const readingKey = layerQueries
+    .map((query) => {
+      const layer = query.data;
+      if (!layer) return "";
+      return `${layer.variableId}:${layer.date}:${layer.scale?.min ?? ""}:${layer.scale?.max ?? ""}:${layer.zoneValues.map((value) => `${value.zoneId}:${value.status}:${value.value}`).join(",")}`;
+    })
+    .join("|");
+  const primaryKey = primary ? `${primary.id}:${primary.datasetVersion}` : "";
+  const secondaryKey = secondaries.map((variable) => `${variable.id}:${variable.datasetVersion}`).join(",");
+  const footprintKey = studyZone ? `${studyZone.id}:${studyZone.footprint?.join(",") ?? ""}` : "";
+  const field = useMemo(
+    () =>
+      studyZone
+        ? composeField({
+            zone: studyZone,
+            primary,
+            secondaries,
+            valueOf: (variableId) => {
+              const layer = layerQueries.find((query) => query.data?.variableId === variableId)?.data;
+              const row = layer?.zoneValues.find((value) => value.zoneId === studyZone.id);
+              if (!row || row.status === "missing") return null;
+              return row.value;
+            },
+            scaleOf: (variable) => {
+              const layer = layerQueries.find((query) => query.data?.variableId === variable.id)?.data;
+              return layer?.scale ?? variable.displayScale ?? null;
+            },
+          })
+        : null,
+    // Keys stand in for the catalog objects. The memo only rebuilds when a reading or the selection changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [footprintKey, primaryKey, readingKey, secondaryKey],
+  );
+  const reading = primaryLayer?.zoneValues.find((value) => value.zoneId === studyZone?.id) ?? null;
   const ranking = useRankingQuery(comparison?.mode === "rank" ? comparison.variableId : null, comparison?.metric ?? null);
   const highlighted =
     comparison?.mode === "compare"
@@ -75,16 +112,21 @@ export function MainWorkspace() {
   }, [selectionNonce, selectedZoneId, zones]);
 
   useEffect(() => {
+    if (!primary || !studyZone) return;
+    globe()?.flyTo(studyZone.longitude, studyZone.latitude);
+  }, [primary?.id, studyZone]);
+
+  useEffect(() => {
     showMarkers(
       zones.map((zone) => {
-        const observation = layerQuery.data?.zoneValues.find((value) => value.zoneId === zone.id) ?? null;
+        const observation = primaryLayer?.zoneValues.find((value) => value.zoneId === zone.id) ?? null;
         const appearance = markerAppearance({
           zoneId: zone.id,
           selected: zone.id === selectedZoneId,
           primary,
           secondaries,
           observation,
-          scale: layerQuery.data?.scale ?? null,
+          scale: primaryLayer?.scale ?? null,
           highlighted,
         });
         return {
@@ -96,7 +138,11 @@ export function MainWorkspace() {
         };
       }),
     );
-  }, [highlighted, layerQuery.data, primary, secondaries, selectedZoneId, zones]);
+  }, [highlighted, primary, primaryLayer, secondaries, selectedZoneId, zones]);
+
+  useEffect(() => {
+    showField(field);
+  }, [field]);
 
   useEffect(() => {
     const onChange = () => setFullscreen(Boolean(document.fullscreenElement));
@@ -146,7 +192,11 @@ export function MainWorkspace() {
 
   const fixture = (variablesQuery.data?.meta.datasetVersion ?? zonesQuery.data?.meta.datasetVersion ?? "").startsWith("fixture");
   return (
-    <div className={`workspace ${narrow ? "narrow" : "wide"} ${activePanel ? "panel-open" : ""} ${cardOpen ? "card-open" : ""} ${fullscreen ? "is-fullscreen" : ""}`}>
+    <div
+      className={`workspace ${narrow ? "narrow" : "wide"} ${activePanel ? "panel-open" : ""} ${cardOpen ? "card-open" : ""} ${fullscreen ? "is-fullscreen" : ""}`}
+      data-field={field?.theme ?? "neutral"}
+      style={field ? ({ "--accent": field.accent } as CSSProperties) : undefined}
+    >
       <h1 className="sr-only">{fr.appName}</h1>
       {(zonesQuery.isLoading || variablesQuery.isLoading) && <div className="load-line" />}
       <GlobeViewport />
@@ -186,10 +236,12 @@ export function MainWorkspace() {
       <VariableLegend
         primary={primary}
         secondaries={secondaries}
-        layer={layerQuery.data}
-        updating={layerQuery.isFetching && !layerQuery.isLoading}
-        failed={layerQuery.isError}
-        unsupported={layerQuery.data?.mode === "raster-tiles"}
+        layer={primaryLayer}
+        caption={field?.caption ?? ""}
+        reading={reading?.status === "missing" ? null : (reading?.value ?? null)}
+        updating={layerQueries.some((query) => query.isFetching && !query.isLoading)}
+        failed={Boolean(layerQueries[0]?.isError)}
+        unsupported={primaryLayer?.mode === "raster-tiles"}
         narrow={narrow}
       />
       <Timeline variables={variables} />

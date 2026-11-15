@@ -65,6 +65,20 @@ def test_assistant_selects_yaounde_soil_variables_and_superposition():
     assert "−" not in result["text"] or "r =" not in result["text"]
 
 
+def test_catalog_publishes_only_the_yaounde_cell():
+    zones = client.get("/api/v1/zones").json()["zones"]
+    assert [zone["id"] for zone in zones] == ["zone_yaounde"]
+    assert zones[0]["footprint"] == [11.4, 3.75, 11.65, 3.98]
+    variables = client.get("/api/v1/variables").json()["variables"]
+    ids = {item["id"] for item in variables}
+    assert "var_soil_temp" in ids
+    assert "var_t2m" not in ids
+    assert "var_sea_ice" not in ids
+    temperature = next(item for item in variables if item["id"] == "var_soil_temp")
+    assert temperature["colorScale"]["stops"][0]["color"] == "#1B2A6B"
+    assert temperature["colorScale"]["stops"][-1]["color"] == "#FFF1D6"
+
+
 def test_paris_selects_nothing():
     result = answer("Quelle est la température à Paris ?", {})
     assert result["actions"] == []

@@ -8,6 +8,8 @@ export function VariableLegend({
   primary,
   secondaries,
   layer,
+  caption,
+  reading,
   updating,
   failed,
   unsupported,
@@ -16,6 +18,8 @@ export function VariableLegend({
   primary: Variable | null;
   secondaries: Variable[];
   layer: MapLayer | undefined;
+  caption: string;
+  reading: number | null;
   updating: boolean;
   failed: boolean;
   unsupported: boolean;
@@ -27,6 +31,7 @@ export function VariableLegend({
   const gradient = `linear-gradient(90deg, ${stops.map((stop) => `${stop.color} ${stop.at * 100}%`).join(", ")})`;
   const min = layer?.scale?.min ?? primary.displayScale?.min;
   const max = layer?.scale?.max ?? primary.displayScale?.max;
+  const position = reading == null || min == null || max == null || max === min ? null : Math.min(1, Math.max(0, (reading - min) / (max - min)));
   if (narrow && !open) {
     return (
       <button type="button" className="legend legend-collapsed" onClick={() => setOpen(true)}>
@@ -47,13 +52,21 @@ export function VariableLegend({
         <strong>{primary.name}</strong>
         <span className="unit">{primary.unit}</span>
       </div>
-      <div className="ramp" style={{ background: gradient }} />
+      {reading != null && (
+        <p className="value">
+          {formatNumber(reading)} {primary.unit}
+        </p>
+      )}
+      <div className="ramp" style={{ background: gradient }}>
+        {position != null && <i className="ramp-now" style={{ left: `${position * 100}%` }} />}
+      </div>
       <div className="ramp-labels">
         <span>{min == null ? "—" : formatNumber(min)}</span>
         <span>{max == null ? "—" : formatNumber(max)}</span>
       </div>
-      <p className="hint">{fr.legendValue}</p>
-      <p className="hint">{fr.legendPoint}</p>
+      {caption && <p className="hint">{caption}</p>}
+      <p className="hint">{fr.legendFootprint}</p>
+      {layer && reading == null && <p className="hint">{fr.legendGap}</p>}
       {secondaries.length > 0 && (
         <ul className="legend-rings">
           {secondaries.map((variable) => (

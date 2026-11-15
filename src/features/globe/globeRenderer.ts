@@ -5,10 +5,9 @@ import {
   Cartesian3,
   Cartographic,
   Cesium3DTileset,
-  ClassificationType,
   Color,
   Ellipsoid,
-  HeightReference,
+  Entity,
   ImageryLayer,
   Ion,
   KeyboardEventModifier,
@@ -25,7 +24,8 @@ import {
   Viewer,
 } from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { DISC_HEIGHT_METERS, FLY_HEIGHT_METERS, FLY_PITCH_DEGREES, FLY_SECONDS, HOME_CAMERA, LABEL_HEIGHT_METERS, selectBasemap, SYMBOL_RADIUS_METERS } from "../../config/globe";
+import { FLY_HEIGHT_METERS, FLY_PITCH_DEGREES, FLY_SECONDS, HOME_CAMERA, LABEL_HEIGHT_METERS, selectBasemap } from "../../config/globe";
+import type { GlobeField } from "../../domain/fieldView";
 import { niceDistance } from "../../domain/format";
 import { publishCamera } from "./cameraBridge";
 import { registerGlobe, type GlobeController, type GlobeStatus, type MarkerSpec } from "./globeApi";
@@ -66,7 +66,11 @@ function markerImage(spec: MarkerSpec): HTMLCanvasElement {
   });
   context.beginPath();
   context.arc(32, 32, 9, 0, Math.PI * 2);
-  context.fillStyle = spec.fill;
+  const bloom = context.createRadialGradient(32, 32, 1, 32, 32, 9);
+  bloom.addColorStop(0, spec.fill === "#ffffff" ? "#ffffff" : "#fffaf3");
+  bloom.addColorStop(0.45, spec.fill);
+  bloom.addColorStop(1, spec.fill);
+  context.fillStyle = bloom;
   context.fill();
   if (spec.dashed) {
     context.setLineDash([3, 2]);
@@ -96,6 +100,7 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
       pan: () => undefined,
       orbit: () => undefined,
       setMarkers: () => undefined,
+      setField: () => undefined,
       resize: () => undefined,
       reload: () => undefined,
     };
@@ -151,7 +156,7 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
   let pointer: Cartesian2 | null = null;
   let lastPublish = 0;
   let clickTimer = 0;
-  let discVisible = false;
+  let fieldEntities: Entity[] = [];
 
   const homeView = () => {
     viewer.camera.setView({
@@ -171,9 +176,7 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
   const drawMarkers = () => {
     billboards.removeAll();
     labels.removeAll();
-    viewer.entities.removeAll();
     const height = viewer.camera.positionCartographic?.height ?? Number.POSITIVE_INFINITY;
-    discVisible = height < DISC_HEIGHT_METERS;
     for (const spec of specs) {
       const position = Cartesian3.fromDegrees(spec.longitude, spec.latitude);
       billboards.add({
@@ -181,7 +184,7 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
         image: markerImage(spec),
         id: spec.id,
         verticalOrigin: VerticalOrigin.CENTER,
-        scale: spec.emphasized ? 1.25 : 1,
+        scale: spec.emphasized ? 1.25 : spec.fill === "#ffffff" ? 1 : 1.15,
         disableDepthTestDistance: Number.POSITIVE_INFINITY,
         scaleByDistance: new NearFarScalar(2.0e5, 1.15, 1.8e7, 0.55),
       });
@@ -198,20 +201,98 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
         disableDepthTestDistance: Number.POSITIVE_INFINITY,
         show: spec.selected || height < LABEL_HEIGHT_METERS,
       });
-      if (height < DISC_HEIGHT_METERS && spec.fill !== "#ffffff") {
-        viewer.entities.add({
-          position,
-          ellipse: {
-            semiMajorAxis: SYMBOL_RADIUS_METERS,
-            semiMinorAxis: SYMBOL_RADIUS_METERS,
-            material: Color.fromCssColorString(spec.fill).withAlpha(spec.dimmed ? 0.18 : 0.38),
-            heightReference: basemap === "google" ? HeightReference.CLAMP_TO_3D_TILE : HeightReference.CLAMP_TO_GROUND,
-            classificationType: basemap === "google" ? ClassificationType.CESIUM_3D_TILE : ClassificationType.TERRAIN,
-          },
-        });
+    }
+    viewer.scene.requestRender();
+  };
+
+  const clearField = () => {
+    for (const entity of fieldEntities) viewer.entities.remove(entity);
+    fieldEntities = [];
+  };
+
+  const themeHue: Record<string, number> = {
+    neutral: 0,
+    thermal: -0.12,
+    "thermal-deep": -0.06,
+    moisture: 0.48,
+    "moisture-deep": 0.56,
+    vapor: 0.36,
+    runoff: 0.42,
+    haze: 0.06,
+  };
+
+  const applyTheme = (theme: string) => {
+    const hue = themeHue[theme] ?? 0;
+    const atmosphere = viewer.scene.skyAtmosphere;
+    if (atmosphere) {
+      atmosphere.hueShift = hue;
+      atmosphere.saturationShift = theme === "neutral" ? 0 : 0.28;
+      atmosphere.brightnessShift = theme === "haze" ? -0.12 : 0;
+    }
+    const globeScene = viewer.scene.globe;
+    if (globeScene) {
+      globeScene.atmosphereHueShift = hue;
+      globeScene.atmosphereSaturationShift = theme === "neutral" ? 0 : 0.35;
+      globeScene.atmosphereBrightnessShift = theme === "haze" ? -0.08 : 0;
+    }
+  };
+
+  const paintScene = (field: GlobeField | null) => {
+    clearField();
+    applyTheme(field?.theme ?? "neutral");
+    if (!field) {
+      viewer.scene.requestRender();
+      return;
+    }
+    const scene = field;
+    const { west, south, east, north } = scene.footprint;
+    const lon = (west + east) / 2;
+    const lat = (south + north) / 2;
+    const latRad = CesiumMath.toRadians(lat);
+    const minor = Math.max(((north - south) / 2) * 111_320, 400);
+    const major = Math.max(((east - west) / 2) * 111_320 * Math.cos(latRad), 400);
+    // Absolute height clears the Yaoundé plateau (~750 m) on both the ion terrain and Google tiles.
+    const deck = 2400;
+    for (const layer of scene.layers) {
+      if (layer.role === "fill" || layer.role === "haze" || layer.role === "mist") {
+        const height = layer.role === "haze" ? deck + 1800 : layer.role === "mist" ? deck + 700 : deck;
+        const alpha = layer.t == null ? 0.18 : layer.role === "haze" ? 0.45 : layer.role === "mist" ? 0.5 : 0.62;
+        fieldEntities.push(
+          viewer.entities.add({
+            name: scene.zoneId,
+            position: Cartesian3.fromDegrees(lon, lat, height),
+            ellipse: {
+              semiMajorAxis: major * (layer.role === "haze" ? 1.35 : 1),
+              semiMinorAxis: minor * (layer.role === "haze" ? 1.35 : 1),
+              material: Color.fromCssColorString(layer.color).withAlpha(alpha),
+              height,
+            },
+          }),
+        );
+      }
+      if (layer.role === "rim") {
+        const pad = 0.012;
+        const corners: [number, number][] = [
+          [west - pad, south - pad],
+          [east + pad, south - pad],
+          [east + pad, north + pad],
+          [west - pad, north + pad],
+          [west - pad, south - pad],
+        ];
+        fieldEntities.push(
+          viewer.entities.add({
+            name: scene.zoneId,
+            polyline: {
+              positions: Cartesian3.fromDegreesArrayHeights(corners.flatMap(([cornerLon, cornerLat]) => [cornerLon, cornerLat, deck + 40])),
+              width: 3,
+              material: Color.fromCssColorString(layer.color).withAlpha(layer.t == null ? 0.4 : 0.85),
+            },
+          }),
+        );
       }
     }
     viewer.scene.requestRender();
+    window.requestAnimationFrame(() => viewer.scene.requestRender());
   };
 
   const publish = (force = false) => {
@@ -234,12 +315,6 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
       scale,
     });
     const height = carto.height;
-    const nextDisc = height < DISC_HEIGHT_METERS;
-    if (nextDisc !== discVisible) {
-      discVisible = nextDisc;
-      drawMarkers();
-      return;
-    }
     for (let index = 0; index < labels.length; index += 1) {
       const spec = specs[index];
       labels.get(index).show = Boolean(spec && (spec.selected || height < LABEL_HEIGHT_METERS));
@@ -258,7 +333,10 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
     window.clearTimeout(clickTimer);
     clickTimer = window.setTimeout(() => {
       const picked = viewer.scene.pick(click.position) as { id?: unknown } | undefined;
-      if (picked && typeof picked.id === "string") hooks.onZone(picked.id);
+      const raw = picked?.id;
+      const named = raw && typeof raw === "object" && "name" in raw ? (raw as { name?: unknown }).name : undefined;
+      const zoneId = typeof raw === "string" ? raw : typeof named === "string" && named.startsWith("zone_") ? named : null;
+      if (zoneId) hooks.onZone(zoneId);
       else hooks.onEmpty();
     }, 220);
   }, ScreenSpaceEventType.LEFT_CLICK);
@@ -354,6 +432,7 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
       specs = markers;
       drawMarkers();
     },
+    setField: paintScene,
     resize: () => viewer.resize(),
     reload: loadBasemap,
   };

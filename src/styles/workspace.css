@@ -177,7 +177,16 @@ input[type="text"], input:not([type]), .composer input, #zone-search {
   border-radius: 8px;
   padding: 8px 10px;
 }
-.ramp { height: 8px; border-radius: 99px; }
+.ramp { position: relative; height: 12px; border-radius: 99px; box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 40%, transparent); }
+.ramp-now { position: absolute; top: -4px; width: 3px; height: 20px; margin-left: -1px; background: #fff; border-radius: 2px; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45); }
+.mini-ramp { display: block; height: 4px; margin: 0 0 4px 22px; border-radius: 99px; }
+.workspace[data-field="thermal"],
+.workspace[data-field="thermal-deep"] { --panel: rgba(28, 12, 8, 0.9); --line: rgba(255, 170, 110, 0.28); }
+.workspace[data-field="moisture"],
+.workspace[data-field="moisture-deep"],
+.workspace[data-field="runoff"] { --panel: rgba(6, 16, 28, 0.9); --line: rgba(120, 190, 230, 0.28); }
+.workspace[data-field="vapor"] { --panel: rgba(6, 22, 20, 0.9); --line: rgba(140, 220, 200, 0.28); }
+.workspace[data-field="haze"] { --panel: rgba(24, 16, 8, 0.9); --line: rgba(210, 170, 90, 0.32); }
 .ramp-labels, .legend-rings li, .rank-list button { display: flex; justify-content: space-between; gap: 8px; }
 .zone-section { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
 .value { font-size: 18px; }
