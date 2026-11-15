@@ -1,146 +1,301 @@
 {
-  "brand": "Terra Sense Cameroun",
-  "skip": "Aller au contenu",
+  "brand": "Terra Sense",
+  "tagline": "Explorer les données. Comprendre les tendances. Mieux observer la Terre.",
+  "meta": {
+    "title": "Terra Sense · Observer les tendances du sol",
+    "description": "Terra Sense rend lisibles les tendances de l'humidité et de la température du sol à partir des données de la NASA (GLDAS, MODIS)."
+  },
+  "skip": "Aller au contenu principal",
   "nav": {
+    "label": "Navigation principale",
     "language": "Langue",
-    "theme": "Thème d'affichage",
-    "themeLight": "Clair",
-    "themeDark": "Sombre",
-    "themeDim": "Tamisé",
+    "languageNames": {
+      "fr": "Français",
+      "en": "English"
+    },
+    "theme": "Apparence",
+    "themes": {
+      "light": "Clair",
+      "dark": "Sombre",
+      "soft": "Tamisé"
+    },
     "about": "À propos",
     "assistant": "Assistant",
-    "assistantLabel": "Ouvrir l'assistant conversationnel",
+    "assistantLabel": "Ouvrir l'assistant de Terra Sense",
     "visualize": "Visualisation",
+    "visualizeLabel": "Ouvrir l'espace de visualisation",
     "menu": "Ouvrir le menu",
-    "closeMenu": "Fermer le menu"
+    "closeMenu": "Fermer le menu",
+    "home": "Terra Sense, retour en haut de page"
   },
   "hero": {
-    "badge": "NASA Space Apps Challenge · Défi 02",
+    "badge": "NASA Space Apps Challenge · Soil Trend Detective",
     "titleStart": "La terre sous nos pieds",
-    "titleAccent": "se meurt.",
-    "titleEnd": "Et les",
-    "titleMark": "données",
-    "titleClose": "le prouvent.",
-    "lead": "Le stress hydrique des sols est une crise silencieuse : il réduit les récoltes, assèche les abreuvoirs et épuise les nappes. Les satellites de la NASA le mesurent chaque mois. Nous en tirons des preuves statistiques, lisibles par tous.",
+    "titleMark": "évolue.",
+    "titleEnd": "Les données nous permettent de le comprendre.",
+    "lead": "L'humidité du sol conditionne les cultures, la végétation et l'eau disponible. Les données d'observation de la Terre de la NASA en gardent la trace mois après mois. Terra Sense vous aide à lire ces changements et à vérifier s'ils sont réels.",
     "cta": "Entrer dans le laboratoire",
-    "ctaSecondary": "Comprendre la méthode",
-    "statsLabel": "Repères sur les données publiées",
-    "statYears": "{years} ans de séries mensuelles",
-    "statYearsDetail": "{start} – {end}, Yaoundé",
-    "statGrid": "Maille GLDAS 0,25°",
-    "statGridDetail": "moyenne mensuelle Giovanni",
-    "statVariables": "{count} variables sol et atmosphère",
-    "statVariablesDetail": "GLDAS NOAH et MODIS",
-    "statMethod": "Mann-Kendall et Theil-Sen",
-    "statMethodDetail": "dernière mesure : {end}",
-    "source": "Source : NASA GES DISC, via Giovanni"
+    "ctaHint": "Ouvre l'espace de visualisation interactif",
+    "secondary": "Découvrir notre approche",
+    "factsLabel": "Ce que couvrent les données publiées",
+    "facts": {
+      "coverage": "{start} – {end}",
+      "coverageLabel": "Séries publiées, Yaoundé",
+      "cadence": "Mensuelle",
+      "cadenceLabel": "Résolution temporelle, GLDAS et MODIS",
+      "resolution": "0,25°",
+      "resolutionLabel": "Maille GLDAS Noah (MODIS : 1°)",
+      "methods": "Mann-Kendall · Theil-Sen",
+      "methodsLabel": "Méthodes de détection de tendance"
+    },
+    "factsSource": "Valeurs lues dans le catalogue de la plateforme.",
+    "figure": {
+      "label": "Fig. 01",
+      "caption": "Illustration conceptuelle. Les deux couches correspondent aux profondeurs modélisées par GLDAS Noah ; la nappe n'est pas mesurée par ces données.",
+      "surface": "Surface",
+      "layer1": "0–10 cm",
+      "layer2": "10–40 cm",
+      "deep": "Sol profond",
+      "aquifer": "Nappe (non mesurée)",
+      "orbit": "Observation satellitaire",
+      "alt": "Coupe de sol stylisée : deux couches humides, des points de mesure et une trace d'observation satellitaire."
+    }
   },
   "problem": {
     "eyebrow": "Le problème",
-    "title": "Que se passe-t-il lorsque le sol s'assèche ?",
-    "lead": "L'humidité du sol est la réserve d'eau dont dépendent les cultures, les pâturages et, plus bas, les aquifères. Quand elle baisse durablement, les effets s'enchaînent.",
-    "cards": [
+    "title": "Que se passe-t-il lorsque le sol perd son équilibre ?",
+    "lead": "L'humidité du sol n'est pas une mesure isolée. Elle relie la pluie, la végétation, les cultures et l'eau qui s'infiltre plus bas. Quand elle change durablement, ces systèmes changent avec elle.",
+    "items": [
       {
-        "icon": "crop",
-        "title": "Agriculture",
-        "text": "Un sol qui perd son humidité réduit les rendements dès la levée des semis. Les exploitants compensent par une irrigation qui puise davantage dans des ressources déjà fragiles."
+        "icon": "roots",
+        "title": "Des terres agricoles fragilisées",
+        "text": "Moins d'eau dans les premiers centimètres, c'est un stress plus précoce pour les semis et des besoins d'irrigation plus élevés. La productivité dépend directement de cette réserve."
       },
       {
-        "icon": "herd",
-        "title": "Écosystèmes et bétail",
-        "text": "La sécheresse vide les mares et les réservoirs. Le bétail parcourt de plus longues distances pour boire, et les habitats humides se contractent."
+        "icon": "ecosystem",
+        "title": "Des écosystèmes sous pression",
+        "text": "La végétation, les zones humides et le bétail dépendent de l'eau disponible. Une saison sèche plus marquée réduit le couvert végétal et les points d'abreuvement."
       },
       {
         "icon": "aquifer",
-        "title": "Richesse souterraine",
-        "text": "Moins d'eau s'infiltre, et les aquifères se rechargent mal. Cet épuisement est invisible : on ne voit pas disparaître l'eau que l'on ne voit pas."
+        "title": "Une eau invisible mais essentielle",
+        "text": "Une partie de l'eau du sol s'infiltre et recharge les nappes. Un sol durablement plus sec peut réduire cette recharge.",
+        "note": "Précision : l'humidité du sol n'est pas une mesure des nappes. Terra Sense n'affiche aucune donnée sur les eaux souterraines."
       }
     ]
   },
   "mission": {
-    "eyebrow": "Notre mission",
-    "titleStart": "La NASA fournit les données. Nous fournissons la",
-    "titleAccent": "preuve.",
-    "lead": "Chaque conclusion de la plateforme peut être retracée jusqu'à la mesure satellitaire qui la fonde.",
-    "cards": [
-      {
-        "icon": "satellite",
-        "title": "Données satellites",
-        "tag": "GLDAS · MODIS",
-        "text": "L'humidité, la température du sol et l'évaporation sont modélisées par GLDAS à partir d'observations spatiales, puis moyennées sur la ville par Giovanni."
+    "eyebrow": "Notre approche",
+    "titleStart": "La NASA fournit les données. Terra Sense les rend",
+    "titleMark": "compréhensibles.",
+    "lead": "Transformer l'observation en compréhension : chaque résultat affiché peut être retracé jusqu'au jeu de données dont il provient.",
+    "observe": {
+      "kicker": "01 · Données",
+      "title": "Observer la Terre",
+      "text": "Les séries viennent de NASA Giovanni, qui moyenne sur la zone des produits GLDAS Noah (sol) et MODIS (aérosols). Des années de mesures mensuelles permettent de distinguer une saison d'une évolution.",
+      "datasets": [
+        {
+          "id": "GLDAS_NOAH025_M 2.0",
+          "what": "Humidité et température du sol, 0–10 et 10–40 cm"
+        },
+        {
+          "id": "GLDAS_NOAH025_M 2.1",
+          "what": "Évaporation, ruissellement, température 10–40 cm"
+        },
+        {
+          "id": "MYD08_M3 6.1",
+          "what": "Épaisseur optique des aérosols (Deep Blue)"
+        }
+      ]
+    },
+    "trends": {
+      "kicker": "02 · Statistique",
+      "title": "Identifier les tendances",
+      "text": "Le test de Mann-Kendall indique si une évolution régulière est statistiquement étayée ou compatible avec le hasard. La pente de Theil-Sen en estime l'ampleur. Ni l'un ni l'autre n'établit une cause.",
+      "chartTitle": "Humidité du sol, 10–40 cm · Yaoundé",
+      "chartCaption": "Données réelles de la plateforme : moyennes mensuelles GLDAS Noah 2.0 ({start} – {end}). Ligne pointillée : pente de Theil-Sen.",
+      "chartLegendSeries": "Moyenne mensuelle",
+      "chartLegendTrend": "Tendance de Theil-Sen",
+      "verdict": "{method} : {direction} ({p}). Pente de Theil-Sen : {slope} {unit} par décennie.",
+      "directions": {
+        "up": "hausse significative",
+        "down": "baisse significative",
+        "flat": "pas de tendance significative",
+        "insufficient": "données insuffisantes"
       },
-      {
-        "icon": "proof",
-        "title": "Preuve statistique",
-        "tag": "Mann-Kendall · Theil-Sen",
-        "text": "Le test de Mann-Kendall dit si une tendance est réelle ou due au hasard ; la pente de Theil-Sen dit à quelle vitesse elle évolue."
-      },
-      {
-        "icon": "explain",
-        "title": "IA explicable",
-        "tag": "Assistant · SHAP",
-        "text": "L'assistant répond à partir des calculs de la plateforme et cite ses sources. Il ne fabrique aucun chiffre."
-      }
-    ],
-    "cta": "Ouvrir la visualisation"
+      "loading": "Chargement de la série…",
+      "unavailable": "La série n'a pas pu être chargée : le service de données est indisponible. Aucune courbe n'est dessinée à sa place.",
+      "chartAlt": "Courbe mensuelle de l'humidité du sol entre 10 et 40 cm à Yaoundé, avec sa pente de Theil-Sen."
+    },
+    "understand": {
+      "kicker": "03 · Interprétation",
+      "title": "Comprendre les résultats",
+      "text": "L'assistant explique une tendance, une valeur p ou une méthode, à partir des calculs de la plateforme. C'est un outil d'interprétation : il cite ses sources et signale ce qu'il ne sait pas.",
+      "future": "À venir : explications de modèles par SHAP. Aucun modèle SHAP n'est publié aujourd'hui.",
+      "ask": "Poser une question"
+    }
+  },
+  "closing": {
+    "title": "Observer la Terre. Comprendre ses changements.",
+    "text": "Choisissez une variable, parcourez les mois, comparez les séries et vérifiez chaque tendance.",
+    "cta": "Entrer dans le laboratoire"
   },
   "footer": {
-    "project": "Un projet pour le NASA Space Apps Challenge",
-    "built": "Construit avec les données GLDAS, MODIS et Python",
-    "sources": "Sources",
-    "giovanni": "NASA Giovanni",
-    "earthdata": "NASA Earthdata",
-    "boundaries": "Limites : geoBoundaries (CC BY 4.0)",
-    "aboutLink": "Méthode et jeux de données",
-    "dataPolicy": "Politique de données",
-    "copyright": "© {year} Terra Sense Cameroun. Données NASA du domaine public."
+    "attribution": "Un projet développé pour le NASA Space Apps Challenge, autour du concept Soil Trend Detective.",
+    "sourcesTitle": "Sources",
+    "navTitle": "Navigation",
+    "about": "À propos",
+    "visualize": "Visualisation",
+    "assistant": "Assistant",
+    "policy": "Politique de données",
+    "boundaries": "Contour de Yaoundé : geoBoundaries (CC BY 4.0)",
+    "copyright": "© {year} Terra Sense. Données NASA librement accessibles ; voir les conditions de chaque source.",
+    "disclaimer": "Terra Sense n'est ni affilié à la NASA ni approuvé par elle."
   },
   "about": {
-    "title": "À propos de Terra Sense Cameroun",
+    "title": "À propos de Terra Sense",
     "close": "Fermer",
+    "sectionsLabel": "Sections",
+    "sections": {
+      "intro": "Présentation",
+      "sources": "Sources",
+      "methods": "Méthodologie",
+      "freshness": "Fraîcheur",
+      "transparency": "Transparence"
+    },
     "intro": [
-      "Terra Sense Cameroun est un observatoire du stress hydrique des sols, conçu pour le défi 02 du NASA Space Apps Challenge. Il rend lisibles des séries satellitaires que l'on consulte d'ordinaire dans des outils de spécialistes.",
-      "La visualisation colore le territoire de Yaoundé, délimité par ses sept arrondissements, selon la valeur mesurée le mois choisi. Les couleurs glissent d'un mois à l'autre, mais aucune valeur n'est inventée entre deux dates.",
-      "Pour chaque variable, la plateforme teste la présence d'une tendance et en estime la vitesse. Les résultats non significatifs sont affichés comme tels.",
-      "L'assistant conversationnel s'appuie sur ces mêmes calculs. Quand il ne sait pas, il le dit."
+      "Terra Sense est une plateforme d'observation des tendances du sol, développée dans le cadre du NASA Space Apps Challenge autour du concept Soil Trend Detective.",
+      "Elle répond à une difficulté simple : les séries d'observation de la Terre existent, mais elles sont difficiles à lire et encore plus à interpréter. Terra Sense les affiche sur un globe, les trace dans le temps et teste si leurs évolutions sont statistiquement étayées.",
+      "Vous pouvez y explorer, pour Yaoundé, l'humidité et la température du sol à deux profondeurs, l'évaporation, le ruissellement et les aérosols, mois par mois, et poser vos questions à l'assistant."
     ],
-    "sourcesTitle": "Sources des données",
-    "sources": [
-      { "name": "NASA Giovanni", "url": "https://giovanni.gsfc.nasa.gov/giovanni/", "detail": "Moyennes de zone (area-averaged time series) exportées en CSV." },
-      { "name": "GLDAS Noah 0,25° mensuel v2.0 / v2.1", "url": "https://disc.gsfc.nasa.gov/datasets?keywords=GLDAS_NOAH025_M", "detail": "GLDAS_NOAH025_M_2.0 et 2.1 : SoilMoi0_10cm_inst, SoilMoi10_40cm_inst, SoilTMP0_10cm_inst, SoilTMP10_40cm_inst, Evap_tavg, Qs_acc." },
-      { "name": "MODIS Aqua MYD08_M3 v6.1", "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3", "detail": "Deep_Blue_Aerosol_Optical_Depth_550_Land_Mean_Mean." },
-      { "name": "MERRA-2", "url": "https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/", "detail": "Variables climatiques annuelles régionales (température, précipitations, humidité racinaire)." },
-      { "name": "NASA Earthdata", "url": "https://www.earthdata.nasa.gov/", "detail": "Portail d'accès et documentation des jeux de données." },
-      { "name": "geoBoundaries gbOpen CMR ADM3", "url": "https://www.geoboundaries.org/", "detail": "Contour de Yaoundé : union des arrondissements Yaoundé I à VII." }
-    ],
-    "methodTitle": "Méthodologie",
-    "methods": [
-      { "name": "Mann-Kendall", "text": "Compare chaque mesure à toutes les suivantes pour savoir si la série monte ou descend régulièrement. La correction de Hamed et Rao tient compte de l'autocorrélation des mois successifs. Seuil : p < 0,05." },
-      { "name": "Theil-Sen", "text": "Médiane des pentes entre toutes les paires de mesures. Elle donne la vitesse du changement, par an ou par décennie, et résiste aux valeurs extrêmes." },
-      { "name": "SHAP", "text": "Attribue à chaque facteur (pluie, évaporation, température) sa part dans une prédiction. Cette lecture n'est montrée que lorsqu'un modèle est publié pour la zone." }
-    ],
-    "updatedTitle": "Mise à jour",
-    "updated": "Dernière mesure publiée : {end}. Période couverte : {start} – {end}."
+    "sources": {
+      "title": "Sources des données",
+      "intro": "Toutes les variables ne viennent pas du même produit. Chaque série est rattachée à son jeu d'origine.",
+      "role": "Rôle",
+      "limits": "Limites",
+      "identifier": "Identifiant",
+      "items": [
+        {
+          "name": "NASA Giovanni",
+          "id": "Area-averaged time series (g4.areaAvgTimeSeries)",
+          "role": "Calcule les moyennes mensuelles sur la zone 11,4–11,65 °E, 3,75–3,98 °N et les exporte en CSV.",
+          "limits": "Une seule valeur par mois pour toute la zone : pas de variation spatiale à l'intérieur.",
+          "url": "https://giovanni.gsfc.nasa.gov/giovanni/"
+        },
+        {
+          "name": "GLDAS Noah 0,25° mensuel, version 2.0",
+          "id": "GLDAS_NOAH025_M_2.0",
+          "role": "Humidité du sol 0–10 et 10–40 cm, température du sol 0–10 cm.",
+          "limits": "Valeurs modélisées par un modèle de surface, forcé par des observations. La version 2.0 s'arrête en 2014.",
+          "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.0/summary"
+        },
+        {
+          "name": "GLDAS Noah 0,25° mensuel, version 2.1",
+          "id": "GLDAS_NOAH025_M_2.1",
+          "role": "Évaporation, ruissellement de surface, température du sol 10–40 cm.",
+          "limits": "Modèle de surface ; forçages différents de la version 2.0.",
+          "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.1/summary"
+        },
+        {
+          "name": "MODIS Aqua, niveau 3 mensuel, collection 6.1",
+          "id": "MYD08_M3 · Deep_Blue_Aerosol_Optical_Depth_550_Land_Mean_Mean",
+          "role": "Épaisseur optique des aérosols à 550 nm.",
+          "limits": "Mesure satellitaire sur une maille de 1° ; les mois sans mesure restent des trous.",
+          "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3"
+        },
+        {
+          "name": "NASA Earthdata",
+          "id": "earthdata.nasa.gov",
+          "role": "Portail d'accès et documentation des produits GLDAS et MODIS.",
+          "limits": "",
+          "url": "https://www.earthdata.nasa.gov/"
+        },
+        {
+          "name": "geoBoundaries",
+          "id": "gbOpen CMR ADM3",
+          "role": "Contour de Yaoundé : union des arrondissements Yaoundé I à VII.",
+          "limits": "Sert uniquement au tracé ; les valeurs restent celles de la zone Giovanni.",
+          "url": "https://www.geoboundaries.org/"
+        }
+      ]
+    },
+    "methods": {
+      "title": "Méthodologie",
+      "items": [
+        {
+          "name": "Mann-Kendall",
+          "text": "Compare chaque mesure à toutes les suivantes pour savoir si la série monte ou descend de façon régulière. Pour les séries mensuelles, la plateforme utilise la version saisonnière (comparaison mois par mois) ou la correction de Hamed et Rao pour l'autocorrélation. Une tendance est dite significative lorsque p < 0,05."
+        },
+        {
+          "name": "Theil-Sen",
+          "text": "Médiane des pentes entre toutes les paires de mesures. Elle estime la vitesse du changement, par an ou par décennie, et résiste aux valeurs extrêmes."
+        },
+        {
+          "name": "SHAP",
+          "text": "Objectif futur. Aucun modèle prédictif ni explication SHAP n'est publié aujourd'hui."
+        }
+      ]
+    },
+    "freshness": {
+      "title": "Fraîcheur des données",
+      "text": "Le catalogue ne fournit pas de date de mise à jour. Dernière observation publiée : {end}."
+    },
+    "transparency": {
+      "title": "Transparence et limites",
+      "items": [
+        {
+          "label": "Couverture géographique",
+          "text": "Une zone : Yaoundé. Le contour affiché suit les sept arrondissements ; les valeurs sont la moyenne Giovanni du rectangle 11,4–11,65 °E, 3,75–3,98 °N."
+        },
+        {
+          "label": "Couverture temporelle",
+          "text": "De {start} à {end}, au pas mensuel."
+        },
+        {
+          "label": "Données manquantes",
+          "text": "Les mois sans valeur restent vides dans les graphiques. Aucune valeur n'est interpolée ni remplacée par zéro."
+        },
+        {
+          "label": "Résolution",
+          "text": "GLDAS : 0,25° ; MODIS : 1°. Ces mailles sont plus grandes que la ville : elles décrivent une moyenne régionale."
+        },
+        {
+          "label": "Observation, modèle, statistique",
+          "text": "MODIS est une mesure satellitaire ; GLDAS est une estimation par modèle. Les tendances, pentes et valeurs p sont des résultats dérivés, calculés par la plateforme."
+        }
+      ]
+    }
   },
   "assistant": {
-    "title": "Assistant",
-    "subtitle": "Réponses sourcées, calculées sur les données de la plateforme.",
-    "welcome": "Bonjour. Posez une question sur l'humidité, la température du sol ou les tendances mesurées. Je cite toujours la source de mes chiffres.",
-    "examplesLabel": "Exemples de questions",
+    "title": "Assistant Terra Sense",
+    "subtitle": "Il répond à partir des calculs de la plateforme.",
+    "welcome": "Bonjour ! Je suis l'assistant de Terra Sense. Je peux vous aider à explorer les tendances environnementales et à comprendre les méthodes utilisées.",
+    "examplesLabel": "Pour commencer",
     "examples": [
-      "Quelle est la tendance de l'humidité du sol à Yaoundé ?",
-      "Explique-moi le test de Mann-Kendall",
-      "Comment évolue la température du sol à Yaoundé ?"
+      "Comment interpréter une tendance d'humidité du sol ?",
+      "Explique-moi le test de Mann-Kendall.",
+      "Quelle est la différence entre GLDAS et MERRA-2 ?",
+      "Comment interpréter une pente de Theil-Sen ?"
     ],
-    "placeholder": "Votre question…",
+    "placeholder": "Posez votre question…",
     "send": "Envoyer",
     "working": "L'assistant consulte les données…",
-    "failed": "L'assistant n'a pas pu répondre. Le service de données est peut-être indisponible. Vous pouvez réessayer ou consulter la section À propos.",
+    "failed": "L'assistant n'a pas pu répondre. Vous pouvez réessayer, ou consulter la section À propos.",
+    "unavailable": "L'assistant est indisponible : le service de données ne répond pas. Les sources et la méthode restent consultables dans À propos.",
+    "reconnect": "Réessayer la connexion",
     "retry": "Réessayer",
     "openAbout": "Ouvrir À propos",
     "openGlobe": "Voir sur la visualisation",
     "close": "Fermer l'assistant",
     "gemini": "Rédigé par Gemini à partir des calculs de la plateforme.",
-    "rules": "Réponse du moteur statistique de la plateforme."
+    "rules": "Réponse du moteur statistique de la plateforme.",
+    "expired": "La conversation précédente a expiré ; une nouvelle a commencé.",
+    "disclaimer": "Les réponses peuvent être incomplètes. Vérifiez les chiffres dans la visualisation.",
+    "you": "Vous",
+    "bot": "Assistant"
+  },
+  "dialog": {
+    "close": "Fermer",
+    "newTab": "nouvel onglet"
   }
 }

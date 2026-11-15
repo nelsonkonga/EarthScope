@@ -113,7 +113,7 @@ export function MainWorkspace() {
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("ask")) setPanel("assistant");
-    document.title = `${fr.appName} · Terra Sense Cameroun`;
+    document.title = `Visualisation · ${fr.appName}`;
   }, [setPanel]);
 
   useEffect(() => {

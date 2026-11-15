@@ -1,146 +1,301 @@
 {
-  "brand": "Terra Sense Cameroun",
-  "skip": "Skip to content",
+  "brand": "Terra Sense",
+  "tagline": "Explore the data. Understand the trends. Observe the Earth better.",
+  "meta": {
+    "title": "Terra Sense · Observing soil trends",
+    "description": "Terra Sense makes soil moisture and soil temperature trends readable, from NASA data (GLDAS, MODIS)."
+  },
+  "skip": "Skip to main content",
   "nav": {
+    "label": "Main navigation",
     "language": "Language",
-    "theme": "Display theme",
-    "themeLight": "Light",
-    "themeDark": "Dark",
-    "themeDim": "Dimmed",
+    "languageNames": {
+      "fr": "Français",
+      "en": "English"
+    },
+    "theme": "Appearance",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "soft": "Soft"
+    },
     "about": "About",
     "assistant": "Assistant",
-    "assistantLabel": "Open the conversational assistant",
+    "assistantLabel": "Open the Terra Sense assistant",
     "visualize": "Visualisation",
+    "visualizeLabel": "Open the visualisation workspace",
     "menu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "home": "Terra Sense, back to top"
   },
   "hero": {
-    "badge": "NASA Space Apps Challenge · Challenge 02",
+    "badge": "NASA Space Apps Challenge · Soil Trend Detective",
     "titleStart": "The ground beneath our feet",
-    "titleAccent": "is dying.",
-    "titleEnd": "And the",
-    "titleMark": "data",
-    "titleClose": "proves it.",
-    "lead": "Soil water stress is a silent crisis: it cuts harvests, dries up watering holes and drains aquifers. NASA satellites measure it every month. We turn those measurements into statistical evidence anyone can read.",
+    "titleMark": "is changing.",
+    "titleEnd": "Data lets us understand how.",
+    "lead": "Soil moisture shapes crops, vegetation and the water available to us. NASA Earth observation data keeps track of it month after month. Terra Sense helps you read these changes and check whether they are real.",
     "cta": "Enter the laboratory",
-    "ctaSecondary": "Understand the method",
-    "statsLabel": "Key facts about the published data",
-    "statYears": "{years} years of monthly series",
-    "statYearsDetail": "{start} – {end}, Yaoundé",
-    "statGrid": "GLDAS 0.25° grid",
-    "statGridDetail": "Giovanni monthly area average",
-    "statVariables": "{count} soil and atmosphere variables",
-    "statVariablesDetail": "GLDAS Noah and MODIS",
-    "statMethod": "Mann-Kendall and Theil-Sen",
-    "statMethodDetail": "latest measurement: {end}",
-    "source": "Source: NASA GES DISC, via Giovanni"
+    "ctaHint": "Opens the interactive visualisation workspace",
+    "secondary": "Discover our approach",
+    "factsLabel": "What the published data covers",
+    "facts": {
+      "coverage": "{start} – {end}",
+      "coverageLabel": "Published series, Yaoundé",
+      "cadence": "Monthly",
+      "cadenceLabel": "Temporal resolution, GLDAS and MODIS",
+      "resolution": "0.25°",
+      "resolutionLabel": "GLDAS Noah grid (MODIS: 1°)",
+      "methods": "Mann-Kendall · Theil-Sen",
+      "methodsLabel": "Trend detection methods"
+    },
+    "factsSource": "Values read from the platform catalogue.",
+    "figure": {
+      "label": "Fig. 01",
+      "caption": "Conceptual illustration. The two layers match the depths modelled by GLDAS Noah; groundwater is not measured by these data.",
+      "surface": "Surface",
+      "layer1": "0–10 cm",
+      "layer2": "10–40 cm",
+      "deep": "Deep soil",
+      "aquifer": "Groundwater (not measured)",
+      "orbit": "Satellite observation",
+      "alt": "Stylised soil cross-section: two moist layers, measurement points and a satellite observation track."
+    }
   },
   "problem": {
     "eyebrow": "The problem",
-    "title": "What happens when the soil dries out?",
-    "lead": "Soil moisture is the water reserve that crops, pastures and, deeper down, aquifers depend on. When it declines over time, the effects cascade.",
-    "cards": [
+    "title": "What happens when the soil loses its balance?",
+    "lead": "Soil moisture is not an isolated measurement. It links rainfall, vegetation, crops and the water that seeps deeper. When it changes over time, these systems change with it.",
+    "items": [
       {
-        "icon": "crop",
-        "title": "Agriculture",
-        "text": "Soil that loses moisture cuts yields from the moment seeds sprout. Farmers compensate with irrigation that draws even harder on already fragile resources."
+        "icon": "roots",
+        "title": "Weakened farmland",
+        "text": "Less water in the top few centimetres means earlier stress for seedlings and higher irrigation needs. Productivity depends directly on this reserve."
       },
       {
-        "icon": "herd",
-        "title": "Ecosystems and livestock",
-        "text": "Drought empties ponds and reservoirs. Livestock walk further to drink, and wetland habitats shrink."
+        "icon": "ecosystem",
+        "title": "Ecosystems under pressure",
+        "text": "Vegetation, wetlands and livestock depend on available water. A harsher dry season reduces plant cover and watering points."
       },
       {
         "icon": "aquifer",
-        "title": "Underground wealth",
-        "text": "Less water seeps in, and aquifers recharge poorly. This depletion is invisible: you cannot see water you never see disappear."
+        "title": "Invisible but essential water",
+        "text": "Part of the soil's water seeps down and recharges aquifers. Soil that stays drier for longer can reduce that recharge.",
+        "note": "Note: soil moisture is not a measurement of groundwater. Terra Sense displays no groundwater data."
       }
     ]
   },
   "mission": {
-    "eyebrow": "Our mission",
-    "titleStart": "NASA provides the data. We provide the",
-    "titleAccent": "proof.",
-    "lead": "Every conclusion on the platform can be traced back to the satellite measurement behind it.",
-    "cards": [
-      {
-        "icon": "satellite",
-        "title": "Satellite data",
-        "tag": "GLDAS · MODIS",
-        "text": "Soil moisture, soil temperature and evaporation are modelled by GLDAS from space observations, then averaged over the city by Giovanni."
+    "eyebrow": "Our approach",
+    "titleStart": "NASA provides the data. Terra Sense makes it",
+    "titleMark": "understandable.",
+    "lead": "Turning observation into understanding: every result shown can be traced back to the dataset it comes from.",
+    "observe": {
+      "kicker": "01 · Data",
+      "title": "Observe the Earth",
+      "text": "The series come from NASA Giovanni, which averages GLDAS Noah (soil) and MODIS (aerosol) products over the area. Years of monthly values make it possible to tell a season from a change.",
+      "datasets": [
+        {
+          "id": "GLDAS_NOAH025_M 2.0",
+          "what": "Soil moisture and temperature, 0–10 and 10–40 cm"
+        },
+        {
+          "id": "GLDAS_NOAH025_M 2.1",
+          "what": "Evaporation, runoff, 10–40 cm temperature"
+        },
+        {
+          "id": "MYD08_M3 6.1",
+          "what": "Aerosol optical depth (Deep Blue)"
+        }
+      ]
+    },
+    "trends": {
+      "kicker": "02 · Statistics",
+      "title": "Identify the trends",
+      "text": "The Mann-Kendall test tells whether a steady change is statistically supported or compatible with chance. The Theil-Sen slope estimates its size. Neither establishes a cause.",
+      "chartTitle": "Soil moisture, 10–40 cm · Yaoundé",
+      "chartCaption": "Real platform data: GLDAS Noah 2.0 monthly means ({start} – {end}). Dashed line: Theil-Sen slope.",
+      "chartLegendSeries": "Monthly mean",
+      "chartLegendTrend": "Theil-Sen trend",
+      "verdict": "{method}: {direction} ({p}). Theil-Sen slope: {slope} {unit} per decade.",
+      "directions": {
+        "up": "significant increase",
+        "down": "significant decrease",
+        "flat": "no significant trend",
+        "insufficient": "insufficient data"
       },
-      {
-        "icon": "proof",
-        "title": "Statistical proof",
-        "tag": "Mann-Kendall · Theil-Sen",
-        "text": "The Mann-Kendall test tells whether a trend is real or due to chance; the Theil-Sen slope tells how fast it moves."
-      },
-      {
-        "icon": "explain",
-        "title": "Explainable AI",
-        "tag": "Assistant · SHAP",
-        "text": "The assistant answers from the platform's own calculations and cites its sources. It never makes up a number."
-      }
-    ],
-    "cta": "Open the visualisation"
+      "loading": "Loading the series…",
+      "unavailable": "The series could not be loaded: the data service is unavailable. No curve is drawn in its place.",
+      "chartAlt": "Monthly curve of soil moisture between 10 and 40 cm in Yaoundé, with its Theil-Sen slope."
+    },
+    "understand": {
+      "kicker": "03 · Interpretation",
+      "title": "Understand the results",
+      "text": "The assistant explains a trend, a p-value or a method, from the platform's own calculations. It is an interpretation tool: it cites its sources and says what it does not know.",
+      "future": "Coming later: model explanations with SHAP. No SHAP model is published today.",
+      "ask": "Ask a question"
+    }
+  },
+  "closing": {
+    "title": "Observe the Earth. Understand its changes.",
+    "text": "Pick a variable, move through the months, compare series and check every trend.",
+    "cta": "Enter the laboratory"
   },
   "footer": {
-    "project": "A project for the NASA Space Apps Challenge",
-    "built": "Built with GLDAS, MODIS data and Python",
-    "sources": "Sources",
-    "giovanni": "NASA Giovanni",
-    "earthdata": "NASA Earthdata",
-    "boundaries": "Boundaries: geoBoundaries (CC BY 4.0)",
-    "aboutLink": "Method and datasets",
-    "dataPolicy": "Data policy",
-    "copyright": "© {year} Terra Sense Cameroun. NASA data in the public domain."
+    "attribution": "A project developed for the NASA Space Apps Challenge, around the Soil Trend Detective concept.",
+    "sourcesTitle": "Sources",
+    "navTitle": "Navigation",
+    "about": "About",
+    "visualize": "Visualisation",
+    "assistant": "Assistant",
+    "policy": "Data policy",
+    "boundaries": "Yaoundé outline: geoBoundaries (CC BY 4.0)",
+    "copyright": "© {year} Terra Sense. NASA data openly available; see each source's terms.",
+    "disclaimer": "Terra Sense is neither affiliated with nor endorsed by NASA."
   },
   "about": {
-    "title": "About Terra Sense Cameroun",
+    "title": "About Terra Sense",
     "close": "Close",
+    "sectionsLabel": "Sections",
+    "sections": {
+      "intro": "Overview",
+      "sources": "Sources",
+      "methods": "Methodology",
+      "freshness": "Freshness",
+      "transparency": "Transparency"
+    },
     "intro": [
-      "Terra Sense Cameroun is an observatory of soil water stress, built for challenge 02 of the NASA Space Apps Challenge. It makes satellite series readable that are usually explored in specialist tools.",
-      "The visualisation colours the territory of Yaoundé, bounded by its seven districts, according to the value measured in the chosen month. Colours glide from one month to the next, but no value is invented between two dates.",
-      "For each variable, the platform tests for a trend and estimates its speed. Non-significant results are shown as such.",
-      "The conversational assistant relies on the same calculations. When it does not know, it says so."
+      "Terra Sense is a platform for observing soil trends, developed for the NASA Space Apps Challenge around the Soil Trend Detective concept.",
+      "It addresses a simple difficulty: Earth observation series exist, but they are hard to read and harder still to interpret. Terra Sense shows them on a globe, plots them over time and tests whether their changes are statistically supported.",
+      "For Yaoundé, you can explore soil moisture and soil temperature at two depths, evaporation, runoff and aerosols, month by month, and ask the assistant your questions."
     ],
-    "sourcesTitle": "Data sources",
-    "sources": [
-      { "name": "NASA Giovanni", "url": "https://giovanni.gsfc.nasa.gov/giovanni/", "detail": "Area-averaged time series exported as CSV." },
-      { "name": "GLDAS Noah 0.25° monthly v2.0 / v2.1", "url": "https://disc.gsfc.nasa.gov/datasets?keywords=GLDAS_NOAH025_M", "detail": "GLDAS_NOAH025_M_2.0 and 2.1: SoilMoi0_10cm_inst, SoilMoi10_40cm_inst, SoilTMP0_10cm_inst, SoilTMP10_40cm_inst, Evap_tavg, Qs_acc." },
-      { "name": "MODIS Aqua MYD08_M3 v6.1", "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3", "detail": "Deep_Blue_Aerosol_Optical_Depth_550_Land_Mean_Mean." },
-      { "name": "MERRA-2", "url": "https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/", "detail": "Regional annual climate variables (temperature, precipitation, root-zone wetness)." },
-      { "name": "NASA Earthdata", "url": "https://www.earthdata.nasa.gov/", "detail": "Access portal and dataset documentation." },
-      { "name": "geoBoundaries gbOpen CMR ADM3", "url": "https://www.geoboundaries.org/", "detail": "Outline of Yaoundé: union of the Yaoundé I to VII districts." }
-    ],
-    "methodTitle": "Methodology",
-    "methods": [
-      { "name": "Mann-Kendall", "text": "Compares each measurement with every later one to tell whether the series rises or falls consistently. The Hamed and Rao correction accounts for the autocorrelation of successive months. Threshold: p < 0.05." },
-      { "name": "Theil-Sen", "text": "Median of the slopes between all pairs of measurements. It gives the speed of change, per year or per decade, and resists extreme values." },
-      { "name": "SHAP", "text": "Assigns each factor (rain, evaporation, temperature) its share of a prediction. This reading is shown only when a model is published for the area." }
-    ],
-    "updatedTitle": "Last update",
-    "updated": "Latest published measurement: {end}. Period covered: {start} – {end}."
+    "sources": {
+      "title": "Data sources",
+      "intro": "Not every variable comes from the same product. Each series is tied to its original dataset.",
+      "role": "Role",
+      "limits": "Limits",
+      "identifier": "Identifier",
+      "items": [
+        {
+          "name": "NASA Giovanni",
+          "id": "Area-averaged time series (g4.areaAvgTimeSeries)",
+          "role": "Computes monthly means over the 11.4–11.65 °E, 3.75–3.98 °N area and exports them as CSV.",
+          "limits": "One value per month for the whole area: no spatial variation inside it.",
+          "url": "https://giovanni.gsfc.nasa.gov/giovanni/"
+        },
+        {
+          "name": "GLDAS Noah 0.25° monthly, version 2.0",
+          "id": "GLDAS_NOAH025_M_2.0",
+          "role": "Soil moisture 0–10 and 10–40 cm, soil temperature 0–10 cm.",
+          "limits": "Values computed by a land-surface model forced by observations. Version 2.0 ends in 2014.",
+          "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.0/summary"
+        },
+        {
+          "name": "GLDAS Noah 0.25° monthly, version 2.1",
+          "id": "GLDAS_NOAH025_M_2.1",
+          "role": "Evaporation, surface runoff, soil temperature 10–40 cm.",
+          "limits": "Land-surface model; different forcing from version 2.0.",
+          "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.1/summary"
+        },
+        {
+          "name": "MODIS Aqua, level 3 monthly, collection 6.1",
+          "id": "MYD08_M3 · Deep_Blue_Aerosol_Optical_Depth_550_Land_Mean_Mean",
+          "role": "Aerosol optical depth at 550 nm.",
+          "limits": "Satellite measurement on a 1° grid; months without a measurement stay empty.",
+          "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3"
+        },
+        {
+          "name": "NASA Earthdata",
+          "id": "earthdata.nasa.gov",
+          "role": "Access portal and documentation for the GLDAS and MODIS products.",
+          "limits": "",
+          "url": "https://www.earthdata.nasa.gov/"
+        },
+        {
+          "name": "geoBoundaries",
+          "id": "gbOpen CMR ADM3",
+          "role": "Outline of Yaoundé: union of the Yaoundé I to VII districts.",
+          "limits": "Used for drawing only; values remain those of the Giovanni area.",
+          "url": "https://www.geoboundaries.org/"
+        }
+      ]
+    },
+    "methods": {
+      "title": "Methodology",
+      "items": [
+        {
+          "name": "Mann-Kendall",
+          "text": "Compares each measurement with every later one to tell whether the series rises or falls consistently. For monthly series the platform uses the seasonal version (month by month) or the Hamed and Rao correction for autocorrelation. A trend is called significant when p < 0.05."
+        },
+        {
+          "name": "Theil-Sen",
+          "text": "Median of the slopes between all pairs of measurements. It estimates the speed of change, per year or per decade, and resists extreme values."
+        },
+        {
+          "name": "SHAP",
+          "text": "Future work. No predictive model or SHAP explanation is published today."
+        }
+      ]
+    },
+    "freshness": {
+      "title": "Data freshness",
+      "text": "The catalogue does not provide an update date. Latest published observation: {end}."
+    },
+    "transparency": {
+      "title": "Transparency and limits",
+      "items": [
+        {
+          "label": "Geographic coverage",
+          "text": "One area: Yaoundé. The outline follows the seven districts; values are the Giovanni mean over the 11.4–11.65 °E, 3.75–3.98 °N rectangle."
+        },
+        {
+          "label": "Temporal coverage",
+          "text": "From {start} to {end}, monthly."
+        },
+        {
+          "label": "Missing data",
+          "text": "Months without a value stay empty in the charts. No value is interpolated or replaced with zero."
+        },
+        {
+          "label": "Resolution",
+          "text": "GLDAS: 0.25°; MODIS: 1°. These cells are larger than the city: they describe a regional mean."
+        },
+        {
+          "label": "Observation, model, statistics",
+          "text": "MODIS is a satellite measurement; GLDAS is a model estimate. Trends, slopes and p-values are derived results computed by the platform."
+        }
+      ]
+    }
   },
   "assistant": {
-    "title": "Assistant",
-    "subtitle": "Sourced answers, computed on the platform's data.",
-    "welcome": "Hello. Ask a question about soil moisture, soil temperature or measured trends. I always cite the source of my numbers.",
-    "examplesLabel": "Example questions",
+    "title": "Terra Sense assistant",
+    "subtitle": "It answers from the platform's own calculations.",
+    "welcome": "Hello! I am the Terra Sense assistant. I can help you explore environmental trends and understand the methods used.",
+    "examplesLabel": "To get started",
     "examples": [
-      "What is the soil moisture trend in Yaoundé?",
-      "Explain the Mann-Kendall test to me",
-      "How is soil temperature changing in Yaoundé?"
+      "How should I interpret a soil moisture trend?",
+      "Explain the Mann-Kendall test to me.",
+      "What is the difference between GLDAS and MERRA-2?",
+      "How should I interpret a Theil-Sen slope?"
     ],
-    "placeholder": "Your question…",
+    "placeholder": "Ask your question…",
     "send": "Send",
     "working": "The assistant is reading the data…",
-    "failed": "The assistant could not answer. The data service may be unavailable. You can try again or read the About section.",
+    "failed": "The assistant could not answer. You can try again, or read the About section.",
+    "unavailable": "The assistant is unavailable: the data service is not responding. Sources and methods remain available in About.",
+    "reconnect": "Try connecting again",
     "retry": "Try again",
     "openAbout": "Open About",
     "openGlobe": "See it in the visualisation",
     "close": "Close the assistant",
     "gemini": "Written by Gemini from the platform's calculations.",
-    "rules": "Answer from the platform's statistical engine."
+    "rules": "Answer from the platform's statistical engine.",
+    "expired": "The previous conversation expired; a new one has started.",
+    "disclaimer": "Answers may be incomplete. Check the figures in the visualisation.",
+    "you": "You",
+    "bot": "Assistant"
+  },
+  "dialog": {
+    "close": "Close",
+    "newTab": "opens in a new tab"
   }
 }
