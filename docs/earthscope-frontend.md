@@ -15,9 +15,9 @@ Langue visible : français, catalogue `src/config/strings.fr.ts`. Identifiants, 
 
 ## 1. Rôle de l’écran
 
-EarthScope est un poste de travail. Le globe occupe toute la fenêtre. L’utilisateur explore la planète, choisit des zones publiées par le backend, active des variables, lit une date unique, et peut confier ces manipulations à un assistant.
+EarthScope est un poste de travail. Le globe occupe toute la fenêtre. L’utilisateur explore la planète, choisit les zones publiées par le backend, active des variables, lit une date unique, et peut confier ces manipulations à un assistant. Avec le backend livré, la seule zone publiée est la maille Giovanni de Yaoundé.
 
-Le frontend n’invente ni zone, ni variable, ni valeur, ni tendance. Il n’appelle aucun modèle de langage. Il ne sert pas la clé Google. Il ne dérive aucune mesure de l’imagerie.
+Le frontend n’invente ni zone, ni variable, ni valeur, ni tendance, ni variation spatiale à l’intérieur de la maille. Il n’appelle aucun modèle de langage. Il ne sert pas la clé Google. Il ne dérive aucune mesure de l’imagerie.
 
 Une seule date, `selectedDate` au format `YYYY-MM-DD`, pilote les symboles, la fiche, la frise, le repère des graphiques et le contexte envoyé à l’assistant. Aucun composant ne garde sa propre date.
 
@@ -60,12 +60,12 @@ Si `navigator.deviceMemory` est indiqué et vaut 4 Go ou moins : `resolutionScal
 | Globe | CesiumJS 1.125, `vite-plugin-cesium` |
 | Session | Zustand, un store |
 | Cache serveur | TanStack Query v5 |
-| Graphiques | SVG maison, `TrendChart` et `ComparisonChart` |
+| Graphiques | SVG maison : `TrendChart`, `ComparisonChart`, `InteractiveTimeSeriesChart` |
 | Dialogues | élément `dialog` natif (`src/ui/Modal.tsx`) |
 | HTTP | `fetch` + `AbortSignal`, base `VITE_API_BASE` ou même origine |
 | Tests | Vitest sur le domaine pur et sur `selectBasemap` |
 
-**[Écart]** Pas de Radix, pas de MSW, pas de Playwright dans le dépôt livré. Les tests couvrent le temps, le validateur d’actions et le choix de fond.
+**[Écart]** Pas de Radix, pas de MSW, pas de Playwright dans le dépôt livré. Les tests couvrent le temps, le validateur d’actions, le choix de fond et la composition de la maille (`fieldView.test.ts`).
 
 ---
 
@@ -74,7 +74,7 @@ Si `navigator.deviceMemory` est indiqué et vaut 4 Go ou moins : `resolutionScal
 1. **Coque** — `EarthScopeApp` monte les providers. `MainWorkspace` assemble les régions, les raccourcis et la géométrie.
 2. **Session** — identifiants seulement. Jamais les séries, jamais la caméra.
 3. **Cache** — catalogues, séries, couches, classements, comparaisons, session d’assistant.
-4. **Globe impératif** — reçoit des symboles et des vols, émet les clics et l’échantillon caméra.
+4. **Globe impératif** — reçoit des symboles, la maille colorée et des vols, émet les clics et l’échantillon caméra.
 5. **Validateur** — `reduceAssistantActions`. Les clics passent par les actions du store, qui écrivent le même état.
 6. **Clients** — `src/api/resources.ts` et `src/api/queries.ts`.
 
@@ -94,6 +94,8 @@ src/
   domain/time.test.ts
   domain/markers.ts
   domain/colorScale.ts
+  domain/fieldView.ts
+  domain/fieldView.test.ts
   domain/format.ts
   state/workspaceStore.ts
   api/http.ts
@@ -112,6 +114,9 @@ src/
   features/variables/VariableLegend.tsx
   features/time/Timeline.tsx
   features/charts/TrendChart.tsx
+  features/analytics/AnalyticsPanel.tsx
+  features/analytics/InteractiveTimeSeriesChart.tsx
+  features/analytics/MultivariableInsightCard.tsx
   features/assistant/AIChatPanel.tsx
   features/assistant/ChatMessage.tsx
   features/workspace/LeftToolbar.tsx
@@ -143,6 +148,7 @@ EarthScopeApp
     side-panel (un seul : variables | zones | assistant)
     SelectedZonePanel
       sections de séries, TrendChart
+      AnalyticsPanel
       classement ou comparaison
     GlobeControls
     VariableLegend
@@ -171,6 +177,7 @@ type WorkspaceState = {
     mode: "rank" | "compare"
     metric: "changePerDecade" | "changeOverPeriod"
   }
+  analyticsView: "single" | "superposition" | "normalized"
   expandedChartVariableId: string | null
   notice: string | null
   assistantSessionId: string | null
@@ -196,14 +203,16 @@ Cache Query :
 | `['zones']` ou `['zones', q]` si recherche distante | 5 min |
 | `['variables']` | 5 min |
 | `['timeseries', zoneId, variableId, resolution, datasetVersion]` | infini |
-| `['layer', variableId, date, datasetVersion]` | infini, `keepPreviousData` |
+| `['layer', variableId, date, datasetVersion]` | infini, `keepPreviousData`. Une requête par variable active. |
 | `['ranking', variableId, metric]` | infini |
 | `['comparison', variableId, zoneIds]` | infini |
+| `['analytics', zoneId, variableId, start, end]` | infini |
+| `['analytics-multi', zoneId, variableIds, start, end]` | infini, à partir de deux variables |
 | `['assistant', sessionId]` | défaut Query, `retry: false` |
 
 ### Activer ou retirer une variable
 
-La variable entre en queue. La première active devient primaire. Si la primaire est retirée, la suivante prend sa place. `playback` passe à `paused`. La couche demandée est celle de la primaire à la date courante. Les secondaires ne demandent pas de couche globale. Une série part pour chaque variable active disponible sur la zone ouverte.
+La variable entre en queue. La première active devient primaire. Si la primaire est retirée, la suivante prend sa place. `playback` passe à `paused`. Une couche est demandée pour chaque variable active, à la date courante. Une série part pour chaque variable active disponible sur la zone ouverte. Changer de primaire vole vers la zone qui porte l’emprise (Yaoundé).
 
 ### Changer de zone
 
@@ -244,15 +253,15 @@ Le mode `raster-tiles` est refusé à l’écran : « Couche non prise en charge
 
 ## 8. Caméra et gestes
 
-Vue initiale : longitude 0, latitude 0, hauteur 16 000 km, nord en haut. La boussole y revient. Ce n’est pas un simple redressement de cap.
+Vue initiale : longitude 11,52°, latitude 3,86°, hauteur 1 400 km, nadir, nord en haut. C’est Yaoundé dans son cadre régional. La boussole y revient. Ce n’est pas un simple redressement de cap.
 
 | Constante | Valeur |
 |---|---|
 | Zoom minimum | 80 m |
 | Zoom maximum | 40 000 km |
-| Vol vers une zone | 80 km, inclinaison −45°, 0,8 s |
+| Vol vers une zone, ou vers la primaire | 90 km, nadir (−90°), 0,8 s |
 | Noms visibles | hauteur caméra &lt; 2 500 km, ou zone sélectionnée |
-| Disque au sol | hauteur caméra &lt; 400 km, rayon 40 km |
+| Maille colorée | ellipse à 2 400 m au-dessus de l’ellipsoïde, rayon de l’emprise Giovanni |
 
 Gestes : glisser gauche pour tourner, glisser droit ou Ctrl+glisser pour incliner, molette et pincement pour zoomer vers le curseur. Double-clic : zoom d’environ 35 % de la hauteur, sans sélectionner. Clic sur un marqueur : sélection. Clic ailleurs : la sélection ne change pas, et la barre d’état montre quatre secondes « Cet endroit n’est pas une zone du prototype. »
 
@@ -264,23 +273,45 @@ Le pont caméra (`cameraBridge`) est local au module globe. La barre d’état l
 
 ---
 
-## 9. Symboles
+## 9. Marqueurs et maille
 
-Toutes les zones du catalogue ont un marqueur, y compris hors données. Les marqueurs sont une `BillboardCollection` plus une `LabelCollection`, pas un composant React par ville. L’image est un canvas 64×64.
+Chaque zone renvoyée par `GET /zones` a un marqueur, y compris hors données. Les marqueurs sont une `BillboardCollection` plus une `LabelCollection`. L’image est un canvas 64×64, avec un cœur plus clair quand la pastille est colorée.
 
-Sans observation exploitable, le disque est blanc. Avec une valeur mesurée ou estimée sur la primaire, le remplissage vient de `colorScale` de la variable, ramené à `displayScale` de la couche. Une valeur manquante ne colore pas le marqueur et n’est pas interpolée.
+Sans observation exploitable, la pastille est blanche. Avec une valeur sur la primaire, son remplissage vient de `colorScale`, ramené entre le minimum et le maximum de la couche. Une valeur manquante ne colore pas la pastille et n’est pas interpolée.
 
-Les secondaires sont des anneaux concentriques dans `variable.color`. Une valeur estimée a un contour pointillé. La zone sélectionnée a un anneau `--accent` (`#8eabc4`).
+Les secondaires sont des anneaux concentriques dans `variable.color`. Une valeur estimée a un contour pointillé. La zone sélectionnée a un anneau `#8eabc4`. Une comparaison ou un classement atténue les zones hors liste et agrandit les zones listées.
 
-Si une comparaison ou un classement est actif, les zones hors liste sont atténuées et les zones listées sont accentuées.
+Le frontend n’enlève pas une zone que l’API publie. Le backend livré ne publie que Yaoundé. Une API plus ancienne qui publie encore la mer de Barents, le Sahel ou d’autres moyennes annuelles les fera donc réapparaître, et la frise s’étendra jusqu’à leur première année.
 
-Le disque au sol n’apparaît que pour une observation colorable, sous 400 km. Sur Google il est `CLAMP_TO_3D_TILE` / `CESIUM_3D_TILE`. Sur Cesium ion il est `CLAMP_TO_GROUND` / `TERRAIN`. La légende dit : « Le disque localise la zone. Il ne représente pas l’étendue du phénomène. » et « Couleur = valeur au point de la zone, pas un champ continu. »
+### 9.1 Emprise colorée
+
+**[Décision D-CELL]** **[Écart]** Le disque de 40 km plaqué au sol n’est plus dessiné. À la place, `composeField` (`src/domain/fieldView.ts`) construit une scène pour la zone qui porte `footprint` (ouest, sud, est, nord). Sans ce tableau, l’identifiant `zone_yaounde` retombe sur l’emprise Giovanni 11,4–11,65 °E, 3,75–3,98 °N.
+
+La couleur est la moyenne de cette maille à `selectedDate`. Ce n’est pas un champ interpolé à l’intérieur du rectangle. Le `role` de la variable choisit la famille :
+
+| `role` | Famille | Phrase de légende | Altitude |
+|---|---|---|---|
+| `soil-temperature` | thermique | « Dégradé thermique de la maille, du froid au très chaud. » | 2 400 m |
+| `soil-temperature-deep` | thermique sourd | « Même dégradé, plus sourd : le sol profond change moins vite. » | 2 400 m |
+| `soil-moisture` | humidité | « Du sol sec au sol saturé. » | 2 400 m |
+| `soil-moisture-deep` | humidité profonde | « Humidité profonde, dans des bleus plus denses. » | 2 400 m |
+| `evaporation` | vapeur | « Nappe de vapeur au-dessus de l'emprise. » | 3 100 m |
+| `runoff` | ruissellement | « Filets d'eau : l'intensité suit le ruissellement mesuré. » | 2 400 m |
+| `aerosol-optical-depth` | voile | « Voile d'aérosols, du ciel clair à la poussière dense. » | 4 200 m, rayon × 1,35 |
+
+L’échelle vient de `colorScale.stops`. À défaut, cinq tons sont dérivés de `color`. La position sur la rampe est `(valeur − min) / (max − min)`, bornée à 0–1. Sans mesure, la couleur est `#c5ccd1` et la légende dit « Pas de mesure à cette date. L'emprise reste visible, sans couleur inventée. »
+
+La géométrie est une ellipse Cesium, en hauteur absolue au-dessus de l’ellipsoïde, pour rester visible au-dessus du plateau de Yaoundé sur Cesium ion comme sur les tuiles Google. La primaire au sol peint le disque. Une autre variable au sol trace un liseré, 0,012° à l’extérieur de l’emprise. L’évaporation et les aérosols se superposent au sol s’ils sont aussi actifs.
+
+L’atmosphère Cesium prend une teinte selon la famille (chaud, bleu, vert, poussière). `--accent` devient la couleur échantillonnée. Le fond des panneaux change avec `data-field` sur `.workspace` : brun pour le thermique, bleu pour l’eau, vert pour la vapeur, ocre pour le voile.
+
+La légende, visible dès qu’une primaire existe, montre la valeur courante, la rampe avec un curseur blanc, le minimum, le maximum, la phrase de famille, puis : « Emprise Giovanni, 11,4–11,65 °E et 3,75–3,98 °N. Une seule couleur : la moyenne de la maille à la date choisie. » Une date hors `availableDateRange` de la variable fait échouer `GET /layers` : les symboles précédents restent, et la légende ajoute « Mise à jour impossible. » La date initiale, si aucune n’est encore choisie, est le plus tardif des `availableDateRange.end` publiés.
 
 ---
 
 ## 10. Disposition
 
-Le globe est le fond, bord à bord. Le chrome flotte. Fond de panneau `--panel` à 88 % (`rgba(10, 14, 18, 0.88)`), texte `--ink` `#ebe7df`, secondaire `--muted`, filet `--line` blanc à 12 %, accent unique `--accent`. Les couleurs de variables viennent du backend. `--zone-1` à `--zone-6` ne servent que dans le graphique de comparaison.
+Le globe est le fond, bord à bord. Le chrome flotte. Fond de panneau `--panel` à 88 % (`rgba(10, 14, 18, 0.88)`) tant qu’aucune variable n’est active, texte `--ink` `#ebe7df`, secondaire `--muted`, filet `--line` blanc à 12 %. `--accent` reste `#8eabc4` au repos, puis prend la couleur de la maille. `--zone-1` à `--zone-6` ne servent que dans le graphique de comparaison.
 
 Rayon 8 px. Icônes en traits, 20 px. Focus : anneau 2 px accent. Pas d’ombre portée large. Police : Segoe UI, Helvetica Neue, Arial, 14 px.
 
@@ -305,13 +336,13 @@ Une ligne de 2 px en haut signale le chargement des catalogues.
 
 ## 11. Panneaux
 
-**Variables.** Titre « Variables ». « Tout effacer » est désactivé si rien n’est actif. Thèmes triés par `order`, puis « Autres ». Chaque ligne : case, pastille, nom, unité. Si la zone ouverte ne couvre pas la variable, la ligne reste cochable et porte « Pas de données ici ». La description est en texte secondaire.
+**Variables.** Titre « Variables ». « Tout effacer » est désactivé si rien n’est actif. Thèmes triés par `order`, puis « Autres ». Chaque ligne : case, pastille, nom, unité, et une rampe miniature de `colorScale`. Si la zone ouverte ne couvre pas la variable, la ligne reste cochable et porte « Pas de données ici ». La description est en texte secondaire. Avec le backend livré, les thèmes affichés sont Sol et Atmosphère, uniquement pour les séries de la maille de Yaoundé.
 
 **Zones.** Champ « Rechercher une zone ». Liste nom et pays. La zone courante a `aria-current`. Vide : « Aucune zone du prototype ne correspond. » Catalogue vide : « Aucune zone n'est publiée pour le moment. » La recherche ne propose jamais un lieu hors catalogue. `/` ouvre ce panneau et focalise le champ.
 
 **Pastilles.** Une par variable active, dans l’ordre d’activation. Clic : la rendre primaire. Croix : la retirer. La dernière retirée rend le globe neutre.
 
-**Légende.** Visible seulement avec une primaire. Rampe, minimum, maximum, unité, mention de point. Les secondaires sont rappelés par leur pastille et leur nom. « Mise à jour… » pendant un refetch. « Mise à jour impossible. » en erreur.
+**Légende.** Visible seulement avec une primaire. Valeur courante, rampe, curseur, minimum, maximum, unité, phrase de famille, phrase d’emprise. Les secondaires sont rappelés par leur pastille et leur nom. « Mise à jour… » pendant un refetch. « Mise à jour impossible. » si la date est hors couverture. Sous 1024 px elle se replie sur le nom et la pastille.
 
 **Fiche.** Nom, pays, coordonnées `3,867° N, 11,517° E` (hémisphères N/S/E/O, six décimales au plus, virgule, zéros inutiles retirés). Mention « Valeurs du jeu d'essai, pas des mesures. » quand le catalogue est un jeu d’essai. Sans variable : « Choisissez une variable pour voir son évolution. » Sans couverture : « Pas de données de {variable} pour {zone}. » Sans série : phrase et Réessayer, pas de graphique vide.
 
@@ -391,4 +422,4 @@ Ces variables sont compilées dans le JavaScript du navigateur. Ce ne sont pas d
 
 ## 15. Hors de cette interface
 
-Street View, imagerie historique Google, géocodage mondial, labels Earth Web, nuages, terminateur, second globe, couche raster tant que le serveur n’en envoie pas une que l’écran sache afficher, action « voler vers une coordonnée arbitraire ».
+Street View, imagerie historique Google, géocodage mondial, labels Earth Web, nuages, terminateur, second globe, interpolation spatiale à l’intérieur de la maille, couche raster tant que le serveur n’en envoie pas une que l’écran sache afficher, action « voler vers une coordonnée arbitraire ».
