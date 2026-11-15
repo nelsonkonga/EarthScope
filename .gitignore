@@ -1,3 +1,4 @@
+# Dépendances et build Web / Vercel (existant)
 node_modules
 dist
 .vercel
@@ -5,3 +6,16 @@ dist
 .env.local
 *.local
 .DS_Store
+
+# Modèles IA lourds (> 100 Mo, à partager via Drive/Telegram)
+models/
+*.zip
+*.safetensors
+*.bin
+
+# Fichiers temporaires Python et Jupyter/Colab
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
