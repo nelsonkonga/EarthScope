@@ -1,0 +1,1104 @@
+<title>Eva Trend Detective</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a case file — masthead with the case tabs, then one reading column in the order Eva reads:
+   the suspects (dynamics), the evidence, Eva's norm, what moves together (transitions of dynamics), where, the sources. */
+:root {
+  --bg: #f2f5f6;
+  --surface: #fbfcfc;
+  --surface-2: #e9eef0;
+  --ink: #0f1d26;
+  --ink-2: #44545e;
+  --muted: #6f7f88;
+  --line: #d9e1e5;
+  --axis: #b9c5cb;
+  --accent: #19639f;
+  --accent-ink: #ffffff;
+  --trend: #2a78d6;
+  --trend-wash: rgba(42, 120, 214, 0.13);
+  --anom: #8796a0;
+  --base-wash: rgba(25, 99, 159, 0.07);
+  --lo-3: #184f95; --lo-2: #3987e5; --lo-1: #a9cbf3; --mid: #e6eaeb; --hi-1: #f3b7aa; --hi-2: #e3604f; --hi-3: #9b2a22;
+  --pill: #0f1d26; --pill-ink: #fbfcfc;
+  --font-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --step--1: 0.8125rem; --step-0: 1rem; --step-1: 1.1875rem; --step-2: 1.5rem; --step-3: 2.125rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1217; --surface: #10191f; --surface-2: #17232b; --ink: #e6edf0; --ink-2: #b2bfc6; --muted: #83929a;
+    --line: #22313a; --axis: #3a4b55; --accent: #5aa3e8; --accent-ink: #0b1217; --trend: #3987e5;
+    --trend-wash: rgba(57, 135, 229, 0.2); --anom: #6f808a; --base-wash: rgba(90, 163, 232, 0.08);
+    --lo-3: #9ec5f4; --lo-2: #3987e5; --lo-1: #1d4777; --mid: #27323a; --hi-1: #7a3129; --hi-2: #e66767; --hi-3: #f4a99c;
+    --pill: #e6edf0; --pill-ink: #0b1217;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1217; --surface: #10191f; --surface-2: #17232b; --ink: #e6edf0; --ink-2: #b2bfc6; --muted: #83929a;
+  --line: #22313a; --axis: #3a4b55; --accent: #5aa3e8; --accent-ink: #0b1217; --trend: #3987e5;
+  --trend-wash: rgba(57, 135, 229, 0.2); --anom: #6f808a; --base-wash: rgba(90, 163, 232, 0.08);
+  --lo-3: #9ec5f4; --lo-2: #3987e5; --lo-1: #1d4777; --mid: #27323a; --hi-1: #7a3129; --hi-2: #e66767; --hi-3: #f4a99c;
+  --pill: #e6edf0; --pill-ink: #0b1217;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: var(--step-0); line-height: 1.55; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--font-display); font-stretch: 112%; line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 6vw, 3.25rem); font-weight: 780; letter-spacing: -0.01em; font-stretch: 125%; }
+h2 { font-size: var(--step-2); font-weight: 720; }
+h3 { font-size: var(--step-1); font-weight: 680; }
+p { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.eyebrow { font-family: var(--font-data); font-size: var(--step--1); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: var(--step-1); color: var(--ink-2); max-width: 62ch; }
+.muted { color: var(--muted); }
+.small { font-size: var(--step--1); }
+.data { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+
+.masthead { border-bottom: 1px solid var(--line); background: var(--surface); }
+.masthead .wrap { padding-block: 28px 0; display: grid; gap: 12px; }
+.cases { display: flex; gap: 4px; overflow-x: auto; margin-top: 10px; scrollbar-width: thin; }
+.cases button { flex: none; font: inherit; font-size: var(--step--1); font-weight: 700; color: var(--ink-2); background: none; border: none; border-bottom: 3px solid transparent; padding: 10px 12px 9px; cursor: pointer; white-space: nowrap; }
+.cases button:hover { color: var(--ink); background: var(--surface-2); }
+.cases button[aria-current="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+main.wrap { display: grid; gap: 48px; padding-block: 32px 64px; }
+section { display: grid; gap: 16px; min-width: 0; }
+.section-head { display: grid; gap: 6px; }
+.section-head p { color: var(--ink-2); max-width: 70ch; }
+
+.brief { display: grid; gap: 18px; }
+.brief-q { font-family: var(--font-display); font-stretch: 105%; font-size: var(--step-3); font-weight: 650; line-height: 1.15; text-wrap: balance; max-width: 26ch; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 22px; color: var(--ink-2); font-size: var(--step--1); }
+.facts b { color: var(--ink); font-weight: 700; }
+.findings { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.findings li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; max-width: 80ch; }
+.glyph { width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; background: var(--surface-2); color: var(--ink); font-family: var(--font-data); font-size: 0.95rem; font-weight: 500; }
+.reading { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: var(--step--1); color: var(--muted); }
+.reading span.step { font-family: var(--font-data); color: var(--ink-2); background: var(--surface-2); padding: 2px 8px; border-radius: 999px; }
+
+.suspects { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.suspect { text-align: left; font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: grid; gap: 8px; cursor: pointer; min-width: 0; align-content: start; }
+.suspect:hover { border-color: var(--axis); }
+.suspect[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.suspect .name { font-weight: 700; line-height: 1.25; }
+.suspect .where { font-size: var(--step--1); color: var(--muted); }
+.suspect .rate { font-family: var(--font-data); font-size: 1.05rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-2); white-space: nowrap; }
+.chip.strong { background: var(--pill); color: var(--pill-ink); border-color: var(--pill); }
+.chip.eva { border-color: var(--accent); color: var(--accent); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+.toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.toggle button { font: inherit; font-size: var(--step--1); padding: 6px 12px; border: none; background: none; color: var(--ink-2); cursor: pointer; }
+.toggle button + button { border-left: 1px solid var(--line); }
+.toggle button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); font-weight: 700; }
+/* season / month filter (begin) */
+.season { display: grid; gap: 8px; }
+.season .toggle { flex-wrap: wrap; }
+.season .months button { padding: 4px 9px; min-width: 3.1em; }
+.season .reading-line { color: var(--ink-2); max-width: 75ch; }
+/* season / month filter (end) */
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: var(--step--1); color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.key-line { width: 18px; height: 2px; border-radius: 1px; display: inline-block; }
+.key-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.key-box { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.chart { width: 100%; min-width: 0; position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: var(--font-data); font-size: 11px; fill: var(--muted); }
+.verdict { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.verdict .chip { font-size: 0.8125rem; padding: 4px 10px; }
+.verdict p { color: var(--ink-2); max-width: 70ch; }
+
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+@media (max-width: 760px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 420px) { .tiles { grid-template-columns: 1fr; } }
+.tile { background: var(--surface); padding: 12px 14px; display: grid; gap: 2px; align-content: start; min-width: 0; }
+.tile .label { font-size: var(--step--1); color: var(--muted); }
+.tile .value { font-weight: 700; font-size: 1.25rem; line-height: 1.3; }
+.tile .sub { font-size: 0.78rem; color: var(--ink-2); }
+
+details { border-top: 1px solid var(--line); padding-top: 10px; }
+summary { cursor: pointer; font-size: var(--step--1); color: var(--ink-2); font-weight: 700; }
+.table-wrap { overflow-x: auto; margin-top: 10px; max-height: 360px; }
+table { border-collapse: collapse; width: 100%; font-size: var(--step--1); }
+th, td { text-align: right; padding: 4px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; font-variant-numeric: tabular-nums; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--muted); font-weight: 700; position: sticky; top: 0; background: var(--surface); }
+
+.links { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+.link { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: grid; gap: 8px; min-width: 0; }
+.link .members { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-weight: 700; }
+.link .rel { font-family: var(--font-data); font-size: 1.1rem; color: var(--accent); }
+.callout { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; color: var(--ink); max-width: 80ch; }
+
+.map-grid { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 18px; align-items: start; }
+@media (max-width: 760px) { .map-grid { grid-template-columns: 1fr; } }
+.scale { display: grid; gap: 6px; font-size: var(--step--1); color: var(--ink-2); }
+.scale .bar { height: 10px; border-radius: 5px; }
+.scale .ticks { display: flex; justify-content: space-between; font-family: var(--font-data); font-size: 0.72rem; color: var(--muted); }
+
+.catalog { display: grid; gap: 14px; }
+.kw { display: grid; gap: 6px; }
+.kw h3 { font-size: var(--step-0); font-stretch: 100%; }
+.coll { font-size: var(--step--1); }
+.coll td { white-space: normal; text-align: left; vertical-align: top; }
+.coll td.data { white-space: nowrap; }
+.prov { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: var(--step--1); color: var(--ink-2); }
+.prov b { color: var(--ink); }
+
+.method { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+.method h3 { margin-bottom: 6px; }
+.method p, .method li { color: var(--ink-2); font-size: 0.95rem; }
+.method ol, .method ul { margin: 6px 0 0; padding-left: 1.2em; display: grid; gap: 6px; }
+
+.form { display: grid; gap: 14px; }
+.form fieldset { border: 1px solid var(--line); border-radius: 8px; padding: 12px; display: grid; gap: 8px; min-width: 0; }
+.form legend { font-weight: 700; padding: 0 6px; }
+.form .vars { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px 12px; }
+.form label { font-size: var(--step--1); display: flex; gap: 6px; align-items: baseline; }
+.form select, .form input[type="text"] { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); max-width: 100%; }
+.btn { font: inherit; font-weight: 700; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); cursor: pointer; justify-self: start; }
+.btn[disabled] { opacity: 0.6; cursor: progress; }
+
+footer { border-top: 1px solid var(--line); }
+footer .wrap { padding-block: 22px 40px; display: grid; gap: 6px; font-size: var(--step--1); color: var(--muted); }
+
+.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14); font-size: 0.8rem; max-width: 280px; display: grid; gap: 3px; }
+.tip-title { color: var(--muted); font-family: var(--font-data); font-size: 0.75rem; }
+.tip-row { display: flex; align-items: center; gap: 6px; }
+.tip-row strong { font-family: var(--font-data); font-weight: 500; }
+.tip-key { width: 12px; height: 2px; border-radius: 1px; flex: none; }
+.tip-l { color: var(--ink-2); }
+@media (prefers-reduced-motion: no-preference) { .suspect, .cases button { transition: border-color 0.15s, background 0.15s; } }
+</style>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">A project for the NASA Space Apps Challenge 2026 · “Be an Earth System Trend Detective”</p>
+    <h1>Eva Trend Detective</h1>
+    <p class="lede">Pick a place and a variable measured by NASA missions and models. See how it has changed since 1981, whether the change is significant, and what changes with it.</p>
+    <nav class="cases" id="cases" aria-label="Cases"></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="brief" id="brief" aria-live="polite">
+    <p class="eyebrow" id="brief-eyebrow"></p>
+    <p class="brief-q" id="brief-q"></p>
+    <div class="facts" id="brief-facts"></div>
+    <div class="reading" aria-label="How Eva reads a case"><span>Eva reads a case in this order:</span><span class="step">1 · each dynamic and its norm</span><span>→</span><span class="step">2 · the transitions of the dynamics</span><span>→</span><span class="step">3 · the verdict</span></div>
+    <ul class="findings" id="brief-findings"></ul>
+  </section>
+
+  <section id="suspects">
+    <div class="section-head">
+      <h2>The suspects</h2>
+      <p>Every variable investigated in this case, with its verdict. Pick one to see the evidence.</p>
+    </div>
+    <div class="suspects" id="suspect-list"></div>
+  </section>
+
+  <section id="evidence">
+    <div class="section-head">
+      <p class="eyebrow">The evidence</p>
+      <h2 id="ev-title"></h2>
+      <p id="ev-def"></p>
+    </div>
+    <div class="panel">
+      <div class="verdict" id="ev-verdict"></div>
+      <!-- season / month filter (begin) -->
+      <div class="season" id="ev-season">
+        <div class="panel-head">
+          <span class="small muted">Which months to read</span>
+          <div class="toggle" id="season-presets" role="group" aria-label="Season">
+            <button type="button" data-season="year">Full year</button>
+            <button type="button" data-season="DJF" title="December, January, February">DJF · winter</button>
+            <button type="button" data-season="MAM" title="March, April, May">MAM · spring</button>
+            <button type="button" data-season="JJA" title="June, July, August">JJA · summer</button>
+            <button type="button" data-season="SON" title="September, October, November">SON · autumn</button>
+            <button type="button" data-season="custom">Custom months</button>
+          </div>
+        </div>
+        <div class="toggle months" id="season-months" role="group" aria-label="Pick the months to average"></div>
+        <p class="small reading-line" id="season-note"></p>
+      </div>
+      <!-- season / month filter (end) -->
+      <div class="panel-head">
+        <div class="legend" id="ev-legend"></div>
+        <div class="toggle" id="ev-views" role="group" aria-label="What to plot">
+          <button type="button" data-view="anomalies">Anomalies</button>
+          <button type="button" data-view="yearly">Yearly averages</button>
+          <button type="button" data-view="values">Monthly values</button>
+        </div>
+      </div>
+      <div class="chart" id="ev-chart"></div>
+      <p class="small muted" id="ev-note"></p>
+      <div class="tiles" id="ev-tiles"></div>
+      <details id="ev-table-box"><summary>Table of yearly values</summary><div class="table-wrap" id="ev-table"></div></details>
+    </div>
+  </section>
+
+  <section id="eva">
+    <div class="section-head">
+      <p class="eyebrow">Step 1 · the dynamic and its norm</p>
+      <h2>Eva's view</h2>
+      <p id="eva-intro"></p>
+    </div>
+    <div class="panel">
+      <div class="verdict" id="eva-verdict"></div>
+      <div>
+        <h3>Each month, placed among the same months of <span class="eva-base"></span></h3>
+        <p class="small muted">One square per month (rows: January to December). Its colour is Eva's position for that value: where it falls among the values seen at the same time of year during her learning period.</p>
+      </div>
+      <div class="legend" id="eva-strip-legend"></div>
+      <div class="chart" id="eva-strip"></div>
+      <div>
+        <h3>How far each year departs from what her norm expected</h3>
+        <p class="small muted">Each month is read from both sides: from the month before and from the month after (a transition is the same read either way). 0 means exactly as expected; +20 means the year came out higher than expected by 20 points out of 100.</p>
+      </div>
+      <div class="chart" id="eva-dep"></div>
+      <div class="tiles" id="eva-tiles"></div>
+    </div>
+  </section>
+
+  <section id="links">
+    <div class="section-head">
+      <p class="eyebrow">Step 2 · the transitions of the dynamics</p>
+      <h2>What moves together</h2>
+      <p>Each dynamic is a heatmap of the months it left its norm, and which way. Two dynamics are linked when a transformation carries one heatmap onto the other far more often than chance at the same moment of the record: the identity (the same way, the same months), a mirror (opposite ways), or a shift in time (one comes first). When it covers most of both, Eva takes them for one dynamic. Opposite trends and the borders found on the map belong here too.</p>
+    </div>
+    <div id="link-callouts" class="findings"></div>
+    <div class="links" id="link-list"></div>
+    <div class="panel">
+      <h3>Every pair, as Eva weighed it</h3>
+      <p class="small muted">At the coarse grain, where a position only changes when a dynamic leaves its norm or comes back. “Same months”: how often both did so in the same month, against chance; her birth test needs a lift of at least 1.25 and a z of at least 4. “Directions”: when they did, how often they went the same way. The birth test looks only at the first.</p>
+      <div class="table-wrap" id="pairs"></div>
+    </div>
+  </section>
+
+  <section id="where">
+    <div class="section-head">
+      <h2>Where is it changing?</h2>
+      <p id="map-intro"></p>
+    </div>
+    <div class="panel">
+      <div class="map-grid">
+        <div class="chart" id="map"></div>
+        <div class="scale" id="map-scale"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="catalog">
+    <div class="section-head">
+      <h2>NASA data on this question</h2>
+      <p id="cat-intro"></p>
+    </div>
+    <div class="catalog" id="cat-list"></div>
+    <h3>Where these series come from</h3>
+    <ul class="prov" id="prov-list"></ul>
+  </section>
+
+  <section id="new" hidden>
+    <div class="section-head">
+      <h2>Open a new case</h2>
+      <p>Answer three questions. The detective fetches the data from NASA, runs the tests and lets Eva read the series. The first run of a region takes a minute; later runs come from the cache.</p>
+    </div>
+    <form class="form panel" id="new-form">
+      <fieldset><legend>1 · What do you want to investigate?</legend><div class="vars" id="new-vars"></div></fieldset>
+      <fieldset><legend>2 · Where?</legend>
+        <label for="new-region">Region <select id="new-region"></select></label>
+        <label for="new-box">or a box south,north,west,east <input type="text" id="new-box" placeholder="12,18,-5,5"></label>
+        <p class="small muted" id="new-region-why"></p>
+      </fieldset>
+      <fieldset><legend>3 · Words to search NASA's catalogue</legend>
+        <label for="new-words">Words <input type="text" id="new-words" placeholder="soil moisture"></label>
+      </fieldset>
+      <button class="btn" type="submit" id="new-run">Investigate</button>
+      <p class="small" id="new-status" role="status"></p>
+    </form>
+  </section>
+
+  <section id="method">
+    <div class="section-head">
+      <h2>How the detective works</h2>
+    </div>
+    <div class="method">
+      <div>
+        <h3>The classical tests</h3>
+        <ul>
+          <li><b>Rate of change</b>: Sen's slope, the median of the slopes between every pair of years, computed on the yearly averages. A wild year cannot drag it.</li>
+          <li><b>Mann-Kendall test</b>: does the series go up (or down) more often than chance would allow? It uses only the order of the values, with Hamed and Rao's correction for years that resemble their neighbours.</li>
+          <li><b>t-test on the least-squares slope</b>, counting only the effective number of independent years.</li>
+          <li><b>Pettitt test</b>: the year where the level jumped, if it did. Beware: a steady trend has no single level, and on a steady trend with realistic year-to-year persistence this test reports a « jump » 65 % of the time. The detective shows it, but asks Eva whether the dynamic really changed.</li>
+          <li><b>Years needed</b> (Weatherhead et al. 1998): how long a trend of this size takes to stand out from the natural swings.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Eva's molettes</h3>
+        <ul>
+          <li>Each variable is a dynamic. Eva places every month among the same months of her learning period (1981–2010): its position. Her molettes learn how positions follow each other (the norm) and which transitions are rare (the extremes).</li>
+          <li>She then reads every later month against that norm without learning from it, from the month before and from the month after.</li>
+          <li>At a coarser grain, a position only changes when a dynamic leaves its norm or comes back. The months it is out of its norm, and which way, form its heatmap. A link is a transformation that carries one heatmap onto another (same way, opposite way, or a few months later) far more often than chance read at the same moment of the record, so that a trend both share is not taken for a link. Every pair and every shift tried is counted against the evidence (Bonferroni).</li>
+          <li>A month out of its norm is often followed by others: joint months come in bunches. Each link is also read again with one series moved 1 to 5 years away, which keeps each one's persistence and most of its trend; a link must stand far above those readings.</li>
+          <li>The same transformation linking the same two variables in two regions is one process, even when their trends run opposite ways.</li>
+          <li><b>Did the dynamic change?</b> Read month by month, a climate series fools any reader: a month resembles the one before. The level of a 45-year trend is the year. Eva reads the yearly values in levels of meta molettes (2, 4, 8… years joined): two neighbouring stretches are one dynamic unless chance would put them that far apart less than 1 % of the time, with the noise measured where it is, persistence included. On a steady trend with realistic noise she reports a change of regime 5.5 % of the time (68 series tested). Changes that several variables make together in one region are told, with how often chance would gather them.</li>
+          <li>Most series here come from one reanalysis, MERRA-2. A link between two of its variables can come from the model's own physics (the land model computes evaporation from soil water, for instance): each link says so when it can.</li>
+          <li>On the map, the trend of each grid cell is a dynamic too, and the step to its neighbour a transition. Out-of-norm transitions where the sign flips draw the borders where the trend reverses.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>What it cannot tell you</h3>
+        <ul>
+          <li>A link is not a cause. It says the same months move both dynamics; the process behind it is yours to find.</li>
+          <li>MERRA-2 is a reanalysis: a weather model kept on track by observations. Where observations are rare (polar seas, before satellites), it leans on the model.</li>
+          <li>A trend measured over 45 years says nothing certain about the next 45. Straight lines miss curves: check whether Eva sees more than one dynamic, and her departures.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Data: NASA POWER (Langley Research Center), from the MERRA-2 reanalysis (NASA GMAO) and CERES. Catalogue: NASA's Common Metadata Repository, through earthdata-mcp. Engine: Eva, molettes of dynamics.</p>
+    <p id="foot-created"></p>
+  </div>
+</footer>
+
+<div class="tip" id="tip" role="tooltip" hidden></div>
+<script type="application/json" id="data">__DATA_JSON__</script>
+<script>
+__STATS_JS__
+</script>
+<script>
+(() => {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("data").textContent);
+  const CASES = DATA.cases;
+  const CAT = DATA.catalog;
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const state = { ci: 0, unit: null, view: "anomalies" };
+  const $ = (s) => document.querySelector(s);
+
+  // ------------------------------------------------------------- helpers
+  function h(tag, props, ...kids) {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(props || {})) {
+      if (v == null || v === false) continue;
+      if (k === "class") e.className = v;
+      else if (k === "text") e.textContent = v;
+      else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v === true ? "" : v);
+    }
+    for (const kid of kids.flat()) {
+      if (kid == null || kid === false) continue;
+      e.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+    }
+    return e;
+  }
+  function sv(tag, attrs, parent) {
+    const e = document.createElementNS(SVGNS, tag);
+    for (const [k, v] of Object.entries(attrs || {})) if (v != null) e.setAttribute(k, v);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  function num(x, d) {
+    if (x == null || !isFinite(x)) return "—";
+    return Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  function sig(x, n) {
+    n = n || 2;
+    if (x == null || !isFinite(x)) return "—";
+    if (x === 0) return "0";
+    const d = Math.max(0, Math.min(4, n - 1 - Math.floor(Math.log10(Math.abs(x)))));
+    return (x < 0 ? "−" : "") + num(x, d);
+  }
+  const signed = (x, n) => (x == null || !isFinite(x)) ? "—" : (x > 0 ? "+" : "") + sig(x, n);
+  function pval(p) {
+    if (p == null || !isFinite(p)) return "—";
+    if (p < 0.001) return "< 0.001";
+    return "= " + (p < 0.01 ? p.toFixed(3) : p.toFixed(2));
+  }
+  const pct = (x) => (x == null || !isFinite(x)) ? "—" : Math.round(100 * x) + " %";
+  function rateUnit(v) { return v.units === "%" ? "points" : (v.units === "—" ? "" : v.units); }
+  function unitOf(v) { return v.units === "—" ? "" : v.units; }
+  const decYear = (m) => { const [y, mm] = m.split("-").map(Number); return y + (mm - 0.5) / 12; };
+  function niceTicks(lo, hi, n) {
+    const span = hi - lo || 1, raw = span / (n || 5);
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 2.5, 5, 10].map((k) => k * mag).find((s) => s >= raw) || 10 * mag;
+    const out = [];
+    for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Math.abs(v) < 1e-12 ? 0 : v);
+    return out;
+  }
+  function median(xs) { const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+  function hex2rgb(hx) { hx = hx.replace("#", ""); if (hx.length === 3) hx = [...hx].map((c) => c + c).join(""); const n = parseInt(hx, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  function mix(a, b, t) { const A = hex2rgb(a), B = hex2rgb(b); return "rgb(" + A.map((x, i) => Math.round(x + (B[i] - x) * t)).join(",") + ")"; }
+  function divColor(t) {
+    const stops = [[-1, css("--lo-3")], [-0.55, css("--lo-2")], [-0.18, css("--lo-1")], [0, css("--mid")], [0.18, css("--hi-1")], [0.55, css("--hi-2")], [1, css("--hi-3")]];
+    t = Math.max(-1, Math.min(1, t || 0));
+    for (let i = 1; i < stops.length; i++) {
+      if (t <= stops[i][0]) { const [a, ca] = stops[i - 1], [b, cb] = stops[i]; return mix(ca, cb, (t - a) / (b - a)); }
+    }
+    return stops[stops.length - 1][1];
+  }
+  function posColor(p, b) {
+    if (p == null) return "transparent";
+    if (p < 0) return css("--lo-3");
+    if (p >= b) return css("--hi-3");
+    const mid = (b - 1) / 2;
+    if (p === mid) return css("--mid");
+    if (p < mid) return p === 0 ? css("--lo-2") : css("--lo-1");
+    return p === b - 1 ? css("--hi-2") : css("--hi-1");
+  }
+
+  // -------------------------------------------------------------- tooltip
+  const tip = $("#tip");
+  function showTip(ev, title, rows) {
+    tip.replaceChildren();
+    if (title) tip.append(h("div", { class: "tip-title", text: title }));
+    for (const r of rows) {
+      const row = h("div", { class: "tip-row" });
+      if (r.key) row.append(h("span", { class: "tip-key", style: "background:" + r.key }));
+      row.append(h("strong", { text: r.v }), h("span", { class: "tip-l", text: r.l || "" }));
+      tip.append(row);
+    }
+    tip.hidden = false;
+    const pad = 14, w = tip.offsetWidth, hh = tip.offsetHeight;
+    let x = ev.clientX + pad, y = ev.clientY + pad;
+    if (x + w > innerWidth - 8) x = ev.clientX - w - pad;
+    if (y + hh > innerHeight - 8) y = ev.clientY - hh - pad;
+    tip.style.left = Math.max(8, x) + "px";
+    tip.style.top = Math.max(8, y) + "px";
+  }
+  const hideTip = () => { tip.hidden = true; };
+
+  // --------------------------------------------------------- case access
+  const C = () => CASES[state.ci];
+  const verdictLevel = (t) => t && t.verdict ? t.verdict.level : "not significant";
+  function evaOf(c, u) {
+    if (c.eva.fine && c.eva.fine.units[u]) return c.eva.fine;
+    if (c.eva.alone && c.eva.alone[u] && c.eva.alone[u].units) return c.eva.alone[u];
+    return null;
+  }
+  function pickUnit(c) {
+    let best = null, score = -1;
+    for (const u of Object.keys(c.units)) {
+      const t = c.trends[u];
+      const s = verdictLevel(t) === "significant" ? 2 : verdictLevel(t) === "suggestive" ? 1 : 0;
+      if (s > score) { best = u; score = s; }
+    }
+    return best || Object.keys(c.units)[0];
+  }
+  function trendChip(t) {
+    const lv = verdictLevel(t), dir = t && t.verdict ? t.verdict.direction : "flat";
+    const arrow = dir === "rising" ? "▲" : dir === "falling" ? "▼" : "■";
+    if (lv === "significant") return h("span", { class: "chip strong" }, arrow + " Significant " + (dir === "rising" ? "rise" : "fall"));
+    if (lv === "suggestive") return h("span", { class: "chip" }, arrow + " Suggestive " + (dir === "rising" ? "rise" : "fall"));
+    return h("span", { class: "chip" }, "Not significant (yet)");
+  }
+  function evaChip(x) {
+    if (!x) return null;
+    if (x.verdict.level === "left its norm") return h("span", { class: "chip eva" }, "Eva: left its norm " + (x.verdict.direction === "up" ? "↑" : "↓"));
+    return h("span", { class: "chip" }, "Eva: within its norm");
+  }
+
+
+  // ===== season / month filter (begin) =====
+  // The Python statistics are frozen in the case for the full year and for DJF/MAM/JJA/SON
+  // (trends[u].seasons). Custom months are computed here by SeasonStats (detective/stats.js, a copy
+  // of detective/stats.py checked by checks/season_stats_parity.py) from the embedded monthly series.
+  const SEASON_NAMES = { year: "the full year", DJF: "winter", MAM: "spring", JJA: "summer", SON: "autumn", custom: "custom months" };
+  const FULL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  state.season = "year";
+  state.months = new Set(FULL);
+  const customCache = new Map();
+  function selMonths() { return [...state.months].sort((a, b) => a - b); }
+  function trendOf(c, u) {  // the trend object (same fields) for the months being read
+    const t = c.trends[u];
+    if (!t || state.season === "year") return t;
+    if (state.season !== "custom") return (t.seasons || {})[state.season] || null;
+    const key = c.id + "|" + u + "|" + selMonths().join(",");
+    if (!customCache.has(key)) {
+      const s = c.series[u];
+      customCache.set(key, SeasonStats.seasonTrend(s.months, s.values, c.baseline, selMonths()));
+    }
+    return customCache.get(key);
+  }
+  const isSeason = () => state.season !== "year";
+  function monthsText(ms) {  // "December to February", "Jan, Mar, Aug"
+    const [sorted, nxt] = SeasonStats.seasonPlan(ms);
+    const order = sorted.filter((m) => nxt.has(m)).concat(sorted.filter((m) => !nxt.has(m)));
+    const runs = [];
+    for (const m of order) {
+      const last = runs[runs.length - 1];
+      if (last && (last[last.length - 1] % 12) + 1 === m) last.push(m); else runs.push([m]);
+    }
+    const FULLM = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    return runs.map((r) => r.length >= 3 ? FULLM[r[0] - 1] + " to " + FULLM[r[r.length - 1] - 1] : r.map((m) => MONTHS[m - 1]).join(", ")).join(" and ");
+  }
+  function seasonLabel() { return state.season === "year" ? "yearly" : state.season === "custom" ? "selected-months" : state.season; }
+  function renderSeason(t) {
+    for (const b of document.querySelectorAll("#season-presets button")) b.setAttribute("aria-pressed", b.dataset.season === state.season ? "true" : "false");
+    const box = $("#season-months");
+    if (!box.children.length) {
+      box.replaceChildren(...MONTHS.map((n, i) => h("button", { type: "button", "data-month": String(i + 1), onclick: () => toggleMonth(i + 1) }, n)));
+    }
+    for (const b of box.children) b.setAttribute("aria-pressed", state.months.has(+b.dataset.month) ? "true" : "false");
+    const ms = selMonths();
+    if (!ms.length) { $("#season-note").textContent = "Pick at least one month."; return; }
+    const [, nxt] = SeasonStats.seasonPlan(ms);
+    let txt = "Reading " + (ms.length === 12 ? "all twelve months" : monthsText(ms)) + ": one average per year, then the same tests as for the full year.";
+    if (nxt.size) txt += " The season is counted in the year it ends (" + monthsText([...nxt]) + " belong to the following year).";
+    if (ms.length < 12) txt += " Seasons are named for the northern hemisphere.";
+    if (!t) txt += " Fewer than four complete seasons are available, so nothing can be tested.";
+    else if (t.annual) txt += " " + t.annual.years.length + " seasons, " + t.annual.years[0] + " to " + t.annual.years[t.annual.years.length - 1] + ".";
+    $("#season-note").textContent = txt;
+  }
+  function pickSeason(name) {
+    state.season = name;
+    if (name === "custom") { if (!state.months.size) state.months = new Set(FULL); }
+    else state.months = new Set(name === "year" ? FULL : SeasonStats.SEASONS[name]);
+    renderUnit(C()); renderSuspects(C());
+  }
+  function toggleMonth(m) {
+    const next = new Set(state.months);
+    if (next.has(m)) { if (next.size === 1) return; next.delete(m); } else next.add(m);
+    state.months = next; state.season = "custom";
+    renderUnit(C()); renderSuspects(C());
+  }
+  for (const b of document.querySelectorAll("#season-presets button")) b.addEventListener("click", () => pickSeason(b.dataset.season));
+  // ===== season / month filter (end) =====
+
+  // ---------------------------------------------------------------- nav
+  function renderNav() {
+    const nav = $("#cases");
+    nav.replaceChildren(...CASES.map((c, i) => h("button", {
+      type: "button", "aria-current": i === state.ci ? "true" : "false",
+      onclick: () => { if (location.hash !== "#" + c.id) location.hash = c.id; else select(i); }
+    }, c.title)));
+  }
+  function select(i, unit) {
+    state.ci = Math.max(0, Math.min(CASES.length - 1, i));
+    state.unit = unit && C().units[unit] ? unit : pickUnit(C());
+    renderAll();
+  }
+  function fromHash() {
+    const id = decodeURIComponent(location.hash.replace("#", ""));
+    const i = CASES.findIndex((c) => c.id === id);
+    select(i >= 0 ? i : 0);
+  }
+
+  // -------------------------------------------------------------- brief
+  function renderBrief(c) {
+    $("#brief-eyebrow").textContent = "Case · " + c.title;
+    $("#brief-q").textContent = c.question;
+    const regions = c.regions.map((r) => r.name + " (" + r.south + "° to " + r.north + "°, " + r.west + "° to " + r.east + "°)").join(" and ");
+    $("#brief-facts").replaceChildren(
+      h("span", null, h("b", null, "Where "), regions),
+      h("span", null, h("b", null, "When "), c.period[0] + "–" + c.period[1] + ", monthly"),
+      h("span", null, h("b", null, "Eva's learning period "), c.baseline[0] + "–" + c.baseline[1]),
+      h("span", null, h("b", null, "Variables "), Object.keys(c.units).length)
+    );
+    const glyphs = { process: "≡", opposite: "⇅", link: "⇄", border: "┃", trend: "∿", change: "↯" };
+    const of = (k) => c.story.filter((s) => s.kind === k);
+    const top = of("process").slice(0, 1).concat(of("change").slice(0, 2), of("opposite").slice(0, 2))
+      .concat(of("trend").filter((s) => s.level === "significant").slice(0, 3))
+      .concat(of("link").slice(0, 2), of("border").slice(0, 1));
+    $("#brief-findings").replaceChildren(...top.map((s) => h("li", null,
+      h("span", { class: "glyph", "aria-hidden": "true" }, glyphs[s.kind] || "•"),
+      h("p", null, s.kind === "trend" ? s.text.split(" Eva:")[0] : s.text))));
+  }
+
+  // ----------------------------------------------------------- suspects
+  function renderSuspects(c) {
+    const fine = c.eva.fine;
+    $("#suspect-list").replaceChildren(...Object.entries(c.units).map(([u, info]) => {
+      const v = c.variables[info.variable], t = trendOf(c, u), e = evaOf(c, u);
+      return h("button", {
+        type: "button", class: "suspect", "aria-pressed": u === state.unit ? "true" : "false",
+        onclick: () => { state.unit = u; renderSuspects(c); renderUnit(c); document.getElementById("evidence").scrollIntoView({ behavior: "smooth", block: "start" }); }
+      },
+        h("span", { class: "name" }, v.label),
+        c.regions.length > 1 ? h("span", { class: "where" }, info.region_name) : null,
+        h("span", { class: "rate" }, t && isFinite(t.per_decade) ? signed(t.per_decade, 2) + " " + rateUnit(v) + " / decade" : "—"),
+        h("span", { class: "chips" }, trendChip(t), evaChip(e && e.units[u])));
+    }));
+  }
+
+  // ----------------------------------------------------------- evidence
+  function renderEvidence(c, u) {
+    const info = c.units[u], v = c.variables[info.variable], t = trendOf(c, u);
+    renderSeason(t);
+    $("#ev-title").textContent = v.label + (c.regions.length > 1 ? " — " + info.region_name : "");
+    $("#ev-def").textContent = v.simple;
+    const verdict = $("#ev-verdict");
+    if (!t) {
+      verdict.replaceChildren(h("p", null, "Too few complete seasons to test a trend with these months."));
+      $("#ev-chart").replaceChildren(); $("#ev-legend").replaceChildren(); $("#ev-tiles").replaceChildren(); $("#ev-table").replaceChildren();
+      $("#ev-note").textContent = "";
+      return;
+    }
+    verdict.replaceChildren(trendChip(t), h("p", null, t.verdict.text));
+    for (const b of document.querySelectorAll("#ev-views button")) b.setAttribute("aria-pressed", b.dataset.view === state.view ? "true" : "false");
+    drawEvidence(c, u);
+    const a = t.annual, units = unitOf(v), ru = rateUnit(v);
+    const pet = a.pettitt || {};
+    const tiles = [
+      ["Rate of change", signed(t.per_decade, 2) + " " + ru + " / decade",
+        "95 % range " + signed(t.per_decade_ci[0], 2) + " to " + signed(t.per_decade_ci[1], 2) + " · Sen's slope of the " + seasonLabel() + " averages"],
+      ["Change since " + a.years[0], signed(t.total_change, 2) + " " + (v.units === "%" ? "points" : units),
+        (isFinite(t.total_change_sd) && t.total_change_sd != null ? sig(Math.abs(t.total_change_sd), 2) + " × the usual year-to-year swing" : "") +
+        (t.total_change_pct != null && v.units !== "°C" && v.units !== "%" ? " · " + signed(t.total_change_pct, 2) + " % of the " + c.baseline[0] + "–" + c.baseline[1] + " average" : "")],
+      ["Mann-Kendall test", "p " + pval(a.mann_kendall.p), "τ = " + sig(a.mann_kendall.tau, 2) + " · corrected for autocorrelation"],
+      ["t-test on the slope", "p " + pval(a.ols.p), Math.round(a.ols.n_eff) + " effective years out of " + a.years.length],
+      (() => {
+        const d = ((c.dynamics || {}).units || {})[u];
+        const dyn = d ? d.dynamics : [];
+        const pet_txt = "Pettitt's « jump » " + (pet.p < 0.05 ? "around " + pet.year + " (p " + pval(pet.p) + ")" : "none") +
+          ": it also reports one in 65 % of steady trends, so it is not a change of regime";
+        if (isSeason()) return ["Did its dynamic change?", "—", "Eva reads all twelve months together: pick the full year to see her answer. " + pet_txt];
+        if (!dyn.length) return ["Did its dynamic change?", "—", pet_txt];
+        if (dyn.length === 1) return ["Did its dynamic change?", "no: one steady dynamic",
+          "Eva, year by year: " + dyn[0].from + "–" + dyn[0].to + " at " + signed(dyn[0].per_decade, 2) + " " + ru + " / decade · " + pet_txt];
+        return ["Did its dynamic change?", "yes, in " + dyn.slice(0, -1).map((x, i) => x.to + "–" + dyn[i + 1].from).join(", "),
+          "Eva, year by year: " + dyn.map((x) => x.from + "–" + x.to + " " + signed(x.per_decade, 2)).join(" · ") + " " + ru + " / decade"];
+      })(),
+      ["Years of data needed", "≈ " + (isFinite(t.years_needed) && t.years_needed != null ? Math.round(t.years_needed) : "—") + " years",
+        verdictLevel(t) === "significant" ? "for a trend this size to stand out · " + a.years.length + " years so far" : "to tell this trend from natural swings · " + a.years.length + " so far"],
+    ];
+    $("#ev-tiles").replaceChildren(...tiles.map(([l, val, sub]) => h("div", { class: "tile" },
+      h("span", { class: "label" }, l), h("span", { class: "value" }, val), h("span", { class: "sub" }, sub))));
+    renderTable(c, u);
+  }
+
+  function annualAnoms(c, u) {
+    const s = c.series[u], t = c.trends[u], out = new Map();
+    if (isSeason()) {  // one anomaly per season: its average minus the average of those months over the baseline
+      const ts = trendOf(c, u);
+      if (ts) ts.annual.years.forEach((y, i) => out.set(y, ts.anomalies[i]));
+      return out;
+    }
+    const an = t.anomalies && t.anomalies.length === s.months.length ? t.anomalies : null;
+    if (!an) return out;
+    s.months.forEach((m, i) => { const y = +m.slice(0, 4); if (!out.has(y)) out.set(y, []); out.get(y).push(an[i]); });
+    for (const [y, vs] of out) if (vs.length < 12) out.delete(y); else out.set(y, vs.reduce((a, b) => a + b, 0) / vs.length);
+    return out;
+  }
+
+  function drawEvidence(c, u) {
+    const box = $("#ev-chart"); box.replaceChildren();
+    const info = c.units[u], v = c.variables[info.variable], t = trendOf(c, u), s = c.series[u];
+    const sel = new Set(selMonths()), seasonal = isSeason(), avgWord = seasonal ? seasonLabel() + " average" : "yearly average";
+    const W = Math.max(300, box.clientWidth || 720), H = Math.round(Math.max(230, Math.min(360, W * 0.42)));
+    const m = { l: 56, r: 64, t: 18, b: 28 };
+    const svg = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": v.label + ": " + t.verdict.text }, box);
+    const years = t.annual.years, y0 = years[0], y1 = years[years.length - 1] + 1;
+    const view = state.view;
+    const baseMean = t.baseline_mean;
+    const trendRaw = (x) => t.annual.sen.intercept + t.annual.sen.slope * (x - 0.5);
+    const shift = view === "anomalies" ? baseMean : 0;
+    const trend = (x) => trendRaw(x) - shift;
+    let pts = [];
+    const ann = annualAnoms(c, u);
+    if (view === "anomalies") {
+      const an = !seasonal && t.anomalies.length === s.months.length ? t.anomalies : [];
+      pts = s.months.map((mm, i) => [decYear(mm), an[i], mm, i]).filter((p) => p[1] != null);
+    } else if (view === "values") {
+      pts = s.months.map((mm, i) => [decYear(mm), s.values[i], mm, i]).filter((p) => !seasonal || sel.has(+p[2].slice(5)));
+    }
+    const yearly = view === "anomalies" ? [...ann].map(([y, a]) => [y + 0.5, a, y]) : years.map((y, i) => [y + 0.5, t.annual.values[i], y]);
+    const allY = pts.map((p) => p[1]).concat(yearly.map((p) => p[1]), [trend(y0), trend(y1)]);
+    let lo = Math.min(...allY), hi = Math.max(...allY);
+    const pad = (hi - lo) * 0.08 || 1; lo -= pad; hi += pad;
+    const X = (x) => m.l + (x - y0) / (y1 - y0) * (W - m.l - m.r);
+    const Y = (y) => m.t + (hi - y) / (hi - lo) * (H - m.t - m.b);
+    // baseline period
+    const b0 = Math.max(c.baseline[0], y0), b1 = Math.min(c.baseline[1] + 1, y1);
+    sv("rect", { x: X(b0), y: m.t, width: X(b1) - X(b0), height: H - m.t - m.b, fill: css("--base-wash") }, svg);
+    const bl = sv("text", { x: X(b0) + 6, y: m.t + 13 }, svg); bl.textContent = "Eva's learning period";
+    // grid
+    for (const yv of niceTicks(lo, hi, 5)) {
+      sv("line", { x1: m.l, x2: W - m.r, y1: Y(yv), y2: Y(yv), stroke: css("--line"), "stroke-width": 1 }, svg);
+      const tx = sv("text", { x: m.l - 8, y: Y(yv) + 4, "text-anchor": "end" }, svg); tx.textContent = sig(yv, 3);
+    }
+    if (view === "anomalies" && lo < 0 && hi > 0) sv("line", { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), stroke: css("--axis"), "stroke-width": 1 }, svg);
+    const span = y1 - y0, every = W < 520 ? 10 : 5;
+    for (let yr = Math.ceil(y0 / every) * every; yr <= y1; yr += every) {
+      const tx = sv("text", { x: X(yr), y: H - 8, "text-anchor": "middle" }, svg); tx.textContent = yr;
+      sv("line", { x1: X(yr), x2: X(yr), y1: H - m.b, y2: H - m.b + 4, stroke: css("--axis") }, svg);
+    }
+    sv("line", { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, stroke: css("--axis"), "stroke-width": 1 }, svg);
+    const yl = sv("text", { x: 4, y: m.t - 4 }, svg);
+    yl.textContent = (view === "anomalies" ? "difference from " + c.baseline[0] + "–" + c.baseline[1] : v.label.toLowerCase()) + (unitOf(v) ? " (" + unitOf(v) + ")" : "");
+    // monthly line
+    if (pts.length) {
+      const d = pts.map((p, i) => (i && p[3] === pts[i - 1][3] + 1 ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1)).join("");
+      sv("path", { d, fill: "none", stroke: css("--anom"), "stroke-width": view === "values" ? 1.25 : 1, "stroke-opacity": view === "values" ? 0.9 : 0.6, "stroke-linejoin": "round" }, svg);
+    }
+    if (view === "yearly" || (view === "anomalies" && seasonal)) {
+      const d = yearly.map((p, i) => (i ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1)).join("");
+      sv("path", { d, fill: "none", stroke: css("--anom"), "stroke-width": 1.25, "stroke-linejoin": "round" }, svg);
+    }
+    // trend and its 95 % range (a bow-tie around the median year)
+    const xp = median(years) + 0.5, yp = trend(xp), [s0, s1] = t.annual.sen.ci;
+    const band = [[y0, yp + s0 * (y0 - xp), yp + s1 * (y0 - xp)], [xp, yp, yp], [y1, yp + s0 * (y1 - xp), yp + s1 * (y1 - xp)]];
+    const up = band.map((b) => X(b[0]).toFixed(1) + "," + Y(Math.max(b[1], b[2])).toFixed(1));
+    const dn = band.slice().reverse().map((b) => X(b[0]).toFixed(1) + "," + Y(Math.min(b[1], b[2])).toFixed(1));
+    sv("polygon", { points: up.concat(dn).join(" "), fill: css("--trend-wash") }, svg);
+    if (view !== "values") for (const p of yearly) sv("circle", { cx: X(p[0]), cy: Y(p[1]), r: 3.5, fill: css("--ink"), stroke: css("--surface"), "stroke-width": 1.5 }, svg);
+    sv("line", { x1: X(y0), y1: Y(trend(y0)), x2: X(y1), y2: Y(trend(y1)), stroke: css("--trend"), "stroke-width": 2, "stroke-linecap": "round" }, svg);
+    sv("circle", { cx: X(y1), cy: Y(trend(y1)), r: 4, fill: css("--trend"), stroke: css("--surface"), "stroke-width": 2 }, svg);
+    const tl = sv("text", { x: X(y1) + 8, y: Y(trend(y1)) + 4, fill: css("--ink") }, svg);
+    tl.textContent = signed(t.per_decade, 2) + "/dec";
+    // legend
+    const leg = [];
+    if (view === "anomalies" && !seasonal) leg.push(h("span", null, h("i", { class: "key-line", style: "background:" + css("--anom") }), "monthly anomaly"));
+    if (view === "values") leg.push(h("span", null, h("i", { class: "key-line", style: "background:" + css("--anom") }), seasonal ? "monthly value (selected months)" : "monthly value"));
+    if (view !== "values") leg.push(h("span", null, h("i", { class: "key-dot", style: "background:" + css("--ink") }), avgWord));
+    leg.push(h("span", null, h("i", { class: "key-line", style: "background:" + css("--trend") }), "trend (Sen's slope)"));
+    leg.push(h("span", null, h("i", { class: "key-box", style: "background:" + css("--trend-wash") }), "95 % range of the trend"));
+    $("#ev-legend").replaceChildren(...leg);
+    $("#ev-note").textContent = seasonal
+      ? (view === "values" ? "Raw monthly values of the selected months only: a gap means months left out. "
+        : "Each dot is the average of the selected months of one year" + (view === "anomalies" ? ", minus the average of the same months over " + c.baseline[0] + "–" + c.baseline[1] + ". " : ". ") +
+          "The trend and every number below use these averages only.")
+      : view === "anomalies"
+      ? "Anomaly: each month minus the average of the same calendar month over " + c.baseline[0] + "–" + c.baseline[1] + ". It removes the seasons, so what is left is the change."
+      : view === "values" ? "Raw monthly values: the seasons dominate. That is why trends are measured on anomalies or yearly averages."
+        : "Each dot is the average of the twelve months of a year.";
+    // hover
+    const cross = sv("line", { y1: m.t, y2: H - m.b, stroke: css("--axis"), "stroke-width": 1, visibility: "hidden" }, svg);
+    const dot = sv("circle", { r: 4.5, fill: css("--ink"), stroke: css("--surface"), "stroke-width": 2, visibility: "hidden" }, svg);
+    const hit = sv("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent", tabindex: 0 }, svg);
+    const series = view === "yearly" || (seasonal && view === "anomalies") ? yearly : (pts.length ? pts : yearly);
+    function at(ev) {
+      const r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) * W / r.width;
+      const xv = y0 + (x - m.l) / (W - m.l - m.r) * (y1 - y0);
+      let best = 0, bd = Infinity;
+      series.forEach((p, i) => { const d = Math.abs(p[0] - xv); if (d < bd) { bd = d; best = i; } });
+      const p = series[best];
+      cross.setAttribute("x1", X(p[0])); cross.setAttribute("x2", X(p[0])); cross.setAttribute("visibility", "visible");
+      dot.setAttribute("cx", X(p[0])); dot.setAttribute("cy", Y(p[1])); dot.setAttribute("visibility", "visible");
+      const yr = Math.floor(p[0]);
+      const rows = [{ v: signed(p[1], 3) + " " + unitOf(v), l: view === "yearly" ? avgWord : seasonal && view === "anomalies" ? avgWord + " vs the baseline" : view === "anomalies" ? "anomaly" : "value", key: css("--anom") }];
+      const ya = view === "anomalies" ? ann.get(yr) : t.annual.values[years.indexOf(yr)];
+      if (view !== "yearly" && !(seasonal && view === "anomalies") && ya != null) rows.push({ v: signed(ya, 3) + " " + unitOf(v), l: "average of " + yr });
+      rows.push({ v: signed(trend(p[0]), 3) + " " + unitOf(v), l: "trend line", key: css("--trend") });
+      const title = typeof p[2] === "string" ? MONTHS[+p[2].slice(5) - 1] + " " + p[2].slice(0, 4) : String(p[2]);
+      showTip(ev, title, rows);
+    }
+    hit.addEventListener("pointermove", at);
+    hit.addEventListener("pointerleave", () => { hideTip(); cross.setAttribute("visibility", "hidden"); dot.setAttribute("visibility", "hidden"); });
+  }
+
+  function renderTable(c, u) {
+    const t = trendOf(c, u), v = c.variables[c.units[u].variable], e = evaOf(c, u), ann = annualAnoms(c, u);
+    const dep = e && !isSeason() ? e.units[u].departure_by_year : {};
+    const head = h("tr", null, h("th", null, "Year"), h("th", null, (isSeason() ? seasonLabel()[0].toUpperCase() + seasonLabel().slice(1) : "Yearly") + " average" + (unitOf(v) ? " (" + unitOf(v) + ")" : "")),
+      h("th", null, "Difference from " + c.baseline[0] + "–" + c.baseline[1]), h("th", null, "Eva: departure (points)"));
+    const rows = t.annual.years.map((y, i) => h("tr", null, h("td", null, String(y)), h("td", null, sig(t.annual.values[i], 4)),
+      h("td", null, ann.has(y) ? signed(ann.get(y), 3) : "—"), h("td", null, dep[y] != null ? signed(100 * dep[y], 2) : "—")));
+    $("#ev-table").replaceChildren(h("table", null, h("thead", null, head), h("tbody", null, rows)));
+  }
+
+  // ---------------------------------------------------------------- Eva
+  function renderEva(c, u) {
+    const e = evaOf(c, u), info = c.units[u], v = c.variables[info.variable];
+    for (const el of document.querySelectorAll(".eva-base")) el.textContent = e ? e.baseline[0] + "–" + e.baseline[1] : "";
+    if (!e) {
+      $("#eva-intro").textContent = "This series is too short for Eva to learn a norm and judge what came after.";
+      for (const id of ["#eva-verdict", "#eva-strip", "#eva-dep", "#eva-tiles", "#eva-strip-legend"]) $(id).replaceChildren();
+      return;
+    }
+    const x = e.units[u], r = x.recent;
+    $("#eva-intro").textContent = "Eva learned how " + v.label.toLowerCase() + " usually behaves month after month during " + e.baseline[0] + "–" + e.baseline[1] +
+      " (her norm: how its positions follow each other, and which transitions are rare). Then she read every month since " + r.from.slice(0, 4) + " against that norm, without learning from it.";
+    $("#eva-verdict").replaceChildren(evaChip(x), h("p", null, x.verdict.text));
+    drawStrip(c, u, e);
+    drawDeparture(c, u, e);
+    const ext = c.eva.extreme && c.eva.extreme.units[u];
+    const tiles = [
+      ["Months in her top position", pct(r.top_share), "since " + r.from.slice(0, 4) + " · " + pct(r.expected_share) + " in " + e.baseline[0] + "–" + e.baseline[1]],
+      ["Months in her bottom position", pct(r.bottom_share), "since " + r.from.slice(0, 4) + " · " + pct(r.expected_bottom) + " in " + e.baseline[0] + "–" + e.baseline[1]],
+      ["Beyond anything she had seen", r.beyond_high.length + " higher · " + r.beyond_low.length + " lower", "months outside every value of their time of year in " + e.baseline[0] + "–" + e.baseline[1]],
+      ["Higher than she expected", pct(r.above_expectation), "of months since " + r.from.slice(0, 4) + " (50 % if nothing changed) · p " + pval(r.above_p)],
+      ["Out-of-norm transitions", pct(r.extreme_rate), "since " + r.from.slice(0, 4) + " (" + r.extremes_up + " up, " + r.extremes_down + " down) · " + pct(x.norm.extreme_rate) + " while learning"],
+    ];
+    if (ext) tiles.push(["Out of her norm (10 % tails)", pct(ext.recent.top_share) + " above · " + pct(ext.recent.bottom_share) + " below",
+      "months beyond the 90th / under the 10th percentile · 10 % each in " + e.baseline[0] + "–" + e.baseline[1]]);
+    $("#eva-tiles").replaceChildren(...tiles.map(([l, val, sub]) => h("div", { class: "tile" },
+      h("span", { class: "label" }, l), h("span", { class: "value" }, val), h("span", { class: "sub" }, sub))));
+  }
+
+  function drawStrip(c, u, e) {
+    const box = $("#eva-strip"); box.replaceChildren();
+    const x = e.units[u], b = x.bins, pos = x.positions, months = e.months;
+    const years = [...new Set(months.map((m) => +m.slice(0, 4)))];
+    const W = Math.max(300, box.clientWidth || 720), m = { l: 34, r: 8, t: 6, b: 22 };
+    const cw = (W - m.l - m.r) / years.length, rh = Math.max(9, Math.min(15, cw * 1.1));
+    const H = Math.round(m.t + 12 * rh + m.b);
+    const svg = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Eva's position for each month of " + c.variables[c.units[u].variable].label }, box);
+    const idx = new Map(c.series[u].months.map((mm, i) => [mm, c.series[u].values[i]]));
+    const gap = cw > 6 ? 1 : 0.5;
+    months.forEach((mm, i) => {
+      const y = +mm.slice(0, 4), mo = +mm.slice(5) - 1, col = years.indexOf(y);
+      const rect = sv("rect", { x: m.l + col * cw + gap / 2, y: m.t + mo * rh + gap / 2, width: Math.max(0.5, cw - gap), height: rh - gap, rx: cw > 8 ? 1.5 : 0, fill: posColor(pos[i], b) }, svg);
+      rect.addEventListener("pointermove", (ev) => showTip(ev, MONTHS[mo] + " " + y, [
+        { v: x.position_labels[String(pos[i])] || String(pos[i]), l: "" },
+        { v: signed(idx.get(mm), 3) + " " + unitOf(c.variables[c.units[u].variable]), l: "value" }]));
+      rect.addEventListener("pointerleave", hideTip);
+    });
+    for (const mo of [0, 3, 6, 9]) { const tx = sv("text", { x: m.l - 6, y: m.t + mo * rh + rh * 0.75, "text-anchor": "end" }, svg); tx.textContent = MONTHS[mo]; }
+    const every = W < 520 ? 10 : 5;
+    years.forEach((y, col) => { if (y % every === 0) { const tx = sv("text", { x: m.l + (col + 0.5) * cw, y: H - 6, "text-anchor": "middle" }, svg); tx.textContent = y; } });
+    const split = years.indexOf(+e.split.slice(0, 4));
+    if (split > 0) sv("line", { x1: m.l + split * cw, x2: m.l + split * cw, y1: m.t - 4, y2: m.t + 12 * rh + 4, stroke: css("--ink"), "stroke-width": 1.5 }, svg);
+    const labels = x.position_labels;
+    const order = Object.keys(labels).map(Number).sort((a, z) => a - z);
+    $("#eva-strip-legend").replaceChildren(...order.map((p) => h("span", null, h("i", { class: "key-box", style: "background:" + posColor(p, b) }), labels[String(p)])));
+  }
+
+  function drawDeparture(c, u, e) {
+    const box = $("#eva-dep"); box.replaceChildren();
+    const dep = e.units[u].departure_by_year, years = Object.keys(dep).map(Number).sort((a, b) => a - b);
+    if (!years.length) return;
+    const W = Math.max(300, box.clientWidth || 720), H = 170, m = { l: 40, r: 8, t: 10, b: 24 };
+    const svg = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Departure of each year from Eva's norm" }, box);
+    const vals = years.map((y) => 100 * dep[y]);
+    const lim = Math.max(15, ...vals.map(Math.abs)) * 1.1;
+    const Y = (v) => m.t + (lim - v) / (2 * lim) * (H - m.t - m.b);
+    const slot = (W - m.l - m.r) / years.length, bw = Math.min(24, Math.max(1.5, slot - 2));
+    for (const tv of niceTicks(-lim, lim, 4)) {
+      sv("line", { x1: m.l, x2: W - m.r, y1: Y(tv), y2: Y(tv), stroke: tv === 0 ? css("--axis") : css("--line"), "stroke-width": 1 }, svg);
+      const tx = sv("text", { x: m.l - 6, y: Y(tv) + 4, "text-anchor": "end" }, svg); tx.textContent = (tv > 0 ? "+" : "") + sig(tv, 2);
+    }
+    const base1 = e.baseline[1];
+    years.forEach((y, i) => {
+      const v = vals[i], x0 = m.l + i * slot + (slot - bw) / 2;
+      const top = Math.min(Y(v), Y(0)), hgt = Math.max(1, Math.abs(Y(v) - Y(0)));
+      const r = sv("rect", { x: x0, y: top, width: bw, height: hgt, rx: Math.min(2, bw / 2), fill: v >= 0 ? css("--hi-2") : css("--lo-2"), "fill-opacity": y <= base1 ? 0.4 : 1 }, svg);
+      r.addEventListener("pointermove", (ev) => showTip(ev, String(y), [{ v: signed(v, 2) + " points", l: v >= 0 ? "higher than expected" : "lower than expected" },
+        { v: y <= base1 ? "learning period" : "judged", l: "" }]));
+      r.addEventListener("pointerleave", hideTip);
+      if (y % (W < 520 ? 10 : 5) === 0) { const tx = sv("text", { x: x0 + bw / 2, y: H - 6, "text-anchor": "middle" }, svg); tx.textContent = y; }
+    });
+    const lt = sv("text", { x: m.l + 4, y: m.t + 10 }, svg); lt.textContent = "pale: years she learned from";
+  }
+
+  // -------------------------------------------------------------- links
+  function renderLinks(c) {
+    const callouts = c.story.filter((s) => s.kind === "process" || s.kind === "opposite" || s.kind === "border" || s.kind === "shared" || s.kind === "change");
+    const cglyph = { process: "≡", opposite: "⇅", border: "┃", change: "↯" };
+    $("#link-callouts").replaceChildren(...callouts.map((s) => h("li", null,
+      h("span", { class: "glyph", "aria-hidden": "true" }, cglyph[s.kind]), h("p", null, s.text))));
+    const seen = new Set(), cards = [];
+    const heat = c.eva.extreme && c.eva.extreme.couplings;
+    for (const x of (heat && heat.links) || []) {  // the heatmaps of the departures, best transformation per pair
+      seen.add([...x.members].sort().join("|"));
+      const rel = x.lag ? "→" : (x.sign > 0 ? "⇈" : "⇅");
+      const imp = x.implied ? Object.values(x.implied).reduce((s, v) => s + v.n, 0) : 0;
+      cards.push(h("article", { class: "link" },
+        h("div", { class: "members" }, h("span", { class: "rel", "aria-hidden": "true" }, rel), x.labels.join(" · ")),
+        h("p", null, x.text),
+        h("p", { class: "small muted" }, (x.level === "proven" ? "Beyond every pair and shift tried" : "Suggestive") +
+          " · " + x.transform + " · p " + (x.p < 0.001 ? x.p.toExponential(0) : sig(x.p, 2)) +
+          (x.z_persistence != null ? " · persistence z " + sig(x.z_persistence, 2) : "") + " · " + x.episodes + " joint episodes" +
+          (x.longest && x.longest.length ? ", longest " + x.longest[0] : "") +
+          (x.union ? " · one dynamic, " + imp + " implied months" : "")),
+        x.model_note ? h("p", { class: "small" }, h("b", null, "Model note: "), x.model_note + ".") : null));
+    }
+    for (const [grain, w] of [["extreme", c.eva.extreme], ["fine", c.eva.fine]]) {
+      if (!w) continue;
+      const byPair = new Map((w.pairs || []).map((p) => [[...p.members].sort().join("|"), p]));
+      for (const g of w.metas) {
+        const key = [...g.members].sort().join("|");
+        if (seen.has(key) || g.members.length < 2) continue;
+        seen.add(key);
+        const pr = byPair.get(key);  // a pair: the directions of all its joint moves, as in the table below
+        if (pr) { g.same = pr.same; g.opposite = pr.opposite; g.phase = (pr.same - pr.opposite) / Math.max(1, pr.same + pr.opposite); g.phase_p = pr.direction_p; }
+        const n = g.same + g.opposite;
+        let rel = "⇄", how = "no preferred direction";
+        if (g.members.length > 2 && g.pattern && g.pattern.share >= 0.5) {
+          rel = g.pattern.signs.map((s) => (s > 0 ? "↑" : "↓")).join("");
+          const upL = g.labels.filter((_, i) => g.pattern.signs[i] > 0), dnL = g.labels.filter((_, i) => g.pattern.signs[i] < 0);
+          how = Math.round(100 * g.pattern.share) + " % of the time: " + upL.join(", ") + (dnL.length ? " one way, " + dnL.join(", ") + " the other" : " together");
+        } else if (n && g.phase_p < 0.05) {
+          rel = g.phase > 0 ? "⇈" : "⇅";
+          how = g.phase > 0 ? "same direction " + Math.round(100 * g.same / n) + " % of the time" : "opposite directions " + Math.round(100 * g.opposite / n) + " % of the time";
+        }
+        const zmax = Math.max(...Object.values(g.z || { a: 0 }));
+        cards.push(h("article", { class: "link" },
+          h("div", { class: "members" }, h("span", { class: "rel", "aria-hidden": "true" }, rel), g.labels.join(" · ")),
+          h("p", null, how),
+          h("p", { class: "small muted" }, (grain === "extreme" ? "They leave and re-enter their norm in the same months" : "Their positions change in the same months") +
+            " · born " + g.first_born + " · degrees " + g.degrees.join(", ") + (isFinite(zmax) ? " · z " + sig(zmax, 2) : ""))));
+      }
+    }
+    $("#link-list").replaceChildren(...(cards.length ? cards : [h("p", { class: "muted" }, "No meta molette was born: no group of these dynamics left its norm together more often than chance.")]));
+    const pairs = (c.eva.extreme && c.eva.extreme.pairs) || [];
+    const head = h("tr", null, h("th", null, "Pair"), h("th", null, "Same months"), h("th", null, "lift"), h("th", null, "z"),
+      h("th", null, "Directions"), h("th", null, "Meta molette"));
+    const rows = pairs.map((p) => {
+      const n = p.same + p.opposite;
+      const dir = !n ? "—" : (p.direction_p != null && p.direction_p < 0.05)
+        ? (p.same > p.opposite ? "same way " + Math.round(100 * p.same / n) + " %" : "opposite " + Math.round(100 * p.opposite / n) + " %")
+        : "no preference";
+      return h("tr", null, h("td", null, p.labels.join(" · ")), h("td", null, p.co_changes + " (chance " + sig(p.expected, 3) + ")"),
+        h("td", null, sig(p.lift, 3)), h("td", null, sig(p.z, 2)), h("td", null, dir), h("td", null, p.meta ? "born" : "—"));
+    });
+    $("#pairs").replaceChildren(pairs.length ? h("table", null, h("thead", null, head), h("tbody", null, rows)) : h("p", { class: "muted small" }, "One dynamic only: no pair to weigh."));
+  }
+
+  // ---------------------------------------------------------------- map
+  function renderMap(c, u) {
+    const box = $("#map"); box.replaceChildren();
+    const cells = c.maps[u] || [], f = (c.fields || {})[u] || {}, info = c.units[u], v = c.variables[info.variable];
+    if (!cells.length) { $("#map-intro").textContent = "No grid cells for this series."; $("#map-scale").replaceChildren(); return; }
+    const dlat = f.dlat || 0.5, dlon = f.dlon || 0.625;
+    const lats = cells.map((x) => x.lat), lons = cells.map((x) => x.lon);
+    const la0 = Math.min(...lats) - dlat / 2, la1 = Math.max(...lats) + dlat / 2, lo0 = Math.min(...lons) - dlon / 2, lo1 = Math.max(...lons) + dlon / 2;
+    const kx = Math.cos(((la0 + la1) / 2) * Math.PI / 180);
+    const avail = Math.max(280, box.clientWidth || 640), m = { l: 36, r: 8, t: 8, b: 22 };
+    let iw = avail - m.l - m.r, ih = iw * (la1 - la0) / ((lo1 - lo0) * kx);
+    if (ih > 440) { ih = 440; iw = ih * ((lo1 - lo0) * kx) / (la1 - la0); }
+    const W = Math.round(iw + m.l + m.r), H = Math.round(ih + m.t + m.b);
+    const svg = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Trend per decade of " + v.label + " in each grid cell", style: "max-width:" + W + "px" }, box);
+    const X = (lo) => m.l + (lo - lo0) / (lo1 - lo0) * iw, Y = (la) => m.t + (la1 - la) / (la1 - la0) * ih;
+    const absv = cells.map((x) => Math.abs(x.v || 0)).sort((a, b) => a - b);
+    const vmax = absv[Math.floor(0.95 * (absv.length - 1))] || absv[absv.length - 1] || 1;
+    const cwpx = (X(dlon) - X(0)), chpx = (Y(0) - Y(dlat));
+    for (const cell of cells) {
+      const r = sv("rect", { x: X(cell.lon - dlon / 2), y: Y(cell.lat + dlat / 2), width: cwpx + 0.5, height: chpx + 0.5, fill: divColor((cell.v || 0) / vmax), "shape-rendering": "crispEdges" }, svg);
+      r.addEventListener("pointermove", (ev) => showTip(ev, sig(cell.lat, 3) + "°, " + sig(cell.lon, 4) + "°", [
+        { v: signed(cell.v, 2) + " " + rateUnit(v) + " / decade", l: "trend of this cell" }, { v: "p " + pval(cell.p), l: "Mann-Kendall" }]));
+      r.addEventListener("pointerleave", hideTip);
+      if (cell.p != null && cell.p < 0.05 && cwpx >= 6 && chpx >= 6) sv("circle", { cx: X(cell.lon), cy: Y(cell.lat), r: 1.3, fill: css("--ink"), "fill-opacity": 0.55, "pointer-events": "none" }, svg);
+    }
+    for (const bd of f.borders || []) {
+      const [aLat, aLon] = bd.a, [bLat, bLon] = bd.b;
+      let x1, y1, x2, y2;
+      if (Math.abs(aLat - bLat) < 1e-6) { const xe = X((aLon + bLon) / 2); x1 = x2 = xe; y1 = Y(aLat + dlat / 2); y2 = Y(aLat - dlat / 2); }
+      else { const ye = Y((aLat + bLat) / 2); y1 = y2 = ye; x1 = X(aLon - dlon / 2); x2 = X(aLon + dlon / 2); }
+      sv("line", { x1, y1, x2, y2, stroke: css("--ink"), "stroke-width": bd.strong ? 3 : 2, "stroke-linecap": "round", "pointer-events": "none" }, svg);
+    }
+    for (const tv of niceTicks(la0, la1, 4)) { const tx = sv("text", { x: m.l - 4, y: Y(tv) + 4, "text-anchor": "end" }, svg); tx.textContent = sig(tv, 3) + "°"; }
+    for (const tv of niceTicks(lo0, lo1, 4)) { const tx = sv("text", { x: X(tv), y: H - 6, "text-anchor": "middle" }, svg); tx.textContent = sig(tv, 3) + "°"; }
+    const up = cells.filter((x) => x.v > 0).length, sigc = cells.filter((x) => x.p != null && x.p < 0.05).length;
+    $("#map-intro").textContent = v.label + " trend per decade in each grid cell of " + info.region_name + ": " + up + " of " + cells.length +
+      " cells rising, " + sigc + " with a significant trend of their own.";
+    const grad = "linear-gradient(90deg," + [-1, -0.55, -0.18, 0, 0.18, 0.55, 1].map((t) => divColor(t)).join(",") + ")";
+    $("#map-scale").replaceChildren(
+      h("div", null, h("b", null, "Trend per decade"), " (" + (rateUnit(v) || "units") + ")"),
+      h("div", { class: "bar", style: "background:" + grad }),
+      h("div", { class: "ticks" }, h("span", null, signed(-vmax, 2)), h("span", null, "0"), h("span", null, signed(vmax, 2))),
+      h("p", null, "Each square is one grid cell (" + dlat + "° × " + dlon + "°). A dot marks a cell whose own trend is significant (p < 0.05)."),
+      (f.borders || []).length ? h("p", null, "Black lines: " + f.borders.length + " places where Eva read an out-of-norm transition of the trend from one cell to the next, and the trend flips sign" + (f.strong ? " (" + f.strong + " between significant opposite trends, drawn thicker)." : ".")) :
+        h("p", null, "Eva read no out-of-norm transition where the trend flips sign between neighbouring cells."));
+  }
+
+  // ------------------------------------------------------------ catalog
+  function renderCatalog(c) {
+    const d = c.discovery || {};
+    $("#cat-intro").textContent = d.query ? "The detective asked NASA's Common Metadata Repository (through earthdata-mcp) what it holds about “" + d.query +
+      "” over " + c.regions[0].name + " between " + c.period[0] + " and " + c.period[1] + ". First it translated the words into NASA's science keywords, then it listed datasets that have files there." : "";
+    const blocks = (d.keywords || []).map((k) => {
+      const cols = (d.collections || {})[k.prefLabel] || [];
+      const rows = cols.map((x) => h("tr", null,
+        h("td", { class: "data" }, x.short_name || ""),
+        h("td", null, [...new Set([...(x.platforms || []), ...(x.instruments || [])])].filter((p) => p && p !== "NOT APPLICABLE").slice(0, 4).join(", ") || "—"),
+        h("td", { class: "data" }, (x.start || "").slice(0, 4) + "–" + (x.end ? x.end.slice(0, 4) : "now")),
+        h("td", null, x.title || "")));
+      return h("div", { class: "kw panel" },
+        h("h3", null, k.prefLabel),
+        k.definition ? h("p", { class: "small" }, k.definition) : null,
+        rows.length ? h("div", { class: "table-wrap" }, h("table", { class: "coll" },
+          h("thead", null, h("tr", null, h("th", null, "Dataset"), h("th", null, "Mission or instrument"), h("th", null, "Years"), h("th", null, "Title"))),
+          h("tbody", null, rows))) : h("p", { class: "small muted" }, "No dataset with files there."));
+    });
+    $("#cat-list").replaceChildren(...(blocks.length ? blocks : [h("p", { class: "muted" }, "No catalogue search was recorded for this case.")]));
+    const prov = c.provenance || {};
+    $("#prov-list").replaceChildren(...Object.entries(c.variables).map(([k, v]) => {
+      const p = prov[k] || {};
+      return h("li", null, h("b", null, v.label), " — " + (p.source || v.source) + " " + (p.collection || v.collection) + ", variable " + (p.variable || v.variable) +
+        (p.long_name ? " (" + p.long_name.replace(/_/g, " ") + (p.native_units ? ", " + p.native_units : "") + ")" : "") + ". ",
+        p.doi ? h("a", { href: "https://doi.org/" + p.doi, target: "_blank", rel: "noopener" }, "DOI " + p.doi) : null,
+        p.concept_id ? " · CMR " + p.concept_id : "", " · served by NASA POWER.");
+    }));
+  }
+
+  // --------------------------------------------------------------- live
+  function setupLive() {
+    if (!DATA.live) return;
+    const sec = $("#new"); sec.hidden = false;
+    const vars = $("#new-vars");
+    for (const [t, name] of Object.entries(CAT.topics)) {
+      vars.append(h("p", { class: "small muted", style: "grid-column:1/-1;margin-top:4px" }, name));
+      for (const v of CAT.variables.filter((x) => x.topic === t)) {
+        const id = "nv-" + v.key;
+        vars.append(h("label", { for: id, title: v.simple }, h("input", { type: "checkbox", id, value: v.key }), v.label));
+      }
+    }
+    const sel = $("#new-region");
+    for (const r of CAT.regions) sel.append(h("option", { value: r.key }, r.name));
+    const why = () => { const r = CAT.regions.find((x) => x.key === sel.value); $("#new-region-why").textContent = r ? r.why : ""; };
+    sel.addEventListener("change", why); why();
+    $("#new-form").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const chosen = [...vars.querySelectorAll("input:checked")].map((i) => i.value);
+      const status = $("#new-status");
+      if (!chosen.length) { status.textContent = "Pick at least one variable."; return; }
+      const region = $("#new-box").value.trim() || sel.value;
+      const btn = $("#new-run"); btn.disabled = true;
+      status.textContent = "Fetching NASA data and reading the series…";
+      try {
+        const res = await fetch("/api/investigate", { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ region, vars: chosen, words: $("#new-words").value.trim() || null }) });
+        const out = await res.json();
+        if (!res.ok) throw new Error(out.error || res.statusText);
+        CASES.push(out.case);
+        status.textContent = "Case opened.";
+        location.hash = out.case.id;
+      } catch (err) {
+        status.textContent = "The investigation failed: " + err.message + ". Check the region and try again.";
+      } finally { btn.disabled = false; }
+    });
+  }
+
+  // -------------------------------------------------------------- wiring
+  function renderUnit(c) { renderEvidence(c, state.unit); renderEva(c, state.unit); renderMap(c, state.unit); }
+  function renderAll() {
+    const c = C();
+    renderNav(); renderBrief(c); renderSuspects(c); renderUnit(c); renderLinks(c); renderCatalog(c);
+    $("#foot-created").textContent = "Case computed on " + (c.created || "—") + ".";
+  }
+  for (const b of document.querySelectorAll("#ev-views button")) b.addEventListener("click", () => { state.view = b.dataset.view; renderEvidence(C(), state.unit); });
+  let rt = 0, lastW = 0;
+  const ro = new ResizeObserver((entries) => {
+    const w = Math.round(entries[0].contentRect.width);
+    if (w === lastW) return;  // only a new width changes the drawings
+    lastW = w; clearTimeout(rt); rt = setTimeout(() => renderUnit(C()), 120);
+  });
+  ro.observe(document.querySelector("main"));
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => renderAll());
+  new MutationObserver(() => renderAll()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  window.addEventListener("hashchange", fromHash);
+  setupLive();
+  fromHash();
+})();
+</script>

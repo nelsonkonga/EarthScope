@@ -1,0 +1,190 @@
+{
+ "area": {
+  "key": "lom_kadei",
+  "name": "Lom-Kadéï gold belt (East Cameroon)",
+  "south": 3.9,
+  "north": 6.1,
+  "west": 13.5,
+  "east": 15.3,
+  "why": "Artisanal and semi-mechanised gold mining along the Lom, Kadéï and Doumé rivers.",
+  "country": "CMR"
+ },
+ "dam_west": 14.0,
+ "forest_2000_km2": 43962.4436462321,
+ "east_land_within_1km_of_water": 0.06701692017551664,
+ "loss_by_year": {
+  "2001": {
+   "loss_km2": 16.432890450287196,
+   "east_loss_km2": 13.141677546976362,
+   "east_near_water_km2": 0.947641295174542,
+   "near_water_ratio": 1.0759911647284188
+  },
+  "2002": {
+   "loss_km2": 47.37021760755192,
+   "east_loss_km2": 30.746264898630535,
+   "east_near_water_km2": 2.725893114884693,
+   "near_water_ratio": 1.3229151577295144
+  },
+  "2003": {
+   "loss_km2": 26.14630303568265,
+   "east_loss_km2": 13.05830563524414,
+   "east_near_water_km2": 1.3240931795591488,
+   "near_water_ratio": 1.5130290054206958
+  },
+  "2004": {
+   "loss_km2": 28.394366717999244,
+   "east_loss_km2": 12.034138956165883,
+   "east_near_water_km2": 1.1901248892764036,
+   "near_water_ratio": 1.4756829187924418
+  },
+  "2005": {
+   "loss_km2": 33.768896508967615,
+   "east_loss_km2": 26.25579052988509,
+   "east_near_water_km2": 1.7328233826310282,
+   "near_water_ratio": 0.9847925063231955
+  },
+  "2006": {
+   "loss_km2": 33.126378244517625,
+   "east_loss_km2": 21.22141423946732,
+   "east_near_water_km2": 2.607117761861596,
+   "near_water_ratio": 1.8331662799303725
+  },
+  "2007": {
+   "loss_km2": 42.45764589312118,
+   "east_loss_km2": 22.972512681666004,
+   "east_near_water_km2": 1.5796339620516942,
+   "near_water_ratio": 1.0260381217121088
+  },
+  "2008": {
+   "loss_km2": 11.580698541049866,
+   "east_loss_km2": 9.067664489563786,
+   "east_near_water_km2": 0.5353392990328659,
+   "near_water_ratio": 0.8809458577858804
+  },
+  "2009": {
+   "loss_km2": 49.428394157771955,
+   "east_loss_km2": 38.63921810225705,
+   "east_near_water_km2": 2.6778797008463258,
+   "near_water_ratio": 1.034137455401971
+  },
+  "2010": {
+   "loss_km2": 47.48433329092894,
+   "east_loss_km2": 38.886495152630616,
+   "east_near_water_km2": 2.5397142923973575,
+   "near_water_ratio": 0.9745443221803757
+  },
+  "2011": {
+   "loss_km2": 23.511076394507192,
+   "east_loss_km2": 21.210302273822933,
+   "east_near_water_km2": 1.3341424982294368,
+   "near_water_ratio": 0.9385791344606871
+  },
+  "2012": {
+   "loss_km2": 55.68725664814926,
+   "east_loss_km2": 27.658520990146496,
+   "east_near_water_km2": 2.5962316848101166,
+   "near_water_ratio": 1.400651295493373
+  },
+  "2013": {
+   "loss_km2": 61.08104946337876,
+   "east_loss_km2": 34.28531499460461,
+   "east_near_water_km2": 3.9322803066885683,
+   "near_water_ratio": 1.7114013051704844
+  },
+  "2014": {
+   "loss_km2": 91.0423621438558,
+   "east_loss_km2": 62.06625228288808,
+   "east_near_water_km2": 11.26546343144853,
+   "near_water_ratio": 2.708376732998939
+  },
+  "2015": {
+   "loss_km2": 73.05333123554144,
+   "east_loss_km2": 42.023144636709006,
+   "east_near_water_km2": 11.278116563666803,
+   "near_water_ratio": 4.004640777864915
+  },
+  "2016": {
+   "loss_km2": 212.60269811492952,
+   "east_loss_km2": 123.64935814914821,
+   "east_near_water_km2": 13.948769788710473,
+   "near_water_ratio": 1.6832924473893816
+  },
+  "2017": {
+   "loss_km2": 243.10854174836467,
+   "east_loss_km2": 93.10988052256373,
+   "east_near_water_km2": 11.1423431428386,
+   "near_water_ratio": 1.7856498189097485
+  },
+  "2018": {
+   "loss_km2": 99.5645857205892,
+   "east_loss_km2": 69.62893097799463,
+   "east_near_water_km2": 11.1038780413523,
+   "near_water_ratio": 2.379580986270472
+  },
+  "2019": {
+   "loss_km2": 156.77264963384997,
+   "east_loss_km2": 103.25099587681188,
+   "east_near_water_km2": 13.811287733142716,
+   "near_water_ratio": 1.995976659034287
+  },
+  "2020": {
+   "loss_km2": 253.61003581988456,
+   "east_loss_km2": 134.18386376254279,
+   "east_near_water_km2": 14.839334033606448,
+   "near_water_ratio": 1.6501736664089808
+  },
+  "2021": {
+   "loss_km2": 217.6263995035371,
+   "east_loss_km2": 118.32574160779251,
+   "east_near_water_km2": 10.791972751220092,
+   "near_water_ratio": 1.3609342360903438
+  },
+  "2022": {
+   "loss_km2": 167.19991554287546,
+   "east_loss_km2": 86.09098916064211,
+   "east_near_water_km2": 12.30022211203286,
+   "near_water_ratio": 2.131919443675886
+  },
+  "2023": {
+   "loss_km2": 383.09952040255047,
+   "east_loss_km2": 211.2311041001802,
+   "east_near_water_km2": 27.364047987671306,
+   "near_water_ratio": 1.9330273940918206
+  },
+  "2024": {
+   "loss_km2": 237.48752902528395,
+   "east_loss_km2": 123.63647337616901,
+   "east_near_water_km2": 16.83928802452028,
+   "near_water_ratio": 2.0323226206116667
+  },
+  "2025": {
+   "loss_km2": 383.1615299091344,
+   "east_loss_km2": 167.7712725431615,
+   "east_near_water_km2": 19.973002653409004,
+   "near_water_ratio": 1.7764021718962413
+  }
+ },
+ "near_water_ratio_trend": {
+  "mann_kendall_p": 1.459637392509648e-05,
+  "tau": 0.36,
+  "pettitt_p": 0.0017669796742695262,
+  "break_year": 2013,
+  "before": 1.2050394349965863,
+  "after": 2.088746020031782
+ },
+ "new_water_km2": {
+  "new permanent": {
+   "all": 94.20667390362371,
+   "east": 1.5925605229003428
+  },
+  "new seasonal": {
+   "all": 327.47250407915527,
+   "east": 26.012058249367172
+  }
+ },
+ "mapped_in_area": {
+  "maus2022_polygons": 3,
+  "osm_mines": 516,
+  "mrds": 0
+ }
+}

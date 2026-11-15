@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Land Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">
+<link rel="preload" as="script" crossorigin href="https://unpkg.com/kepler.gl@3.1.10/umd/keplergl.min.js">
+<style>
+/* One surface for the panel, one for what floats on the map; one text face, a mono face for numbers. */
+:root {
+  --pw: 400px; --gap: 16px; --r: 10px;
+  --bg: #f4f3ef; --surface: #ffffff; --float: rgba(255, 255, 255, .94); --ink: #1a1915; --ink2: #3a362e; --muted: #6a655b;
+  --line: rgba(26, 25, 21, .1); --hover: rgba(26, 25, 21, .05); --chip: rgba(26, 25, 21, .07);
+  --accent: #0f6e6a; --accent-ink: #ffffff; --worse: #c2284f; --better: #0b8f84; --warn: #b4441c;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 4px 16px rgba(0, 0, 0, .08);
+  --curve: #1f77b4; --eva: #d62728; --band: rgba(31, 119, 180, .16); --grid: #e7e3d8;
+}
+body.night {
+  --bg: #0b0d10; --surface: #121519; --float: rgba(18, 21, 25, .92); --ink: #e9e7e2; --ink2: #c9c5bc; --muted: #9a968d;
+  --line: rgba(255, 255, 255, .09); --hover: rgba(255, 255, 255, .05); --chip: rgba(255, 255, 255, .08);
+  --accent: #4cc3b5; --accent-ink: #062521; --worse: #ff4f73; --better: #35e3cb; --warn: #f08a5d;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .35);
+  --curve: #62aee8; --eva: #ff6b6b; --band: rgba(98, 174, 232, .2); --grid: #252a31;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 14.5px/1.5 "Atkinson Hyperlegible", system-ui, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num, .mono { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+.mono { font-size: 12.5px; }
+.label { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+svg text { font: 11px "IBM Plex Mono", monospace; fill: var(--muted); }
+.ic { width: 16px; height: 16px; flex: none; fill: currentColor; }
+.ic.st { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.float { background: var(--float); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); }
+
+/* ------------------------------------------------------------------ the map, and what sits in its corners */
+#stage { position: fixed; top: 0; left: 0; bottom: 0; right: var(--pw); overflow: hidden; background: var(--bg); }
+#map, #app { position: absolute; inset: 0; }
+#legend { position: absolute; z-index: 4; left: var(--gap); bottom: 28px; width: 248px; max-height: calc(100% - 80px); overflow: auto; padding: 10px 8px 8px; }
+.lg-t { font-weight: 700; font-size: 13px; line-height: 1.3; margin: 0 6px 6px; }
+.lg-i { display: grid; grid-template-columns: 12px 1fr auto; gap: 9px; align-items: center; width: 100%; border: 0; background: none; padding: 4px 6px; border-radius: 6px;
+  cursor: pointer; text-align: left; font-size: 12.5px; line-height: 1.3; }
+.lg-i:hover { background: var(--hover); }
+.lg-i i { width: 10px; height: 10px; border-radius: 50%; }
+.lg-i b { font: 400 11.5px "IBM Plex Mono", monospace; color: var(--muted); }
+.lg-i.on { background: var(--chip); font-weight: 700; }
+.lg-i.off { opacity: .4; }
+.lg-n { font-size: 11.5px; line-height: 1.4; color: var(--muted); margin: 6px 6px 0; }
+.attrib { position: absolute; z-index: 3; left: var(--gap); bottom: 8px; font: 10px "IBM Plex Mono", monospace; color: var(--muted); }
+
+#mapctl { position: absolute; z-index: 4; right: var(--gap); bottom: 36px; display: flex; flex-direction: column; overflow: hidden; }
+#mapctl button { width: 36px; height: 36px; display: grid; place-items: center; border: 0; background: none; cursor: pointer; color: var(--ink2); font-size: 12px; font-weight: 700; }
+#mapctl button + button { border-top: 1px solid var(--line); }
+#mapctl button:hover { background: var(--hover); color: var(--ink); }
+#mapctl button[aria-pressed="true"] { color: var(--accent); }
+
+#cellcard { position: absolute; z-index: 5; right: var(--gap); top: var(--gap); width: min(420px, calc(100% - 2 * var(--gap) - 260px)); max-height: calc(100% - 190px); min-height: 0;
+  overflow: hidden auto; padding: 12px 14px 8px; }
+body.tl #cellcard { max-height: calc(100% - 200px); }
+.cc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.place h2 { margin: 2px 0 2px; }
+.place table td:first-child { color: var(--muted); white-space: nowrap; }
+.cc-head h3 { font-size: 17px; margin: 2px 0 0; }
+.cc-btns { display: flex; gap: 2px; }
+.cc-key { display: flex; flex-wrap: wrap; gap: 0 12px; font-size: 11.5px; color: var(--muted); margin: 0 0 4px; }
+.cc-key span { white-space: nowrap; }
+#cellcard table td:first-child { color: var(--muted); white-space: nowrap; }
+.iconbtn { width: 30px; height: 30px; display: grid; place-items: center; border: 0; border-radius: 6px; background: none; cursor: pointer; color: var(--muted); }
+.iconbtn:hover { background: var(--hover); color: var(--ink); }
+
+#timeline { position: absolute; z-index: 4; left: calc(248px + 2 * var(--gap)); right: calc(36px + 2 * var(--gap)); bottom: 28px; padding: 10px 12px;
+  display: grid; grid-template-columns: auto auto 1fr auto; gap: 14px; align-items: center; }
+.tl-play { width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--ink); color: var(--bg); display: grid; place-items: center; cursor: pointer; }
+.tl-year b { display: block; font: 500 24px/1 "IBM Plex Mono", monospace; }
+.tl-year span { display: block; font-size: 11px; color: var(--muted); max-width: 150px; line-height: 1.3; margin-top: 2px; }
+.tl-stripes { display: flex; height: 26px; }
+.tl-stripes i { flex: 1; cursor: pointer; }
+.tl-stripes i:first-child { border-radius: 4px 0 0 4px; }
+.tl-stripes i:last-child { border-radius: 0 4px 4px 0; }
+.tl-stripes i.on { box-shadow: 0 0 0 2px var(--ink); position: relative; z-index: 1; border-radius: 2px; }
+.tl-axis { display: flex; justify-content: space-between; font: 10.5px "IBM Plex Mono", monospace; color: var(--muted); margin-top: 4px; }
+
+#splash { position: absolute; inset: 0; z-index: 9; display: grid; place-items: center; background: var(--bg); transition: opacity .6s, visibility .6s; }
+#splash.gone { opacity: 0; visibility: hidden; pointer-events: none; }
+.sp-in { text-align: center; padding: 24px; }
+.sp-bar { width: 160px; height: 2px; background: var(--line); border-radius: 2px; margin: 0 auto 12px; overflow: hidden; }
+.sp-bar i { display: block; width: 40%; height: 100%; background: var(--accent); animation: load 1.3s ease-in-out infinite; }
+#splash.failed .sp-bar { display: none; }
+.sp-msg { font-size: 13px; color: var(--muted); max-width: 360px; }
+
+/* ------------------------------------------------------------------ the story: letterbox bars and one caption */
+.bar { position: absolute; left: 0; right: 0; z-index: 8; height: 52px; background: #050505; color: #f2f0ea; display: flex; align-items: center; gap: 10px;
+  padding: 0 20px; visibility: hidden; transition: transform .6s cubic-bezier(.7, 0, .2, 1), visibility 0s .6s; }
+.bar.top { top: 0; transform: translateY(-101%); }
+.bar.bottom { bottom: 0; transform: translateY(101%); }
+body.cinema .bar { transform: none; visibility: visible; transition: transform .6s cubic-bezier(.7, 0, .2, 1); }
+.bar button { border: 0; background: none; color: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 8px; border-radius: 6px; }
+.bar button:hover { background: rgba(255, 255, 255, .1); }
+.bt-brand { font-weight: 700; font-size: 13px; }
+.bt-reg { color: #a9a59b; font-size: 13px; }
+.bt-x { margin-left: auto; font-size: 13px; }
+kbd { font: 11px "IBM Plex Mono", monospace; border: 1px solid rgba(255, 255, 255, .25); border-radius: 4px; padding: 0 5px; color: #a9a59b; }
+.segs { flex: 1; display: flex; gap: 5px; margin: 0 8px; }
+.segs button { flex: 1; height: 18px; padding: 7px 0; }
+.segs b { display: block; height: 3px; width: 100%; border-radius: 2px; background: rgba(255, 255, 255, .2); overflow: hidden; }
+.segs b i { display: block; height: 100%; width: 0; background: #f2f0ea; }
+.bt-n { font: 12px "IBM Plex Mono", monospace; color: #a9a59b; min-width: 44px; text-align: right; }
+#caption { position: absolute; z-index: 6; left: var(--gap); top: calc(52px + var(--gap)); width: min(560px, calc(100% - 2 * var(--gap))); padding: 16px 18px; display: none; }
+body.cinema #caption { display: block; }
+#caption h2 { font-size: clamp(22px, 2.4vw, 30px); line-height: 1.12; margin: 6px 0 8px; }
+#caption p { margin: 0; font-size: 15px; color: var(--ink2); }
+#caption.show { animation: fadeUp .6s ease both; }
+body.cinema #stage { right: 0; }
+body.cinema #panel { transform: translateX(100%); visibility: hidden; }
+body.cinema #mapctl, body.cinema .attrib, body.cinema #cellcard { display: none; }
+body.cinema #legend { bottom: calc(52px + var(--gap)); }
+body.cinema #timeline { left: auto; right: var(--gap); width: min(560px, calc(100% - 300px)); bottom: calc(52px + var(--gap)); }
+
+/* ------------------------------------------------------------------ the panel */
+#panel { position: fixed; z-index: 5; top: 0; right: 0; bottom: 0; width: var(--pw); display: flex; flex-direction: column; background: var(--surface);
+  border-left: 1px solid var(--line); transition: transform .4s ease; }
+#head { flex: none; padding: 14px 20px 0; }
+.brand { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.brand b { font-size: 15px; }
+.brand > span { font-size: 12px; color: var(--muted); }
+.hd-tools { margin-left: auto; display: flex; align-items: center; gap: 6px; align-self: center; }
+.lang { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.lang button { border: 0; background: none; padding: 3px 8px; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+#aboutBtn { width: 26px; height: 26px; border: 1px solid var(--line); font-weight: 700; font-size: 13px; }
+#aboutBtn[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.sel { position: relative; display: block; margin-top: 8px; }
+.sel::after { content: "\25BE"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--muted); font-size: 12px; }
+#caseSel { appearance: none; -webkit-appearance: none; width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); cursor: pointer;
+  font-size: 14px; padding: 7px 28px 7px 10px; }
+#caseSel option { color: #1a1915; background: #fff; }
+nav#tabs { flex: none; display: flex; padding: 0 12px; margin-top: 10px; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+nav#tabs button { border: 0; background: none; padding: 10px 8px 9px; cursor: pointer; white-space: nowrap; font-size: 13.5px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+nav#tabs button:hover { color: var(--ink); }
+nav#tabs button .n { font: 11px "IBM Plex Mono", monospace; margin-right: 4px; opacity: .8; }
+nav#tabs button.on { color: var(--ink); font-weight: 700; border-bottom-color: var(--accent); }
+#body { flex: 1; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+section { padding: 16px 20px 24px; }
+h2 { font-size: 19px; line-height: 1.25; margin: 0 0 6px; }
+h3 { font-size: 14px; line-height: 1.3; margin: 20px 0 6px; }
+p { margin: 6px 0; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+  font-size: 13.5px; font-weight: 700; color: var(--ink); background: var(--chip); border: 0; }
+.btn:hover { background: var(--line); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.wide { width: 100%; margin: 12px 0 4px; }
+.btn .dur { font: 12px "IBM Plex Mono", monospace; opacity: .75; }
+/* ---- Ask Eva (begin): the chat tab, see detective/agent.py */
+.ask-log { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 14px; }
+.ask-msg { padding: 10px 12px; border-radius: var(--r); line-height: 1.5; font-size: 14px; }
+.ask-msg p { margin: 0 0 8px; } .ask-msg p:last-child { margin-bottom: 0; } .ask-msg ul { margin: 4px 0 8px; padding-left: 18px; }
+.ask-msg.user { align-self: flex-end; max-width: 88%; background: var(--accent); color: var(--accent-ink); }
+.ask-msg.eva { background: var(--chip); }
+.ask-msg.err { background: none; border: 1px solid var(--warn); color: var(--warn); font-size: 13px; }
+.ask-msg .ask-show { margin-top: 8px; height: 30px; font-size: 12.5px; }
+.ask-form { display: flex; gap: 8px; align-items: flex-end; }
+.ask-form textarea { flex: 1; min-height: 44px; max-height: 140px; resize: vertical; font: inherit; font-size: 14px; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.ask-wait { color: var(--muted); font-size: 13px; }
+/* ---- Ask Eva (end) */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 12px; }
+.chip { border: 1px solid var(--line); background: none; border-radius: 999px; padding: 3px 10px; font-size: 12.5px; cursor: pointer; }
+.chip:hover { background: var(--hover); }
+.chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.rows { margin: 10px -8px 12px; }
+.row { display: grid; grid-template-columns: 1fr 72px auto; gap: 10px; align-items: center; width: 100%; text-align: left; border: 0; background: none; cursor: pointer;
+  padding: 5px 8px; border-radius: 6px; font-size: 13px; }
+.row:hover { background: var(--hover); }
+.row.on { background: var(--chip); font-weight: 700; }
+.row .tb { display: flex; height: 5px; border-radius: 3px; background: var(--chip); overflow: hidden; }
+.row .tb i { display: block; height: 100%; }
+.row .tc { font: 11px "IBM Plex Mono", monospace; color: var(--muted); white-space: nowrap; }
+.box { border-radius: 8px; padding: 9px 11px; margin: 10px 0; background: var(--chip); }
+.box.warn { background: rgba(180, 68, 28, .12); }
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 14px 0; }
+.kpi b { display: block; font: 500 20px/1.15 "IBM Plex Mono", monospace; }
+.kpi span { display: block; font-size: 11.5px; line-height: 1.35; color: var(--muted); margin-top: 3px; }
+.cards { display: grid; gap: 1px; margin: 4px 0 0; border-top: 1px solid var(--line); }
+.card { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: none; cursor: pointer; padding: 14px 20px 13px; }
+.card:hover { background: var(--hover); }
+.card-k { display: flex; align-items: center; gap: 7px; }
+.card-k i { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--accent)); flex: none; }
+.card-n { font: 500 22px/1.2 "IBM Plex Mono", monospace; margin: 6px 0 2px; letter-spacing: -.01em; }
+.card-t { font-size: 13.5px; line-height: 1.4; }
+.card-s { font-size: 12.5px; line-height: 1.45; color: var(--muted); margin-top: 4px; }
+.card-n, .card-t, .card-s { display: block; }
+.card-go { display: block; margin-top: 7px; font-size: 12.5px; font-weight: 700; color: var(--accent); }
+details.how { margin: 8px 0; }
+details.how > summary { cursor: pointer; font-size: 13px; color: var(--muted); list-style-position: inside; }
+details.how > summary:hover { color: var(--ink); }
+details.more { margin: 0 20px; padding-top: 12px; }
+details.more summary { cursor: pointer; font-size: 13.5px; font-weight: 700; color: var(--ink2); }
+details.more section { padding: 4px 0 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 6px 0; }
+th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 700; color: var(--muted); font-size: 11.5px; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.story li { margin: 6px 0; }
+.dist { display: grid; gap: 5px; margin: 8px 0; }
+.dist div { display: grid; grid-template-columns: 1fr 110px 32px; gap: 8px; align-items: center; font-size: 12.5px; }
+.dist em { display: block; height: 6px; border-radius: 3px; background: var(--chip); overflow: hidden; }
+.dist em i { display: block; height: 100%; }
+.dist b { font: 400 11.5px "IBM Plex Mono", monospace; text-align: right; color: var(--muted); }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+table.iv { table-layout: fixed; }
+table.iv td, table.iv th { padding: 3px 3px; }
+table.iv input[type=number] { width: 100%; min-width: 0; font-size: 12px; padding: 2px 3px; -moz-appearance: textfield; appearance: textfield; }
+table.iv input[type=number]::-webkit-inner-spin-button, table.iv input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number], input[type=text] { width: 64px; font-size: 13px; padding: 3px 5px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); color: var(--ink); }
+label.radio { display: block; margin: 3px 0; font-size: 13.5px; cursor: pointer; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes load { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+
+@media (max-width: 1100px) and (min-width: 861px) {
+  :root { --pw: 360px; }
+  #timeline { left: var(--gap); }
+  body.tl #legend { bottom: 112px; }
+}
+@media (max-width: 860px) {
+  body { overflow: auto; }
+  #stage { position: relative; right: auto; height: 62vh; min-height: 380px; }
+  body.cinema #stage { position: fixed; inset: 0; height: auto; z-index: 20; }
+  #panel { position: static; width: auto; border-left: 0; }
+  #body { overflow: visible; }
+  nav#tabs { position: sticky; top: 0; z-index: 3; background: var(--surface); }
+  #legend { width: 200px; max-height: 45%; padding: 6px 4px; }
+  .lg-n { display: none; }
+  body.tl #legend { display: none; }
+  #cellcard { left: 8px; right: 8px; top: 8px; width: auto; max-height: calc(100% - 16px); }
+  body.tl #cellcard { max-height: calc(100% - 110px); }
+  #timeline { left: 8px; right: 8px; bottom: 8px; grid-template-columns: auto auto 1fr; gap: 10px; }
+  #timeline .btn { display: none; }
+  .tl-year span { display: none; }
+  #caption { left: 8px; width: calc(100% - 16px); padding: 12px 14px; }
+  #caption p { font-size: 14px; }
+  body.cinema #legend { display: none; }
+  body.cinema #timeline { left: 8px; right: 8px; width: auto; }
+  .bt-reg, .bar kbd { display: none; }
+  .bar { padding: 0 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body class="night">
+<div id="stage">
+  <div id="map"><div id="app"></div></div>
+  <aside id="legend" class="float" hidden aria-label="Legend"></aside>
+  <div id="mapctl" class="float" role="toolbar" aria-label="Map"></div>
+  <div id="timeline" class="float" hidden></div>
+  <div id="cellcard" class="float" hidden></div>
+  <div id="caption" class="float" aria-live="polite"></div>
+  <div class="bar top" id="barTop"></div>
+  <div class="bar bottom" id="barBottom"></div>
+  <div class="attrib">kepler.gl · basemap © OpenStreetMap © CARTO</div>
+  <div id="splash"><div class="sp-in"><div class="sp-bar"><i></i></div><div class="sp-msg" id="spMsg">Loading the map (internet needed)</div></div></div>
+</div>
+<aside id="panel">
+  <header id="head">
+    <div class="brand"><b id="brandName">Land Intelligence</b>
+      <span class="hd-tools"><span class="lang" role="group" aria-label="Language / Langue"><button data-lang="fr" lang="fr" title="Français">FR</button><button data-lang="en" lang="en" title="English">EN</button></span><button class="iconbtn" data-tab="about" id="aboutBtn">?</button></span></div>
+    <label class="sel"><select id="caseSel" aria-label="Region"></select></label>
+  </header>
+  <nav id="tabs" aria-label="Steps"></nav>
+  <div id="body"></div>
+</aside>
+<script>
+const DATA = /*__DATA__*/null;
+const LIBS = ["https://unpkg.com/react@18.3.1/umd/react.production.min.js", "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js",
+  "https://unpkg.com/redux@4.2.1/dist/redux.js", "https://unpkg.com/react-redux@8.1.2/dist/react-redux.min.js",
+  "https://unpkg.com/styled-components@6.1.8/dist/styled-components.min.js", "https://unpkg.com/kepler.gl@3.1.10/umd/keplergl.min.js"];
+const ORDER = ["lgp", "soil_root", "aridity", "surface_temp", "erosivity", "wind_erosion", "npp", "albedo", "soil_top", "rain", "pet", "evaporation"];
+const S = { lang: "en", d3: true, night: true, orbit: false, c: 0, tab: "findings", ind: "lgp", pind: "lgp", pmode: "chance", vind: "lgp", cell: null, years: false, year: 0, only: null,
+  budget: 20, evidence: "detected", defaultCrop: 0.2, adopt: null, ivs: null, sens: null, assume: false, ground: false };
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const C = () => DATA.cases[S.c];
+const $ = id => document.getElementById(id);
+const fmt = (x, d = 2) => x == null || !isFinite(x) ? (S.lang === "fr" ? "n.d." : "n/a") : Number(x).toLocaleString(S.lang === "fr" ? "fr-FR" : "en-US", { maximumFractionDigits: d, minimumFractionDigits: 0 });
+const sgn = (x, d = 2) => x == null ? "n/a" : (x > 0 ? "+" : "") + fmt(x, d);
+const fp = p => p == null ? "n/a" : p < 0.001 ? "< 0.001" : fmt(p, 3);
+const pq = p => p == null ? "n/a" : p < 0.001 ? "< 0.001" : "= " + fmt(p, 3); // "p ${pq(x)}"
+const pct = (x, d = 0) => x == null ? "n/a" : fmt(100 * x, d) + " %";
+const km2 = x => fmt(x, 0) + " km²";
+const ha = x => x >= 1e6 ? (S.lang === "fr" ? `${fmt(x / 1e6, 2)} millions d'ha` : `${fmt(x / 1e6, 2)} million ha`) : x >= 1e4 ? `${fmt(Math.round(x / 1e3) * 1e3, 0)} ha` : `${fmt(x, 0)} ha`; // summed from rounded cells: no false precision
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const ll = (lat, lon) => `${fmt(Math.abs(lat), 2)}°${lat >= 0 ? "N" : "S"}, ${fmt(Math.abs(lon), 3)}°${lon >= 0 ? "E" : "W"}`;
+const norm = b => ((b % 360) + 540) % 360 - 180;
+const ICON = {
+  play: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
+  pause: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>',
+  prev: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2.2v14H6zM19 5.5v13L9.5 12z"/></svg>',
+  next: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.8 5H18v14h-2.2zM5 5.5v13L14.5 12z"/></svg>',
+  orbit: '<svg class="ic st" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M19.5 3.5v4h-4"/></svg>',
+  moon: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1z"/></svg>',
+  sun: '<svg class="ic st" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>',
+  home: '<svg class="ic st" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
+  target: '<svg class="ic st" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg>',
+  close: '<svg class="ic st" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>',
+};
+
+// ----------------------------------------------------------------- normal law (budget threats)
+function erf(x) { const s = Math.sign(x); x = Math.abs(x); const t = 1 / (1 + 0.3275911 * x);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return s * y; }
+const Phi = z => 0.5 * (1 + erf(z / Math.SQRT2));
+const phi = z => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
+const shortfall = (a, mu, sd) => sd <= 0 ? Math.max(0, a - mu) : (a - mu) * Phi((a - mu) / sd) + sd * phi((a - mu) / sd);
+
+// ----------------------------------------------------------------- kepler.gl
+let store = null, ready = false, rowsKey = {}, current = [], themeSet = null, styleNow = null;
+let scaleNow = 1, LEG = null, MAIN = null, YC = [], redrawn = 0;
+function loadLibs(done, fail) {
+  // inserted with async = false: they download in parallel and run in this order
+  let left = LIBS.length, failed = false;
+  for (const u of LIBS) {
+    const s = document.createElement("script"); s.src = u; s.async = false; s.crossOrigin = "anonymous";
+    s.onload = () => { if (--left === 0 && !failed) done(); };
+    s.onerror = () => { if (!failed) { failed = true; fail(u); } };
+    document.head.appendChild(s);
+  }
+}
+function mountKepler() {
+  if (!window.KeplerGl || !window.React || !window.Redux) { offline(); return; }
+  const controls = {};
+  for (const k of ["visibleLayers", "mapLegend", "toggle3d", "splitMap", "mapDraw", "mapLocale", "effect", "aiAssistant"]) controls[k] = { show: false, active: false };
+  const reducer = Redux.combineReducers({ keplerGl: KeplerGl.keplerGlReducer.initialState({ uiState: { readOnly: true, activeSidePanel: null, currentModal: null, mapControls: controls } }) });
+  store = Redux.createStore(reducer, {}, Redux.applyMiddleware(...KeplerGl.enhanceReduxMiddleware([])));
+  const box = $("map");
+  function App() {
+    const [size, setSize] = React.useState({ w: box.clientWidth, h: box.clientHeight });
+    const [theme, setTheme] = React.useState(S.night ? null : "light");
+    themeSet = setTheme;
+    React.useEffect(() => { const ro = new ResizeObserver(() => setSize({ w: box.clientWidth, h: box.clientHeight })); ro.observe(box); return () => ro.disconnect(); }, []);
+    // kepler.gl knows "light" and "base"; its dark theme is the default (a "dark" string crashes styled-components)
+    return React.createElement(KeplerGl.KeplerGl, { id: "map", mapboxApiAccessToken: "pk.xxx.yyy", width: size.w, height: size.h, ...(theme ? { theme } : {}), readOnly: true });
+  }
+  class Guard extends React.Component { // a crash inside kepler.gl: say so instead of leaving a black map
+    constructor(p) { super(p); this.state = { failed: false }; }
+    static getDerivedStateFromError() { return { failed: true }; }
+    componentDidCatch(err) { console.error(err); ready = false; offline(); }
+    render() { return this.state.failed ? null : this.props.children; }
+  }
+  ReactDOM.createRoot($("app")).render(React.createElement(Guard, null, React.createElement(ReactRedux.Provider, { store }, React.createElement(App))));
+  let lastClicked = null;
+  store.subscribe(() => {
+    const m = store.getState().keplerGl.map;
+    if (!m) return;
+    if (!ready) { ready = true; setTimeout(onReady, 0); return; }
+    // deck.gl sometimes disables a layer on its very first frame ("Uniform length cannot change": luma.gl caches the
+    // shader's uniforms then). Fresh layers draw fine: drop the error and send the view again, a few times at most.
+    const bad = m.uiState.notifications.filter(x => /deck\.gl/.test(x.message || ""));
+    if (bad.length) {
+      for (const x of bad) store.dispatch(KeplerGl.removeNotification(x.id));
+      if (redrawn < 3) { redrawn++; console.warn("deck.gl layer error, view rebuilt:", bad[0].message); setTimeout(() => draw(), 0); }
+      return;
+    }
+    const cl = m.visState.clicked;
+    if (cl && cl !== lastClicked) {
+      lastClicked = cl;
+      const idx = cl.object?.properties?.index ?? cl.index;
+      const lid = cl.layer?.props?.id || cl.layer?.id || "";
+      const ds = (m.visState.layers.find(l => l.id === lid) || {}).config?.dataId;
+      const key = ds && rowsKey[ds] ? rowsKey[ds][idx] : null;
+      if (key) setTimeout(() => { S.cell = key; draw(); $("body").scrollTop = 0; if (innerWidth <= 860) $("panel").scrollIntoView({ behavior: "smooth" }); }, 0);
+    }
+  });
+}
+function offline() {
+  $("spMsg").textContent = tr("The map could not load (no internet?). The panel on the right still works.", "La carte n'a pas pu se charger (pas d'internet ?). Le panneau de droite fonctionne quand même.");
+  $("splash").classList.add("failed");
+}
+function setStyle() {
+  const st = S.night ? "dark-matter" : "positron";
+  if (st !== styleNow) { styleNow = st; store.dispatch(KeplerGl.mapStyleChange(st)); }
+  store.dispatch(KeplerGl.mapConfigChange({ visibleLayerGroups: { label: true, road: false, border: true, building: false, water: true, land: true, "3d building": false } }));
+}
+function onReady() {
+  setStyle();
+  const home = homeView();
+  $("splash").classList.add("gone");
+  if (startScene != null) { store.dispatch(KeplerGl.updateMap(home)); draw(); startTour(startScene); return; }
+  if (REDUCED) { store.dispatch(KeplerGl.updateMap(home)); draw(); return; }
+  store.dispatch(KeplerGl.updateMap({ ...home, zoom: home.zoom - 0.7 }));
+  scaleNow = 0; draw();
+  flyTo(home, 1300);
+  grow(1100);
+}
+
+// ----------------------------------------------------------------- camera
+function mapNow() { const m = store.getState().keplerGl.map.mapState; return { latitude: m.latitude, longitude: m.longitude, zoom: m.zoom, pitch: m.pitch, bearing: m.bearing }; }
+function bounds(keys) {
+  const c = C(), g = c.grid; let s = 90, n = -90, w = 180, e = -180;
+  for (const k of keys) { const x = c.cells[k]; if (!x) continue;
+    s = Math.min(s, x.lat - g.dlat / 2); n = Math.max(n, x.lat + g.dlat / 2); w = Math.min(w, x.lon - g.dlon / 2); e = Math.max(e, x.lon + g.dlon / 2); }
+  if (s > n) { const r = c.region; return { s: r.south, n: r.north, w: r.west, e: r.east }; }
+  const pad = (a, b, m) => b - a >= m ? [a, b] : [(a + b - m) / 2, (a + b + m) / 2]; // a lone cell is shown with its neighbours
+  [s, n] = pad(s, n, 2.5); [w, e] = pad(w, e, 2.5);
+  return { s, n, w, e };
+}
+function frame() { // the part of the map not covered by the legend, the controls or the story's captions
+  const st = $("stage"), W = st.clientWidth, H = st.clientHeight, desk = innerWidth > 860, cin = document.body.classList.contains("cinema");
+  const bar = cin ? 52 : 0;
+  return { W, H, l: desk && W > 760 ? 280 : 24, r: desk ? 72 : 16, t: cin ? bar + (desk ? 180 : 140) : 24, b: cin ? bar + 40 : 32 };
+}
+function fitCells(keys, o = {}) {
+  const B = bounds(keys), f = frame(), pitch = o.pitch ?? (S.d3 ? 50 : 0), bearing = o.bearing ?? (S.d3 ? -18 : 0);
+  const lat0 = (B.s + B.n) / 2, lon0 = (B.w + B.e) / 2, k = Math.cos(lat0 * Math.PI / 180), br = bearing * Math.PI / 180, pr = pitch * Math.PI / 180;
+  const dx = B.e - B.w, dy = (B.n - B.s) / k; // in degrees of longitude
+  const Wu = Math.abs(dx * Math.cos(br)) + Math.abs(dy * Math.sin(br));
+  const Hu = (Math.abs(dx * Math.sin(br)) + Math.abs(dy * Math.cos(br))) * (0.3 + 0.7 * Math.cos(pr)); // a tilted map foreshortens
+  const w = Math.max(200, f.W - f.l - f.r), h = Math.max(160, f.H - f.t - f.b);
+  const zoom = Math.max(2, Math.min(8.5, Math.min(Math.log2(w * 360 / (512 * Wu)), Math.log2(h * 360 / (512 * Hu))) + (o.zoomBias || 0)));
+  // move the camera so that the cells sit in the middle of the free part of the screen
+  const sx = -(f.l - f.r) / 2, sy = -((f.t - f.b) / 2) / Math.max(0.35, Math.cos(pr)), deg = 360 / (512 * 2 ** zoom);
+  const east = sx * Math.cos(br) - sy * Math.sin(br), north = -sx * Math.sin(br) - sy * Math.cos(br);
+  return { latitude: lat0 + north * deg * k, longitude: lon0 + east * deg, zoom, pitch, bearing };
+}
+const homeView = () => fitCells(Object.keys(C().cells), { zoomBias: S.d3 ? 0.4 : 0 }); // a tilted map leaves room the box fit does not see
+let flying = null;
+function flyTo(t, ms = 1800, done) {
+  if (!store || !ready) return;
+  stopFly();
+  if (REDUCED || ms <= 0) { store.dispatch(KeplerGl.updateMap(t)); if (done) done(); return; }
+  const a = mapNow(), db = norm(t.bearing - a.bearing), t0 = performance.now();
+  const dip = Math.min(1.2, Math.hypot(t.longitude - a.longitude, t.latitude - a.latitude) / 8); // a long flight rises, then lands
+  const F = { id: 0 };
+  const step = now => {
+    const u = Math.max(0, Math.min(1, (now - t0) / ms)), e = u < .5 ? 4 * u * u * u : 1 - (-2 * u + 2) ** 3 / 2;
+    store.dispatch(KeplerGl.updateMap({ latitude: a.latitude + (t.latitude - a.latitude) * e, longitude: a.longitude + (t.longitude - a.longitude) * e,
+      zoom: a.zoom + (t.zoom - a.zoom) * e - dip * Math.sin(Math.PI * u), pitch: a.pitch + (t.pitch - a.pitch) * e, bearing: norm(a.bearing + db * e) }));
+    if (u < 1) F.id = requestAnimationFrame(step); else { flying = null; if (done) done(); }
+  };
+  flying = F; F.id = requestAnimationFrame(step);
+}
+function stopFly() { if (flying) cancelAnimationFrame(flying.id); flying = null; }
+let spinId = null, spinLast = 0;
+const spinSpeed = () => S.orbit ? 5 : tour && tour.playing ? 1.4 : 0; // degrees per second
+function spin() {
+  if (spinId || REDUCED || !ready || !spinSpeed()) return;
+  spinLast = 0;
+  const step = now => {
+    const v = spinSpeed(); if (!v) { spinId = null; return; }
+    if (flying || !spinLast) spinLast = now;
+    else if (now - spinLast >= 33) { store.dispatch(KeplerGl.updateMap({ bearing: norm(mapNow().bearing + v * (now - spinLast) / 1000) })); spinLast = now; }
+    spinId = requestAnimationFrame(step);
+  };
+  spinId = requestAnimationFrame(step);
+}
+let growId = null, BASE = {};
+function setScale(s) { // every data layer at s times its own opacity
+  scaleNow = s;
+  for (const L of store.getState().keplerGl.map.visState.layers) if (BASE[L.id] != null) store.dispatch(KeplerGl.layerVisConfigChange(L, { opacity: BASE[L.id] * s }));
+}
+function grow(ms = 700) { // the dots and their glow light up
+  if (!store || !ready) return;
+  if (growId) cancelAnimationFrame(growId); growId = null;
+  if (REDUCED) { if (scaleNow !== 1) setScale(1); return; }
+  const from = scaleNow < 1 ? scaleNow : 0, t0 = performance.now();
+  const step = now => { const u = Math.max(0, Math.min(1, (now - t0) / ms)); setScale(from + (1 - from) * (1 - (1 - u) ** 2)); growId = u < 1 ? requestAnimationFrame(step) : null; };
+  growId = requestAnimationFrame(step);
+}
+
+// ----------------------------------------------------------------- data sent to kepler.gl: dots and glow on the ground, nothing rises
+function dataset(id, label, fields, rows, keys) { rowsKey[id] = keys; return { info: { id, label }, data: { fields, rows } }; }
+const PT = [{ name: "lat", type: "real" }, { name: "lng", type: "real" }];
+function dots(id, dataId, label, rows, col, colors, o = {}) { // one dot per cell, coloured by its class, sized by o.size
+  const present = [...new Set(rows.map(r => r[col]))].sort();
+  const op = o.opacity ?? 0.95; BASE[id] = op;
+  return { id, type: "point", config: { dataId, label, isVisible: true, columns: { lat: "lat", lng: "lng" },
+    visConfig: { opacity: op * scaleNow, radius: o.radius || 5, fixedRadius: false, radiusRange: o.range || [3.5, 12], filled: true,
+      outline: !!o.outline, thickness: 1, strokeColor: S.night ? [12, 15, 20] : [255, 255, 255],
+      colorRange: { name: label, type: "custom", category: "Custom", colors: present.map(k => colors[k] || "#999999") } } },
+    visualChannels: { colorField: { name: o.field || CF(), type: "string" }, colorScale: "ordinal",
+      ...(o.size ? { sizeField: { name: o.size, type: "real" }, sizeScale: "sqrt" } : {}) } };
+}
+function glow(id, src, label, rows, col, ramp, time = null) { // a heatmap where the weight gathers; skipped when there is nothing to show
+  // Its own dataset, with only the cells that glow: two heatmaps on one dataset share one map source in kepler.gl,
+  // which keeps only one of their weights, and the other then glows everywhere. Class and time come along for the filters.
+  const on = rows.filter(r => r[col] > 0); if (!on.length) return null;
+  const op = S.night ? 0.85 : 0.6; BASE[id] = op;
+  const dataId = `${src}_${id}`, tf = time == null ? [] : [{ name: "time", type: "timestamp", format: "YYYY-M-D H:m:s" }];
+  const row = (r, w) => [r[0], r[1], r[2], ...(time == null ? [] : [r[time]]), w];
+  const data = [row(on[0], 0), ...on.map(r => row(r, r[col]))]; // a weight 0 first: the scale always starts at 0
+  return { ds: dataset(dataId, label, [...PT, { name: CF(), type: "string" }, ...tf, { name: label, type: "real" }], data, []),
+    layer: { id, type: "heatmap", config: { dataId, label, isVisible: true, columns: { lat: "lat", lng: "lng" },
+      visConfig: { opacity: op * scaleNow, radius: 100, colorRange: { name: label, type: "sequential", category: "Custom", colors: ramp } } },
+      visualChannels: { weightField: { name: label, type: "real" }, weightScale: "linear" } } };
+}
+function beacon() { // the selected cell: a ring around its dot
+  const cell = S.cell && C().cells[S.cell]; if (!cell) return null;
+  const ink = S.night ? [255, 255, 255] : [22, 20, 15];
+  rowsKey.beacon = [];
+  return { ds: { info: { id: "beacon", label: "Selected cell" }, data: { fields: PT, rows: [[cell.lat, cell.lon]] } },
+    layer: { id: "Lbeacon", type: "point", config: { dataId: "beacon", label: "Selected cell", isVisible: true, color: ink, columns: { lat: "lat", lng: "lng" },
+      visConfig: { opacity: 1, radius: 17, fixedRadius: false, filled: false, outline: true, thickness: 2.5, strokeColor: ink } } } };
+}
+function send(datasets, layers, tooltip, filters = []) {
+  if (!store || !ready) return;
+  for (const L of layers) if (L && L.ds) { datasets.push(L.ds); tooltip[L.ds.info.id] = []; }
+  layers = layers.filter(Boolean).map(L => L.ds ? L.layer : L);
+  const b = beacon(); if (b) { datasets.push(b.ds); layers.unshift(b.layer); tooltip.beacon = []; }
+  const glows = datasets.map(d => d.info.id).filter(id => MAIN && id.startsWith(MAIN.dataId + "_"));
+  if (S.only && MAIN) filters = filters.concat([MAIN.dataId, ...glows].map((dataId, i) => ({ id: `only${i}`, dataId, name: MAIN.field, type: "multiSelect", value: [S.only], view: "side" })));
+  for (const id of current) store.dispatch(KeplerGl.removeDataset(id));
+  current = datasets.map(d => d.info.id);
+  store.dispatch(KeplerGl.addDataToMap({ datasets, options: { centerMap: false, keepExistingConfig: true },
+    config: { version: "v1", config: { visState: { layers, filters, interactionConfig: { tooltip: { enabled: true, fieldsToShow: tooltip } } } } } }));
+  glowCheck();
+}
+function mapGL() { // kepler.gl's MapLibre map, found through React: kepler.gl does not expose it
+  if (mapGL.m) return mapGL.m;
+  const el = document.querySelector(".maplibregl-map"), k = el && Object.keys(el).find(x => x.startsWith("__reactFiber"));
+  for (let f = k && el[k], i = 0; f && i < 60; f = f.return, i++) if (f.stateNode && f.stateNode._map && f.stateNode._map.getStyle) return (mapGL.m = f.stateNode._map);
+  return null;
+}
+let glowWait = null, glowTries = 0, glowFixes = 0;
+function glowCheck() { // a basemap style that finishes loading after the heatmaps drops them, and kepler.gl does not notice: send them again
+  clearTimeout(glowWait); glowTries = 0;
+  const look = () => {
+    const m = mapGL();
+    if (!m || !m.isStyleLoaded()) { if (++glowTries < 25) glowWait = setTimeout(look, 300); return; }
+    const want = store.getState().keplerGl.map.visState.layers.filter(l => l.type === "heatmap" && l.config.isVisible).map(l => l.id);
+    if (want.some(id => !m.getLayer(id))) { if (glowFixes++ < 3) draw(); } else glowFixes = 0;
+  };
+  glowWait = setTimeout(look, 500);
+}
+
+// ----------------------------------------------------------------- words: plain language, in English or French
+const tr = (en, fr) => S.lang === "fr" ? fr : en;
+const IND = { // what each indicator is called and means, for everyone; abs: its changes are told in its own unit, else in %
+  lgp: { abs: 1, d: 0, en: ["Growing season", "How many days a year crops can grow on rain alone."], fr: ["Saison de culture", "Combien de jours par an les cultures peuvent pousser avec la seule pluie."] },
+  soil_root: { en: ["Water in the soil", "How wet the soil is where roots drink (the top metre)."], fr: ["Eau dans le sol", "L'humidité du sol là où boivent les racines (le premier mètre)."] },
+  aridity: { en: ["Wetness of the climate", "Rain compared with the water the air can dry out. Lower means a drier climate."], fr: ["Humidité du climat", "La pluie comparée à l'eau que l'air peut assécher. Plus c'est bas, plus le climat est sec."] },
+  surface_temp: { abs: 1, d: 1, en: ["Ground heat", "How hot the ground gets. A hotter ground tires the crops and dries the soil."], fr: ["Chaleur du sol", "La température du sol. Un sol plus chaud fatigue les cultures et assèche la terre."] },
+  erosivity: { en: ["Rain that washes soil away", "How hard the rain hits bare soil: heavy downpours carry the soil away."], fr: ["Pluie qui emporte la terre", "La force de la pluie sur un sol nu : les grosses averses emportent la terre."] },
+  wind_erosion: { en: ["Wind that blows soil away", "How strongly dry winds can blow the soil away."], fr: ["Vent qui emporte la terre", "La force avec laquelle les vents secs peuvent emporter la terre."] },
+  npp: { en: ["Plant growth (seen from space)", "How much the plants grew in a year, measured by satellite."], fr: ["Croissance des plantes (vue de l'espace)", "Combien les plantes ont poussé dans l'année, mesuré par satellite."] },
+  albedo: { en: ["Brightness of the ground", "How much sunlight the ground sends back: bare, dry soil is bright, thick plants are dark."], fr: ["Clarté du sol", "La part du soleil renvoyée par le sol : un sol nu et sec est clair, une végétation dense est sombre."] },
+  soil_top: { en: ["Water at the surface", "How wet the top 5 cm of soil are, where seeds sprout."], fr: ["Eau en surface", "L'humidité des 5 premiers centimètres du sol, là où germent les graines."] },
+  rain: { en: ["Rain", "How much rain falls in a year."], fr: ["Pluie", "La quantité de pluie qui tombe dans l'année."] },
+  pet: { en: ["Thirst of the air", "How much water the air could take from a wet field. It grows with heat."], fr: ["Soif de l'air", "L'eau que l'air pourrait prendre à un champ mouillé. Elle augmente avec la chaleur."] },
+  evaporation: { en: ["Water rising from the land", "Water going from the soil, lakes and leaves into the air."], fr: ["Eau qui s'évapore", "L'eau qui monte du sol, des lacs et des feuilles vers l'air."] },
+};
+const name = k => IND[k] ? IND[k][S.lang][0] : C().indicators[k].meta.label;
+const about = k => IND[k] ? IND[k][S.lang][1] : C().indicators[k].meta.simple;
+const unit = k => ({ lgp: tr("days", "jours"), surface_temp: "°C", soil_root: "%", soil_top: "%", albedo: "%", rain: tr("mm a year", "mm par an"),
+  pet: tr("mm a year", "mm par an"), evaporation: tr("mm a day", "mm par jour"), npp: tr("g of carbon per m² a year", "g de carbone par m² et par an") }[k] || "");
+const value = (k, v) => v == null ? tr("n/a", "n.d.") : `${fmt(v, C().indicators[k].meta.decimals ?? 1)}${unit(k) ? " " + unit(k) : ""}`;
+const every10 = x => tr(`${x} every 10 years`, `${x} tous les 10 ans`);
+function change(k, rate, base) { // "-9 days every 10 years", "+0.4 °C every 10 years", "-8 % every 10 years"
+  const D = IND[k] || {};
+  if (rate == null) return tr("n/a", "n.d.");
+  if (k === "lgp") { const n = fmt(Math.abs(rate), 0); return every10(rate < 0 ? tr(`${n} fewer days`, `${n} jours de moins`) : tr(`${n} more days`, `${n} jours de plus`)); }
+  if (D.abs) return every10(`${sgn(rate, D.d ?? 1)} ${unit(k)}`);
+  if (base) return every10(`${sgn(100 * rate / Math.abs(base), 0)} %`);
+  return every10(sgn(rate, 3));
+}
+function medBase(k, keys) { // the typical starting level of the cells where it changed (to tell a change in %)
+  const I = C().indicators[k], v = (keys || Object.keys(I.cells)).map(x => I.cells[x] && I.cells[x][7]).filter(x => x != null).sort((a, b) => a - b);
+  return v.length ? v[Math.floor(v.length / 2)] : null;
+}
+const CTY = { "Cameroon": "Cameroun", "Chad": "Tchad", "Central African Rep.": "Centrafrique", "Eq. Guinea": "Guinée équatoriale", "Dem. Rep. Congo": "RD Congo" };
+const country = n => S.lang === "fr" ? CTY[n] || n : n;
+const regionName = c => ({ cameroon_full: tr("Cameroon", "Cameroun"), cameroon_chad: tr("Cameroon and the Lake Chad basin", "Cameroun et bassin du lac Tchad") }[c.region.key] || c.region.name);
+const areaSize = () => { const c = C(), g = c.grid, lat = (c.region.south + c.region.north) / 2;
+  return `${Math.round(g.dlat * 111)} × ${Math.round(g.dlon * 111 * Math.cos(lat * Math.PI / 180))} km`; };
+const CF = () => tr("Status", "État"); // the field the map colours by (and the legend filters on)
+const colon = () => S.lang === "fr" ? " :" : ":"; // French puts a space before the colon
+const sci = (title, body, open = false) => `<details class="how"${open ? " open" : ""}><summary>${title}</summary>${body}</details>`;
+
+// ----------------------------------------------------------------- classes and colours (night is the default: the glow needs the dark)
+const PAL = {
+  day: { worse: "#c2284f", worse0: "#eba9ba", better: "#0b8f84", better0: "#93d6cf", up: "#d97706", up0: "#f3c98b", down: "#5a46c8", down0: "#bdb4ef", flat: "#cfccc4" },
+  night: { worse: "#ff4f73", worse0: "#8a3a4e", better: "#35e3cb", better0: "#22766c", up: "#ffb547", up0: "#86622c", down: "#a08fff", down0: "#4f4689", flat: "#4a525e" },
+};
+const RAMP = {
+  day: { worse: ["#f9d5de", "#f2a3b6", "#e46f8d", "#d0416a", "#b1214d", "#7d0f33"], better: ["#d3f2ee", "#a3e2da", "#69c9bd", "#2fa99b", "#0d877b", "#05605a"],
+    up: ["#fbe8c8", "#f6cf8f", "#efb055", "#e08e1f", "#c06d06", "#8a4c03"], down: ["#e4e0fb", "#c6bdf5", "#a093ec", "#7a68de", "#5a46c8", "#3d2d96"] },
+  night: { worse: ["#3d0d1c", "#7a1532", "#b81f47", "#e8355f", "#ff6b8a", "#ffd0db"], better: ["#0a3a35", "#0f5e56", "#14897d", "#1fb8a6", "#4ee8d3", "#c4fff6"],
+    up: ["#3b2606", "#6e4508", "#a8680c", "#e0921a", "#ffbf4d", "#ffe6b3"], down: ["#1c1640", "#2f2670", "#4a3ca8", "#6f5ee0", "#9f91ff", "#ddd6ff"] },
+};
+const P = () => PAL[S.night ? "night" : "day"];
+const ramps = k => { const r = RAMP[S.night ? "night" : "day"]; return C().indicators[k].meta.good ? [r.worse, r.better] : [r.down, r.up]; }; // [the bad way, the good way]
+const ends = k => { const p = P(); return C().indicators[k].meta.good ? [p.worse, p.worse0, p.better0, p.better] : [p.down, p.down0, p.up0, p.up]; };
+const nz = () => P().flat;
+function detClass(k, t) {
+  const p = P(), maybe = tr("(may be chance)", "(peut-être le hasard)");
+  if (!t || t[0] === 0) return [`5 · ${tr("No change", "Pas de changement")}`, p.flat];
+  const good = C().indicators[k].meta.good, det = t[5] === 1, up = t[0] > 0;
+  if (good) { const worse = (up ? 1 : -1) * good < 0;
+    return worse ? (det ? [`1 · ${tr("Clearly worse", "Nettement pire")}`, p.worse] : [`2 · ${tr("A little worse", "Un peu pire")} ${maybe}`, p.worse0])
+      : (det ? [`4 · ${tr("Clearly better", "Nettement mieux")}`, p.better] : [`3 · ${tr("A little better", "Un peu mieux")} ${maybe}`, p.better0]); }
+  return up ? (det ? [`4 · ${tr("Clearly up", "Nettement en hausse")}`, p.up] : [`3 · ${tr("A little up", "Un peu en hausse")} ${maybe}`, p.up0])
+    : (det ? [`1 · ${tr("Clearly down", "Nettement en baisse")}`, p.down] : [`2 · ${tr("A little down", "Un peu en baisse")} ${maybe}`, p.down0]);
+}
+function likClass(k, p) {
+  const good = C().indicators[k].meta.good, e = ends(k);
+  const pw = good >= 0 ? p : 1 - p; // chance of the bad way (or of going down, for a driver)
+  const w = good ? [tr("worse", "pire"), tr("better", "mieux")] : [tr("lower", "en baisse"), tr("higher", "en hausse")];
+  if (pw >= 0.9) return [`1 · ${tr("Very likely", "Très probablement")} ${w[0]}`, e[0]];
+  if (pw >= DATA.risk_p) return [`2 · ${tr("Likely", "Probablement")} ${w[0]}`, e[1]];
+  if (pw > 1 - DATA.risk_p) return [`3 · ${tr("Hard to say", "Difficile à dire")}`, nz()];
+  if (pw > 0.1) return [`4 · ${tr("Likely", "Probablement")} ${w[1]}`, e[2]];
+  return [`5 · ${tr("Very likely", "Très probablement")} ${w[1]}`, e[3]];
+}
+const REPK = ["confirmed", "contradicted", "not confirmed", "satellite only", "neither"];
+const repLabel = st => `${REPK.indexOf(st) + 1} · ${{ confirmed: tr("Both see the same clear change", "Les deux voient le même changement net"),
+  contradicted: tr("They disagree", "Ils se contredisent"), "not confirmed": tr("Only the model sees a clear change", "Seul le modèle voit un changement net"),
+  "satellite only": tr("Only satellites see a clear change", "Seuls les satellites voient un changement net"), neither: tr("No clear change in either", "Aucun changement net") }[st] || st}`;
+const REPC = () => S.night ? { "confirmed": "#4ade80", "contradicted": "#ff5a5f", "not confirmed": "#f7b38a", "satellite only": "#5fb3ff", "neither": "#7c8591" }
+  : { "confirmed": "#1b7837", "contradicted": "#d73027", "not confirmed": "#f4a582", "satellite only": "#4393c3", "neither": "#9a9a9a" };
+const IVC = { zai: "#1b9e77", bunds: "#d95f02", windbreak: "#7570b3", fmnr: "#66a61e", seeds: "#e6ab02", irrigation: "#1f78b4" };
+const IVN = { zai: ["Pits and half-moons that keep the rain in the field (zaï)", "Trous et demi-lunes qui gardent la pluie au champ (zaï)"],
+  bunds: ["Stone lines and grass strips against runoff", "Cordons de pierres et bandes d'herbe contre le ruissellement"],
+  windbreak: ["Windbreak hedges, crop residues left on the soil", "Haies brise-vent, résidus de récolte laissés au sol"],
+  fmnr: ["Letting trees grow back in the fields", "Laisser repousser les arbres dans les champs"],
+  seeds: ["Fast, drought-tolerant seeds", "Semences rapides et résistantes à la sécheresse"],
+  irrigation: ["Small irrigation for dry spells", "Petite irrigation pour les périodes sèches"] };
+const ivName = v => IVN[v.key] ? tr(...IVN[v.key]) : v.label;
+const threatName = t => ({ water: tr("drought", "sécheresse"), erosion: tr("soil washed away", "terre emportée par la pluie"), wind: tr("soil blown away", "terre emportée par le vent"), heat: tr("heat", "chaleur") }[t] || t);
+function tally(rows, col) { const n = {}; for (const r of rows) n[r[col]] = (n[r[col]] || 0) + 1; return n; }
+const items = (colors, n) => Object.entries(colors).sort().map(([l, col]) => [l, col, n[l] || 0]);
+function zcol(z, k) { // a year's mean departure (sd, the good way up) on the map's scale
+  if (z == null) return nz();
+  const e = ends(k), st = [[-1.2, e[0]], [-0.55, e[1]], [0, nz()], [0.55, e[2]], [1.2, e[3]]];
+  z = Math.max(-1.2, Math.min(1.2, z));
+  for (let i = 1; i < st.length; i++) if (z <= st[i][0]) {
+    const [z0, c0] = st[i - 1], [z1, c1] = st[i], u = (z - z0) / (z1 - z0), a = hex(c0), b = hex(c1);
+    return `rgb(${a.map((v, j) => Math.round(v + (b[j] - v) * u)).join(",")})`;
+  }
+  return st[st.length - 1][1];
+}
+
+// ----------------------------------------------------------------- map views
+const DOTS = () => tr(`Each dot is an area of about ${areaSize()}. Big, glowing dots: clear changes. Small dots: may be chance.`,
+  `Chaque point est une zone d'environ ${areaSize()}. Gros points lumineux : changements nets. Petits points : peut-être le hasard.`);
+const tip = (id, names) => ({ [id]: names.map(n => ({ name: n, format: null })) });
+function viewDetect(k) {
+  const c = C(), I = c.indicators[k], g = I.meta.good, rows = [], keys = [], colors = {};
+  for (const [key, cell] of Object.entries(c.cells)) {
+    const t = I.cells[key]; if (!t) continue;
+    const [cl, col] = detClass(k, t); colors[cl] = col;
+    const z = Math.min(6, Math.abs(t[6] || 0)), det = t[5] === 1, bad = g ? t[0] * g < 0 : t[0] < 0;
+    rows.push([cell.lat, cell.lon, cl, key, placeText(key), change(k, t[0], t[7]), det ? z : 0.4, det && bad ? z : 0, det && !bad ? z : 0]); keys.push(key);
+  }
+  const F = [CF(), tr("Place", "Lieu"), tr("Change", "Évolution")];
+  const fields = [...PT, { name: F[0], type: "string" }, { name: "cell", type: "string" }, { name: F[1], type: "string" }, { name: F[2], type: "string" },
+    { name: "dot", type: "real" }, { name: "glow1", type: "real" }, { name: "glow2", type: "real" }];
+  MAIN = { dataId: "detect", field: F[0] };
+  const ds = [dataset("detect", name(k), fields, rows, keys)], R = ramps(k);
+  const layers = [dots("Ldetect", "detect", name(k), rows, 2, colors, { size: "dot" }),
+    glow("Gbad", "detect", "glow1", rows, 7, R[0]), glow("Ggood", "detect", "glow2", rows, 8, R[1])];
+  let note = DOTS();
+  if (I.eva && I.eva.borders.length) {
+    const gr = c.grid, b = [], ink = S.night ? [240, 240, 236] : [20, 20, 20];
+    for (const e of I.eva.borders) {
+      const [la1, lo1] = e.a, [la2, lo2] = e.b;
+      if (Math.abs(la1 - la2) < 1e-6) { const x = (lo1 + lo2) / 2; b.push([la1 - gr.dlat / 2, x, la1 + gr.dlat / 2, x]); }
+      else { const y = (la1 + la2) / 2; b.push([y, lo1 - gr.dlon / 2, y, lo1 + gr.dlon / 2]); }
+    }
+    ds.push(dataset("borders", "borders", [{ name: "lat0", type: "real" }, { name: "lng0", type: "real" }, { name: "lat1", type: "real" }, { name: "lng1", type: "real" }], b, []));
+    layers.unshift({ id: "Lborders", type: "line", config: { dataId: "borders", label: "borders", isVisible: true,
+      columns: { lat0: "lat0", lng0: "lng0", lat1: "lat1", lng1: "lng1" }, color: ink,
+      visConfig: { opacity: 0.7, thickness: 1.5, targetColor: ink } } });
+    note += tr(" Thin lines: where the trend turns around.", " Traits fins : là où la tendance s'inverse.");
+  }
+  send(ds, layers, { ...tip("detect", F), borders: [] });
+  return { title: tr(`${name(k)} since ${c.period[0]}`, `${name(k)} depuis ${c.period[0]}`), items: items(colors, tally(rows, 2)), note };
+}
+function norms(k) { // each cell's 1981-2010 mean and spread
+  const c = C(), I = c.indicators[k], out = {};
+  for (const key of Object.keys(c.cells)) {
+    const s = I.series[key]; if (!s) continue;
+    const base = s.filter((v, i) => v != null && c.years[i] >= c.baseline[0] && c.years[i] <= c.baseline[1]);
+    if (base.length < 10) continue;
+    const m = base.reduce((a, b) => a + b, 0) / base.length, sd = Math.sqrt(base.reduce((a, b) => a + (b - m) ** 2, 0) / (base.length - 1)) || 1;
+    out[key] = [m, sd];
+  }
+  return out;
+}
+function viewYears(k) {
+  const c = C(), I = c.indicators[k], good = I.meta.good || 1, rows = [], keys = [], N = norms(k), e = ends(k);
+  const words = I.meta.good ? [tr("Much worse than usual", "Bien pire que d'habitude"), tr("Worse than usual", "Pire que d'habitude"), tr("Usual", "Comme d'habitude"),
+    tr("Better than usual", "Mieux que d'habitude"), tr("Much better than usual", "Bien mieux que d'habitude")]
+    : [tr("Much lower than usual", "Bien plus bas que d'habitude"), tr("Lower than usual", "Plus bas que d'habitude"), tr("Usual", "Comme d'habitude"),
+      tr("Higher than usual", "Plus haut que d'habitude"), tr("Much higher than usual", "Bien plus haut que d'habitude")];
+  const cls = words.map((w, i) => [`${i + 1} · ${w}`, [e[0], e[1], nz(), e[2], e[3]][i]]);
+  YC = c.years.map(() => ({}));
+  for (const [key, cell] of Object.entries(c.cells)) {
+    const s = I.series[key], nm = N[key]; if (!s || !nm) continue;
+    const [m, sd] = nm, pl = placeText(key);
+    s.forEach((v, i) => { if (v == null) return; const z = good * (v - m) / sd, a = Math.min(4, Math.abs(z));
+      const cl = cls[z <= -1.5 ? 0 : z <= -0.5 ? 1 : z < 0.5 ? 2 : z < 1.5 ? 3 : 4]; YC[i][cl[0]] = (YC[i][cl[0]] || 0) + 1;
+      rows.push([cell.lat, cell.lon, cl[0], key, `${c.years[i]}-7-1 0:0:0`, pl, value(k, v), cl === cls[2] ? 0.4 : a, z <= -0.5 ? a : 0, z >= 0.5 ? a : 0]); keys.push(key); });
+  }
+  const y = c.years[S.year] ?? c.years[0], R = ramps(k), colors = Object.fromEntries(cls);
+  const F = [CF(), tr("Place", "Lieu"), tr("Year", "Année"), tr("Value", "Valeur")];
+  MAIN = { dataId: "years", field: F[0] };
+  const G = [glow("Gbad", "years", "glow1", rows, 8, R[0], 4), glow("Ggood", "years", "glow2", rows, 9, R[1], 4)];
+  send([dataset("years", name(k), [...PT, { name: F[0], type: "string" }, { name: "cell", type: "string" },
+    { name: F[2], type: "timestamp", format: "YYYY-M-D H:m:s" }, { name: F[1], type: "string" }, { name: F[3], type: "string" },
+    { name: "dot", type: "real" }, { name: "glow1", type: "real" }, { name: "glow2", type: "real" }], rows, keys)],
+    [dots("Lyears", "years", name(k), rows, 2, colors, { size: "dot" }), ...G], tip("years", [F[0], F[1], F[3]]),
+    ["years", ...G.filter(Boolean).map(g => g.ds.info.id)].map((dataId, i) => ({ id: `yf${i}`, dataId, name: i ? "time" : F[2], type: "timeRange", view: "side", value: [Date.UTC(y, 0, 1), Date.UTC(y, 11, 31)] })));
+  return { title: tr(`${name(k)}, each year compared with usual`, `${name(k)}, chaque année comparée à l'habitude`), items: cls.map(([l, col]) => [l, col, null]),
+    note: tr(`"Usual": the ${c.baseline.join("-")} average. The further a year is from usual, the bigger and brighter its dot.`,
+      `« L'habitude » : la moyenne ${c.baseline.join("-")}. Plus une année s'en écarte, plus son point est gros et lumineux.`) };
+}
+function viewVerify(k) {
+  const c = C(), rep = c.replication.per_cell, rows = [], keys = [], colors = {}, RC = REPC();
+  const bg = [], bgKeys = [], bgColors = {};
+  for (const [key, cell] of Object.entries(c.cells)) { const t = c.indicators[k].cells[key]; if (!t) continue; const [cl, col] = detClass(k, t); bgColors[cl] = col; bg.push([cell.lat, cell.lon, cl, key, placeText(key)]); bgKeys.push(key); }
+  for (const [key, d] of Object.entries(rep)) { const x = d[k]; if (!x) continue; const cell = c.cells[key], l = repLabel(x.status);
+    colors[l] = RC[x.status]; rows.push([cell.lat, cell.lon, l, key, placeText(key)]); keys.push(key); }
+  const F = [CF(), tr("Place", "Lieu")], f = [...PT, { name: F[0], type: "string" }, { name: "cell", type: "string" }, { name: F[1], type: "string" }];
+  const ds = [dataset("detectbg", name(k), f, bg, bgKeys), dataset("rep", tr("Satellites vs model", "Satellites contre modèle"), f, rows, keys)];
+  MAIN = { dataId: "rep", field: F[0] };
+  const layers = [dots("Lrep", "rep", "rep", rows, 2, colors, { field: F[0], radius: 8, outline: true }),
+    dots("Lbg", "detectbg", "bg", bg, 2, bgColors, { field: F[0], radius: 3, opacity: 0.4 })];
+  send(ds, layers, { ...tip("rep", F), ...tip("detectbg", F) });
+  const n = tally(rows, 2);
+  return { title: tr(`${name(k)}: satellites vs the weather model, ${(c.replication.years || []).join("-")}`, `${name(k)} : satellites contre modèle météo, ${(c.replication.years || []).join("-")}`),
+    items: Object.keys(colors).sort().map(p => [p, colors[p], n[p] || 0]),
+    note: tr("Big dots: the areas checked with rain measured by satellites. Small dots: the change since 1981.", "Gros points : zones vérifiées avec la pluie mesurée par satellite. Petits points : l'évolution depuis 1981.") };
+}
+const between = (k, a, b) => tr(`between ${value(k, a)} and ${value(k, b)}`, `entre ${value(k, a)} et ${value(k, b)}`);
+function viewPredict(k) {
+  const c = C(), I = c.indicators[k], rows = [], keys = [], colors = {}, h = DATA.horizon;
+  for (const [key, cell] of Object.entries(c.cells)) { const f = I.forecast[key]; if (!f) continue;
+    const [cl, col] = likClass(k, f[4]); colors[cl] = col;
+    const pw = I.meta.good >= 0 ? f[4] : 1 - f[4], sure = Math.abs(2 * pw - 1), d = cl[0];
+    rows.push([cell.lat, cell.lon, cl, key, placeText(key), `${value(k, f[0])} (${between(k, f[1], f[2])})`, pct(pw), d === "3" ? 0.15 : sure, d === "1" || d === "2" ? sure : 0, d === "4" || d === "5" ? sure : 0]); keys.push(key); }
+  const R = ramps(k), F = [CF(), tr("Place", "Lieu"), tr(`Expected ${h[0]}-${h[1]}`, `Attendu ${h[0]}-${h[1]}`), I.meta.good ? tr("Chance it gets worse", "Risque d'aggravation") : tr("Chance it goes down", "Chance de baisse")];
+  MAIN = { dataId: "predict", field: F[0] };
+  send([dataset("predict", name(k), [...PT, { name: F[0], type: "string" }, { name: "cell", type: "string" }, { name: F[1], type: "string" }, { name: F[2], type: "string" },
+    { name: F[3], type: "string" }, { name: "dot", type: "real" }, { name: "glow1", type: "real" }, { name: "glow2", type: "real" }], rows, keys)],
+    [dots("Lpredict", "predict", name(k), rows, 2, colors, { size: "dot" }), glow("Gbad", "predict", "glow1", rows, 8, R[0]), glow("Ggood", "predict", "glow2", rows, 9, R[1])],
+    tip("predict", F));
+  return { title: tr(`${name(k)}: ${h[0]}-${h[1]} compared with the last 10 years`, `${name(k)} : ${h[0]}-${h[1]} comparé aux 10 dernières années`), items: items(colors, tally(rows, 2)),
+    note: tr("Big, glowing dots: the forecast is sure of the direction. Small dots: hard to say.", "Gros points lumineux : la prévision est sûre du sens. Petits points : difficile à dire.") };
+}
+// FAO agro-ecological zones (FAO 1978-81; GAEZ): the length of the growing period decides what rain-fed crops can do
+const ZONES = [[0, 75], [75, 120], [120, 180], [180, 270], [270, 1e9]];
+const zoneWords = i => [[tr("Very dry", "Très sèche"), tr("grazing; crops only with irrigation", "pâturage ; cultures seulement avec irrigation")], // French: a zone is feminine
+  [tr("Dry", "Sèche"), tr("millet, sorghum, cowpea", "mil, sorgho, niébé")], [tr("Medium", "Moyenne"), tr("maize, groundnut, cotton, sorghum", "maïs, arachide, coton, sorgho")],
+  [tr("Wet", "Humide"), tr("maize, cassava, yam, rice", "maïs, manioc, igname, riz")],
+  [tr("Very wet", "Très humide"), tr("cassava, plantain, cocoa, coffee, oil palm", "manioc, plantain, cacao, café, palmier à huile")]][i];
+const ZC = () => S.night ? ["#8c6a45", "#d19a3a", "#d8c84e", "#7cc95c", "#2fb37a"] : ["#a9825a", "#d4932c", "#b9a722", "#4e9e3e", "#17784b"];
+const zoneOf = d => { const i = Math.max(0, ZONES.findIndex(z => d < z[1])), z = ZONES[i], [nm, crops] = zoneWords(i);
+  const range = z[1] > 1e8 ? tr(`${z[0]} days or more`, `${z[0]} jours ou plus`) : z[0] ? tr(`${z[0]} to ${z[1]} days`, `${z[0]} à ${z[1]} jours`) : tr(`under ${z[1]} days`, `moins de ${z[1]} jours`);
+  return [`${i + 1} · ${nm}${tr(":", " :")} ${range}`, ZC()[i], nm, crops, i]; };
+function levelClass(k, v, br) { // another indicator: fifths of the region's expected values, the good way bright
+  const I = C().indicators[k], g = I.meta.good, e = ends(k), cols = g < 0 ? [e[3], e[2], nz(), e[1], e[0]] : [e[0], e[1], nz(), e[2], e[3]];
+  const i = br.findIndex(b => v <= b), j = i < 0 ? 4 : i, lo = j ? br[j - 1] : null;
+  return [`${j + 1} · ${lo == null ? tr(`up to ${value(k, br[0])}`, `jusqu'à ${value(k, br[0])}`) : j === 4 ? tr(`above ${value(k, lo)}`, `plus de ${value(k, lo)}`) : tr(`${value(k, lo)} to ${value(k, br[j])}`, `${value(k, lo)} à ${value(k, br[j])}`)}`, cols[j]];
+}
+function viewLevel(k) {
+  const c = C(), I = c.indicators[k], h = DATA.horizon, rows = [], keys = [], colors = {}, risk = [];
+  const vals = Object.values(I.forecast).map(f => f[0]).sort((a, b) => a - b), q = x => vals[Math.min(vals.length - 1, Math.floor(x * vals.length))];
+  const br = [q(.2), q(.4), q(.6), q(.8)];
+  const F = [CF(), tr("Place", "Lieu"), tr(`Expected ${h[0]}-${h[1]}`, `Attendu ${h[0]}-${h[1]}`), tr("Last 10 years", "10 dernières années"),
+    I.meta.good ? tr("Chance it gets worse", "Risque d'aggravation") : tr("Chance it goes down", "Chance de baisse")];
+  for (const [key, cell] of Object.entries(c.cells)) { const f = I.forecast[key]; if (!f) continue;
+    const [cl, col] = k === "lgp" ? zoneOf(f[0]) : levelClass(k, f[0], br); colors[cl] = col;
+    rows.push([cell.lat, cell.lon, cl, key, placeText(key), `${value(k, f[0])} (${between(k, f[1], f[2])})`, value(k, f[3]), pct(I.meta.good >= 0 ? f[4] : 1 - f[4])]); keys.push(key);
+    if ("12".includes(likClass(k, f[4])[0][0])) risk.push([cell.lat, cell.lon, cl]); }
+  MAIN = { dataId: "level", field: F[0] };
+  const ds = [dataset("level", name(k), [...PT, { name: F[0], type: "string" }, { name: "cell", type: "string" }, { name: F[1], type: "string" },
+    { name: F[2], type: "string" }, { name: F[3], type: "string" }, { name: F[4], type: "string" }], rows, keys)];
+  const layers = [dots("Llevel", "level", name(k), rows, 2, colors, { radius: 22, outline: true })];
+  if (risk.length) { // a ring around the cells likely to be worse than in the last ten years
+    const ink = hex(P().worse);
+    ds.push(dataset("level_risk", "risk", [...PT, { name: F[0], type: "string" }], risk, []));
+    layers.unshift({ id: "Lrisk", type: "point", config: { dataId: "level_risk", label: "risk", isVisible: true, color: ink, columns: { lat: "lat", lng: "lng" },
+      visConfig: { opacity: 1, radius: 34, fixedRadius: false, filled: false, outline: true, thickness: 2, strokeColor: ink } } });
+  }
+  send(ds, layers, { ...tip("level", F), level_risk: [] });
+  const items0 = k === "lgp" ? ZONES.map((_z, i) => zoneOf(ZONES[i][0])).map(([l, col]) => [l, col, tally(rows, 2)[l] || 0]) : items(colors, tally(rows, 2));
+  return { title: k === "lgp" ? tr(`Days to grow, ${h[0]}-${h[1]}`, `Jours de culture, ${h[0]}-${h[1]}`) : tr(`${name(k)}, expected ${h[0]}-${h[1]}`, `${name(k)}, attendu ${h[0]}-${h[1]}`), items: items0,
+    note: (k === "lgp" ? tr("What rain-fed farming usually grows in each zone. ", "Ce que l'agriculture sans irrigation cultive d'habitude dans chaque zone. ")
+      : tr("Five groups of the same size. ", "Cinq groupes de même taille. ")) + tr("Red ring: likely to get worse.", "Anneau rouge : risque d'aggravation.") };
+}
+function viewAct(res) {
+  const c = C(), rows = [], keys = [], colors = {};
+  const names = Object.fromEntries(ivs().map(v => [v.key, ivName(v)]));
+  for (const [key, cell] of Object.entries(c.cells)) {
+    const x = res.plan[key] || {}; const main = Object.entries(x).sort((a, b) => b[1] - a[1])[0];
+    const cl = main ? `${Object.keys(IVC).indexOf(main[0]) + 1} · ${names[main[0]]}` : `9 · ${tr("Nothing planned", "Rien de prévu")}`;
+    colors[cl] = main ? IVC[main[0]] || "#999999" : nz();
+    rows.push([cell.lat, cell.lon, cl, key, placeText(key), Object.entries(x).map(([j, h]) => `${names[j]}${colon()} ${ha(h)}`).join("; ") || "-",
+      res.cost[key] ? `US$ ${fmt(res.cost[key] / 1e3, 0)} k` : "-", res.prot[key] || 0]); keys.push(key);
+  }
+  const F = [CF(), tr("Place", "Lieu"), tr("What to do", "Quoi faire"), tr("Cost", "Coût")];
+  MAIN = { dataId: "act", field: F[0] };
+  send([dataset("act", tr("Budget plan", "Plan du budget"), [...PT, { name: F[0], type: "string" }, { name: "cell", type: "string" }, { name: F[1], type: "string" },
+    { name: F[2], type: "string" }, { name: F[3], type: "string" }, { name: "dot", type: "real" }], rows, keys)],
+    [dots("Lact", "act", "act", rows, 2, colors, { size: "dot" }), glow("Ggood", "act", "glow1", rows, 7, RAMP[S.night ? "night" : "day"].better)],
+    tip("act", F));
+  return { title: tr(`Where the US$ ${S.budget} million go`, `Où vont les ${S.budget} millions de dollars`), items: items(colors, tally(rows, 2)),
+    note: tr("The main action in each area. Glow: where the most harvest is saved.", "L'action principale dans chaque zone. Lueur : là où l'on sauve le plus de récoltes.") };
+}
+
+// ----------------------------------------------------------------- budget (same algorithm as detective/budget.py)
+const ivs = () => S.ivs || (S.ivs = JSON.parse(JSON.stringify(C().budget.interventions)));
+const sens = () => S.sens || (S.sens = { ...C().budget.sensitivity });
+const cropHa = key => { const cl = C().cells[key]; return cl.crop_ha != null ? cl.crop_ha : 100 * cl.area * S.defaultCrop; };
+const adopt = () => S.adopt == null ? (S.adopt = C().budget.adoption ?? 0.25) : S.adopt;
+function threatsFor(key) {
+  const c = C(), out = {};
+  for (const [t, [ind, way]] of Object.entries(DATA.threats)) {
+    const I = c.indicators[ind]; const f = I && I.forecast[key]; if (!f) continue;
+    if (S.evidence !== "forecast") { const d = I.cells[key]; if (!d || d[5] !== 1 || d[0] * way <= 0) continue; }
+    if (S.evidence === "confirmed" && (ind === "lgp" || ind === "erosivity")) { const r = (c.replication.per_cell[key] || {})[ind]; if (r && r.status === "contradicted") continue; }
+    const mu = f[0], sd = (f[2] - f[0]) / 1.6449, rec = f[3];
+    const bad = way < 0 ? shortfall(rec, mu, sd) : shortfall(-rec, -mu, sd);
+    let v = 0; if (bad > 0) v = t === "heat" ? sens().heat * bad : (rec > 0 ? Math.min(1, sens()[t] * bad / rec) : 0);
+    if (v > 0) out[t] = v;
+  }
+  return out;
+}
+function allocate(budget) {
+  const steps = [], sev = {}, area = {};
+  for (const key of Object.keys(C().cells)) {
+    sev[key] = threatsFor(key); area[key] = adopt() * cropHa(key);
+    if (!area[key] || !Object.keys(sev[key]).length) continue;
+    const opts = ivs().map(v => [Number(v.cost), Object.entries(v.effects).reduce((a, [t, e]) => a + Number(e) * (sev[key][t] || 0), 0), v.key])
+      .filter(o => o[0] > 0).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    const hull = [[0, 0, null]];
+    for (const [cst, b, j] of opts) {
+      if (b <= hull[hull.length - 1][1]) continue;
+      while (hull.length >= 2) { const [c1, b1] = hull[hull.length - 2], [c2, b2] = hull[hull.length - 1];
+        if ((b2 - b1) * (cst - c1) <= (b - b1) * (c2 - c1)) hull.pop(); else break; }
+      hull.push([cst, b, j]);
+    }
+    for (let i = 1; i < hull.length; i++) steps.push([(hull[i][1] - hull[i - 1][1]) / (hull[i][0] - hull[i - 1][0]), key, hull[i - 1][2], hull[i][2], hull[i][0] - hull[i - 1][0], hull[i][1] - hull[i - 1][1]]);
+  }
+  steps.sort((a, b) => b[0] - a[0]);
+  let left = budget, protectedHa = 0; const plan = {}, cost = {}, prot = {};
+  for (const [, key, j1, j2, dc, db] of steps) {
+    if (left <= 0) break;
+    const A = area[key], f = Math.min(1, left / (dc * A)); const x = plan[key] || (plan[key] = {});
+    if (j1) { x[j1] -= f * A; if (x[j1] <= 1e-9) delete x[j1]; }
+    x[j2] = (x[j2] || 0) + f * A; left -= f * dc * A; protectedHa += f * db * A;
+    cost[key] = (cost[key] || 0) + f * dc * A; prot[key] = (prot[key] || 0) + f * db * A;
+  }
+  return { plan, cost, prot, sev, spent: budget - Math.max(left, 0), protectedHa };
+}
+
+// ----------------------------------------------------------------- what the page says first (cards and story share it)
+function detKeys(k) { // cells where a change was detected the bad way (or the main way, for a driver)
+  const I = C().indicators[k]; if (!I) return [];
+  const g = I.meta.good, sm = I.summary, way = g ? -g : (sm.up >= sm.down ? 1 : -1);
+  return Object.entries(I.cells).filter(([, t]) => t[5] === 1 && t[0] * way > 0).map(([key]) => key);
+}
+function likelyWorse(k) {
+  const I = C().indicators[k], keys = []; let crop = 0;
+  for (const [key, f] of Object.entries(I.forecast)) { const d = likClass(k, f[4])[0][0]; if (d === "1" || d === "2") { keys.push(key); crop += C().cells[key].crop_ha || 0; } }
+  return { keys, crop };
+}
+function facts() {
+  const c = C(); let k2 = null, best = 0;
+  for (const k of ORDER) { if (k === "lgp" || !c.indicators[k]) continue; const d = c.indicators[k].summary.detected; if (d > best) { best = d; k2 = k; } }
+  return { sm: c.indicators.lgp.summary, hc: c.indicators.lgp.hindcast, k2, rain: (c.replication.indicators || {}).rain, lw: likelyWorse("lgp"), plan: allocate(S.budget * 1e6) };
+}
+const evidenceWords = () => ({ forecast: tr("every warning", "tous les signaux d'alerte"), detected: tr("clear changes only", "les changements nets seulement"),
+  confirmed: tr("clear changes not contradicted by satellites", "les changements nets que les satellites ne contredisent pas") }[S.evidence]);
+const ofArea = (km, c = C()) => { const tot = Object.values(c.cells).reduce((a, x) => a + (x.area || 0), 0); return tot ? pct(km / tot) : ""; };
+const more = n => n > 0; // rain words: more or less rain
+const rainWords = (x) => more(x) ? tr("more rain", "plus de pluie") : tr("less rain", "moins de pluie");
+function sentences(k) { // the region's change of an indicator, in two plain sentences
+  const c = C(), I = c.indicators[k], sm = I.summary, g = I.meta.good, keys = detKeys(k);
+  const rate = sm.median_rate_detected == null ? null : change(k, sm.median_rate_detected, medBase(k, keys));
+  if (g) return tr(`It clearly got worse in ${sm.worse} of ${sm.tested} areas (${km2(sm.area_worse_km2)}) and clearly better in ${sm.better}.${rate ? ` Where it changed: ${rate}.` : ""}`,
+    `Nettement pire dans ${sm.worse} zones sur ${sm.tested} (${km2(sm.area_worse_km2)}), nettement mieux dans ${sm.better}.${rate ? ` Là où il a changé : ${rate}.` : ""}`);
+  return tr(`It clearly went up in ${sm.up} of ${sm.tested} areas and down in ${sm.down}.${rate ? ` Where it changed: ${rate}.` : ""}`,
+    `Nettement en hausse dans ${sm.up} zones sur ${sm.tested}, en baisse dans ${sm.down}.${rate ? ` Là où il a changé : ${rate}.` : ""}`);
+}
+
+// ----------------------------------------------------------------- the story (cinema mode)
+let tour = null, startScene = null;
+function scenes() {
+  const c = C(), F = facts(), sm = F.sm, h = DATA.horizon, all = Object.keys(c.cells), ny = c.years.length;
+  const V = (keys, b, p = 56, zb = 0) => fitCells(keys.length >= 3 ? keys : all, { pitch: S.d3 ? p : 0, bearing: S.d3 ? b : 0, zoomBias: zb });
+  const sc = [], lgpRate = sm.median_rate_detected == null ? "" : change("lgp", sm.median_rate_detected);
+  sc.push({ k: tr(`${c.period[0]}-${c.period[1]} · NASA data`, `${c.period[0]}-${c.period[1]} · données de la NASA`), title: regionName(c),
+    text: tr(`Each dot is an area of about ${areaSize()}. Its colour tells how its growing season (the days crops can grow on rain alone) changed since ${c.period[0]}. The glow gathers where the change is clear.`,
+      `Chaque point est une zone d'environ ${areaSize()}. Sa couleur dit comment sa saison de culture (les jours où les cultures poussent avec la seule pluie) a changé depuis ${c.period[0]}. La lueur se concentre là où le changement est net.`),
+    tab: "findings", view: V(all, -30, 58), from: true, ms: 10000 });
+  sc.push({ k: tr("Changes", "Changements"), title: tr(`The growing season got shorter on ${km2(sm.area_worse_km2)}`, `La saison de culture a raccourci sur ${km2(sm.area_worse_km2)}`),
+    text: tr(`Clearly shorter in ${sm.worse} areas, longer in ${sm.better}${lgpRate ? `: ${lgpRate} where it changed` : ""}. We only call a change clear when two different tests agree, so chance gives very few false alarms.`,
+      `Nettement plus courte dans ${sm.worse} zones, plus longue dans ${sm.better}${lgpRate ? ` : ${lgpRate} là où elle a changé` : ""}. Un changement n'est dit net que si deux tests différents sont d'accord : le hasard donne très peu de fausses alertes.`),
+    tab: "detect", ind: "lgp", view: V(detKeys("lgp"), -6, 60, 0.15), ms: 10000 });
+  const per = 240;
+  sc.push({ k: tr("Year by year", "Année par année"), title: tr(`${c.years[0]} to ${c.years[ny - 1]}`, `De ${c.years[0]} à ${c.years[ny - 1]}`),
+    text: tr("Red: a shorter growing season than usual that year. Turquoise: a longer one. The strip at the bottom shows the whole area, year by year.",
+      "Rouge : une saison plus courte que d'habitude cette année-là. Turquoise : plus longue. La bande du bas montre toute la région, année par année."),
+    tab: "detect", ind: "lgp", years: true, per, view: V(all, 16, 54), ms: 1400 + ny * per + 2000 });
+  if (F.k2) {
+    const I = c.indicators[F.k2], s2 = I.summary, up = s2.up >= s2.down, rate = s2.median_rate_detected == null ? "" : change(F.k2, s2.median_rate_detected, medBase(F.k2, detKeys(F.k2)));
+    sc.push({ k: tr("Changes", "Changements"), title: tr(`${name(F.k2)}: ${up ? "rising" : "falling"} in ${up ? s2.up : s2.down} of ${s2.tested} areas`, `${name(F.k2)} : en ${up ? "hausse" : "baisse"} dans ${up ? s2.up : s2.down} zones sur ${s2.tested}`),
+      text: `${about(F.k2)}${rate ? tr(` Where it changed: ${rate}.`, ` Là où il a changé : ${rate}.`) : ""}`,
+      tab: "detect", ind: F.k2, view: V(detKeys(F.k2), -42, 50), ms: 9500 });
+  }
+  if (F.rain) sc.push({ k: tr("Can we trust it?", "Peut-on s'y fier ?"), title: tr("Is it the land, or the data?", "Est-ce la terre, ou les données ?"),
+    text: tr(`Since ${(c.replication.years || [2001])[0]}, satellites measure ${rainWords(F.rain.median_imerg)}, while NASA's weather model gives ${rainWords(F.rain.median_merra)}. They agree on the direction in ${pct(F.rain.same_sign)} of the areas. So these changes are warnings to check on the ground, not proof.`,
+      `Depuis ${(c.replication.years || [2001])[0]}, les satellites mesurent ${rainWords(F.rain.median_imerg)}, alors que le modèle météo de la NASA donne ${rainWords(F.rain.median_merra)}. Ils sont d'accord sur le sens dans ${pct(F.rain.same_sign)} des zones. Ces changements sont donc des alertes à vérifier sur le terrain, pas des preuves.`),
+    tab: "verify", vind: "rain", view: V(all, 22, 48), ms: 12000 });
+  const hc = F.hc, lw = F.lw, cov = hc && hc.coverage90 ? pct(hc.coverage90.blend) : null;
+  sc.push({ k: tr(`Future ${h[0]}-${h[1]}`, `Avenir ${h[0]}-${h[1]}`), title: tr(`${lw.keys.length} areas will likely lose growing days by ${h[1]}`, `${lw.keys.length} zones perdront probablement des jours de culture d'ici ${h[1]}`),
+    text: tr(`At least a ${pct(DATA.risk_p)} chance of a shorter season than in the last 10 years, with about ${ha(lw.crop)} of farmland in them.${cov ? ` We tested the method on past years: the range it gives held the real value ${cov} of the time.` : ""}`,
+      `Au moins ${pct(DATA.risk_p)} de chances d'une saison plus courte que ces 10 dernières années, avec environ ${ha(lw.crop)} de terres cultivées.${cov ? ` La méthode a été testée sur des années passées : la fourchette donnée contenait la vraie valeur ${cov} du temps.` : ""}`),
+    tab: "predict", pind: "lgp", view: V(lw.keys, -24, 58, 0.1), ms: 10500 });
+  const Pl = F.plan, funded = Object.keys(Pl.plan);
+  sc.push({ k: tr("Act", "Agir"), title: tr(`US$ ${S.budget} million, placed where the land is losing`, `${S.budget} millions de dollars, placés là où la terre recule`),
+    text: tr(`That saves the equivalent of ${ha(Pl.protectedHa)} of harvest by ${h[1]}, in ${funded.length} areas, acting on ${evidenceWords()}. Costs and effects are estimates you can change in "Act".`,
+      `Cela sauve l'équivalent de ${ha(Pl.protectedHa)} de récoltes d'ici ${h[1]}, dans ${funded.length} zones, en n'agissant que sur ${evidenceWords()}. Coûts et effets sont des estimations modifiables dans « Agir ».`),
+    tab: "act", view: V(funded, 10, 55), ms: 10000 });
+  sc.push({ k: tr("Your turn", "À vous"), title: tr("Explore it yourself", "Explorez vous-même"),
+    text: tr("Click any dot to see what happened there and what may come. Each tab says how sure we are.", "Cliquez sur un point pour voir ce qui s'y est passé et ce qui peut venir. Chaque onglet dit à quel point nous sommes sûrs."),
+    tab: "findings", view: V(all, -18, 52), ms: 6500 });
+  return sc;
+}
+function startTour(i = 0) {
+  if (!ready) return;
+  stopFly(); stopYears();
+  tour = { sc: null, i: -1, t: 0, last: 0, playing: true, raf: 0, saved: { tab: S.tab, ind: S.ind, pind: S.pind, pmode: S.pmode, vind: S.vind, cell: S.cell, orbit: S.orbit } };
+  S.orbit = false; S.cell = null; S.pmode = "chance";
+  document.body.classList.add("cinema");
+  tour.sc = scenes(); // after the bars are in: the camera frames what they leave free
+  $("barTop").innerHTML = `<span class="bt-brand">${tr("Land Intelligence", "Intelligence des terres")}</span><span class="bt-reg">${esc(regionName(C()))}</span><button class="bt-x" data-act="texit">${ICON.close}<span>${tr("Exit", "Quitter")}</span><kbd>Esc</kbd></button>`;
+  $("barBottom").innerHTML = `<button data-act="tprev" aria-label="${tr("Previous chapter", "Chapitre précédent")}">${ICON.prev}</button><button data-act="tplay" id="tplay" aria-label="${tr("Pause", "Pause")}">${ICON.pause}</button><button data-act="tnext" aria-label="${tr("Next chapter", "Chapitre suivant")}">${ICON.next}</button>
+    <div class="segs">${tour.sc.map((s, n) => `<button data-scene="${n}" aria-label="${esc(s.title)}"><b><i></i></b></button>`).join("")}</div><span class="bt-n" id="tn"></span>`;
+  goScene(i);
+  tour.raf = requestAnimationFrame(tourTick);
+  spin();
+}
+function goScene(i) {
+  if (!tour) return;
+  if (i >= tour.sc.length) { endTour(); return; }
+  i = Math.max(0, i); tour.i = i; tour.t = 0;
+  const s = tour.sc[i];
+  stopYears();
+  Object.assign(S, { tab: s.tab, years: !!s.years, only: null, cell: null });
+  if (s.ind) S.ind = s.ind; if (s.pind) S.pind = s.pind; if (s.vind) S.vind = s.vind;
+  if (s.years) S.year = 0;
+  draw({ grow: !s.years, growMs: 1400 });
+  if (s.from) store.dispatch(KeplerGl.updateMap({ ...s.view, zoom: s.view.zoom - 2.3, pitch: 0, bearing: norm(s.view.bearing + 45) }));
+  flyTo(s.view, s.from ? 4000 : 2600);
+  const el = $("caption");
+  el.innerHTML = `<div class="label">${i + 1} / ${tour.sc.length} · ${esc(s.k)}</div><h2>${esc(s.title)}</h2><p>${esc(s.text)}</p>`;
+  el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
+  $("tn").textContent = `${i + 1} / ${tour.sc.length}`;
+  paintTour();
+}
+function tourTick(now) {
+  if (!tour) return;
+  if (tour.playing && tour.last) tour.t += now - tour.last;
+  tour.last = now;
+  const s = tour.sc[tour.i];
+  if (s.years) { const y = Math.max(0, Math.min(C().years.length - 1, Math.floor((tour.t - 1400) / s.per))); if (y !== S.year) setYear(y); }
+  paintTour();
+  if (tour.t >= s.ms) goScene(tour.i + 1);
+  if (tour) tour.raf = requestAnimationFrame(tourTick);
+}
+function paintTour() {
+  if (!tour) return;
+  const s = tour.sc[tour.i];
+  document.querySelectorAll(".segs i").forEach((el, n) => { el.style.width = n < tour.i ? "100%" : n > tour.i ? "0" : `${Math.min(100, 100 * tour.t / s.ms)}%`; });
+}
+function tourPlay(on) {
+  if (!tour) return;
+  tour.playing = on == null ? !tour.playing : on;
+  const b = $("tplay"); if (b) { b.innerHTML = tour.playing ? ICON.pause : ICON.play; b.setAttribute("aria-label", tour.playing ? tr("Pause", "Pause") : tr("Play", "Lecture")); }
+  if (tour.playing) spin();
+}
+function endTour() {
+  if (!tour) return;
+  cancelAnimationFrame(tour.raf);
+  const sv = tour.saved; tour = null;
+  document.body.classList.remove("cinema");
+  Object.assign(S, sv, { years: false, only: null });
+  stopYears();
+  draw({ grow: true });
+  flyTo(homeView(), 1800);
+  spin();
+}
+
+// ----------------------------------------------------------------- the years, played on the map
+let yearsTimer = null, STRIPES = null;
+function stripes(k) { // the region's mean departure from its norm, year by year (sd, the good way up)
+  const c = C(), I = c.indicators[k], good = I.meta.good || 1, N = norms(k), acc = c.years.map(() => []);
+  for (const [key, [m, sd]] of Object.entries(N)) I.series[key].forEach((v, i) => { if (v != null) acc[i].push(good * (v - m) / sd); });
+  return acc.map(a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+}
+const yearsInd = () => S.tab === "detect" ? S.ind : "lgp";
+function setYear(i) {
+  const c = C(); i = Math.max(0, Math.min(c.years.length - 1, i)); S.year = i;
+  if (store && ready) {
+    const y = c.years[i];
+    store.getState().keplerGl.map.visState.filters.forEach((f, j) => { if (f.id.startsWith("yf")) store.dispatch(KeplerGl.setFilter(j, "value", [Date.UTC(y, 0, 1), Date.UTC(y, 11, 31)])); });
+  }
+  const yb = $("tlY"); if (yb) yb.textContent = c.years[i];
+  document.querySelectorAll(".tl-stripes i").forEach((s, n) => s.classList.toggle("on", n === i));
+  paintLegend();
+}
+function playYears(per = 380) {
+  stopYears();
+  const n = C().years.length; if (S.year >= n - 1) setYear(0);
+  yearsTimer = setInterval(() => { if (S.year >= n - 1) stopYears(); else setYear(S.year + 1); }, per);
+  paintPlay();
+}
+function stopYears() { if (yearsTimer) clearInterval(yearsTimer); yearsTimer = null; paintPlay(); }
+function paintPlay() { const b = document.querySelector(".tl-play"); if (b) b.innerHTML = yearsTimer ? ICON.pause : ICON.play; }
+function paintTimeline() {
+  const el = $("timeline"), on = S.years && ready;
+  document.body.classList.toggle("tl", !!on);
+  if (!on) { el.hidden = true; return; }
+  const c = C(), k = yearsInd(), ys = c.years, g = c.indicators[k].meta.good;
+  if (!STRIPES || STRIPES.k !== k || STRIPES.c !== S.c || STRIPES.night !== S.night) STRIPES = { k, c: S.c, night: S.night, z: stripes(k) };
+  const word = z => Math.abs(z) < 0.5 ? tr("about usual", "proche de l'habitude") : g ? (z >= 0 ? tr("better than usual", "mieux que d'habitude") : tr("worse than usual", "pire que d'habitude"))
+    : (z >= 0 ? tr("higher than usual", "plus haut que d'habitude") : tr("lower than usual", "plus bas que d'habitude"));
+  el.innerHTML = `<button class="tl-play" data-act="ytoggle" aria-label="${tr("Play or pause the years", "Lire ou mettre en pause")}">${yearsTimer ? ICON.pause : ICON.play}</button>
+    <div class="tl-year"><b id="tlY">${ys[S.year]}</b><span>${esc(name(k))}, ${tr("compared with usual", "comparé à l'habitude")}</span></div>
+    <div><div class="tl-stripes">${STRIPES.z.map((z, i) => `<i data-y="${i}" class="${i === S.year ? "on" : ""}" style="background:${zcol(z, k)}" title="${ys[i]}${colon()} ${z == null ? tr("n/a", "n.d.") : word(z)}"></i>`).join("")}</div>
+    <div class="tl-axis"><span>${ys[0]}</span><span>${ys[Math.floor(ys.length / 2)]}</span><span>${ys[ys.length - 1]}</span></div></div>
+    <button class="btn" data-act="years">${tr("Back", "Retour")}</button>`;
+  el.hidden = false;
+}
+
+// ----------------------------------------------------------------- legend and cell card, on the map
+function paintLegend() {
+  const el = $("legend");
+  if (!LEG || !ready) { el.hidden = true; return; }
+  const n = S.years ? (YC[S.year] || {}) : null;
+  el.innerHTML = `<div class="lg-t">${esc(LEG.title)}</div>${LEG.items.map(([l, col, cnt]) => {
+    const v = n ? n[l] || 0 : cnt;
+    return `<button class="lg-i ${S.only === l ? "on" : S.only ? "off" : ""}" data-only="${esc(l)}"><i style="background:${col};color:${col}"></i><span>${esc(l.replace(/^\d+ · /, ""))}</span><b>${v == null ? "" : v}</b></button>`; }).join("")}
+    ${LEG.note ? `<div class="lg-n">${esc(LEG.note)}</div>` : ""}<div class="lg-n">${S.only ? tr("Click it again to show everything.", "Cliquez à nouveau pour tout afficher.")
+      : tr(`Click a line to show only it${n ? `; numbers for ${C().years[S.year]}` : ""}.`, `Cliquez sur une ligne pour n'afficher qu'elle${n ? ` ; chiffres de ${C().years[S.year]}` : ""}.`)}</div>`;
+  el.hidden = false;
+}
+function placeOf(key) { // "near Garoua (37 km)", "Cameroon 61 %, Nigeria 39 %" (Natural Earth)
+  const c = C().cells[key]; if (!c || !c.t) return { near: "", where: "" };
+  const cs = (c.c || []).filter(x => x[1] >= 0.05);
+  return { near: c.t[2] <= 5 ? c.t[0] : tr(`near ${c.t[0]} (${fmt(c.t[2], 0)} km)`, `près de ${c.t[0]} (${fmt(c.t[2], 0)} km)`),
+    where: cs.length > 1 ? cs.map(([n, v]) => `${country(n)} ${pct(v)}`).join(", ") : cs.length ? country(cs[0][0]) : tr("sea or lake", "mer ou lac") };
+}
+const placeText = key => { const p = placeOf(key); return p.near ? `${p.near}, ${p.where}` : ""; };
+const tabInd = () => S.tab === "detect" ? S.ind : S.tab === "verify" ? S.vind : S.tab === "predict" ? S.pind : "lgp";
+function cellCard() { // the selected place is shown in the panel: the map stays clear
+  document.body.classList.toggle("cellopen", !!(S.cell && C().cells[S.cell]));
+  $("cellcard").hidden = true;
+}
+function cellView() {
+  const key = S.cell, c = C();
+  const k = tabInd(), I = c.indicators[k], t = I.cells[key], cell = c.cells[key], e = I.eva && I.eva.cells[key], f = I.forecast[key], d = c.drivers[key];
+  const rp = c.replication.per_cell[key], h = DATA.horizon;
+  const pl = placeOf(key), up = x => x.charAt(0).toUpperCase() + x.slice(1);
+  let s = `<section class="place"><div class="cc-head"><button class="btn" data-act="closecell" title="${tr("Back (Esc)", "Retour (Échap)")}">← ${tr("Back", "Retour")}</button>
+    <button class="iconbtn" data-act="flycell" title="${tr("Zoom in on the map", "Zoomer sur la carte")}" aria-label="${tr("Zoom in on the map", "Zoomer sur la carte")}">${ICON.target}</button></div>
+    <div class="label">${esc(name(k))}</div><h2>${pl.near ? esc(up(pl.near)) : ll(cell.lat, cell.lon)}</h2>${pl.where ? `<p class="small muted">${esc(pl.where)}</p>` : ""}`;
+  s += chart(k, key) + `<table>`;
+  if (t) s += `<tr><td>${tr(`Since ${c.period[0]}`, `Depuis ${c.period[0]}`)}</td><td class="n">${change(k, t[0], t[7])}${colon()} ${t[5] ? `<b>${tr("a clear change", "un changement net")}</b>` : tr("not clear, may be chance", "pas net, peut-être le hasard")}</td></tr>`;
+  if (e && e.d.length > 1) s += `<tr><td>Eva</td><td class="n">${tr(`the trend changed around ${e.t.map(x => fmt(x, 0)).join(" and ")}`, `la tendance a changé vers ${e.t.map(x => fmt(x, 0)).join(" et ")}`)}</td></tr>`;
+  if (f) { const pw = I.meta.good >= 0 ? f[4] : 1 - f[4];
+    s += `<tr><td>${h[0]}-${h[1]}</td><td class="n"><b>${value(k, f[0])}</b> (${between(k, f[1], f[2])})${S.lang === "fr" ? " ;" : ";"} ${tr("last 10 years", "10 dernières années")}${colon()} ${value(k, f[3])}. `
+      + (I.meta.good ? tr(`Chance it gets worse: ${pct(pw)}`, `Risque d'aggravation : ${pct(pw)}`) : tr(`Chance it goes down: ${pct(pw)}`, `Chance de baisse : ${pct(pw)}`)) + `</td></tr>`;
+    if (k === "lgp") { const z = zoneOf(f[0]); s += `<tr><td>${tr("Good for", "Convient à")}</td><td class="n">${tr(`${z[2]} zone: usually ${z[3]}`, `zone ${z[2].toLowerCase()} : d'habitude ${z[3]}`)}</td></tr>`; } }
+  if (d && (k === "aridity" || k === "lgp")) s += `<tr><td>${tr("Why", "Pourquoi")}</td><td class="n">${tr(`rain ${every10(`${sgn(d.rain_pct, 0)} %`)}, thirst of the air ${every10(`${sgn(d.pet_pct, 1)} %`)}`, `pluie ${every10(`${sgn(d.rain_pct, 0)} %`)}, soif de l'air ${every10(`${sgn(d.pet_pct, 1)} %`)}`)}</td></tr>`;
+  if (rp && rp[k]) s += `<tr><td>${tr("Satellites", "Satellites")}</td><td class="n">${esc(repLabel(rp[k].status).replace(/^\d+ · /, ""))}</td></tr>`;
+  if (S.tab === "act" && lastPlan) { const x = lastPlan.plan[key], names = Object.fromEntries(ivs().map(v => [v.key, ivName(v)]));
+    s += `<tr><td>${tr("Plan", "Plan")}</td><td class="n">${x ? Object.entries(x).map(([j, a]) => `${esc(names[j])}${colon()} ${ha(a)}`).join("; ") + `, US$ ${fmt(lastPlan.cost[key] / 1e3, 0)} k` : tr("nothing planned", "rien de prévu")}</td></tr>`; }
+  s += `<tr><td>${tr("Land today", "La terre aujourd'hui")}</td><td class="n">${cell.crop != null ? tr(`${pct(cell.crop)} fields, ${pct(cell.forest || 0)} forest`, `${pct(cell.crop)} de champs, ${pct(cell.forest || 0)} de forêt`) : tr("not measured", "non mesuré")}</td></tr></table>`;
+  if (t) s += sci(tr("Details for scientists", "Détails pour les scientifiques (en anglais)"), `<p class="small muted">${ll(cell.lat, cell.lon)} · Sen ${sgn(t[0], 3)} ${esc(I.meta.units)}/decade (95 %: ${sgn(t[1], 3)} to ${sgn(t[2], 3)}) · Mann-Kendall p ${fp(t[3])} · t-test p ${fp(t[4])} · ${t[5] ? "detected after FDR" : "not detected"}${e ? ` · Eva: ${e.d.length} dynamic(s)` : ""}${rp && rp[k] ? ` · IMERG ${sgn(rp[k].s, 3)}, MERRA-2 ${sgn(rp[k].m, 3)} per decade` : ""}</p>`);
+  return s + `<p class="small muted">${tr("Click another dot, or Back to return.", "Cliquez sur un autre point, ou sur Retour pour revenir.")}</p></section>`;
+}
+function chart(k, key) {
+  const c = C(), I = c.indicators[k], s = I.series[key]; if (!s) return `<p class="small muted">${tr("No data for this area.", "Pas de données pour cette zone.")}</p>`;
+  const W = 420, H = 200, L = 46, R = 10, T = 12, B = 26;
+  const ys = c.years, pts = ys.map((y, i) => [y, s[i]]).filter(p => p[1] != null);
+  if (!pts.length) return "";
+  const f = I.forecast[key], h = DATA.horizon;
+  const lines = (I.eva && I.eva.cells[key]) ? I.eva.cells[key].l : [];
+  let vals = pts.map(p => p[1]); if (f) vals = vals.concat([f[1], f[2]]);
+  let lo = Math.min(...vals), hi = Math.max(...vals); const pad = (hi - lo) * 0.08 || 1; lo -= pad; hi += pad;
+  const x0 = pts[0][0], x1 = f ? h[1] : pts[pts.length - 1][0];
+  const X = x => L + (x - x0) / (x1 - x0) * (W - L - R), Y = v => T + (hi - v) / (hi - lo) * (H - T - B);
+  let g = "";
+  for (let i = 0; i <= 4; i++) { const v = lo + (hi - lo) * i / 4; g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" style="stroke:var(--grid)"/><text x="${L - 4}" y="${Y(v) + 4}" text-anchor="end">${fmt(v, Math.abs(hi - lo) < 2 ? 2 : Math.abs(hi - lo) < 20 ? 1 : 0)}</text>`; }
+  for (let y = Math.ceil(x0 / 10) * 10; y <= x1; y += 10) g += `<text x="${X(y)}" y="${H - 8}" text-anchor="middle">${y}</text>`;
+  const bl = c.baseline; const bv = pts.filter(p => p[0] >= bl[0] && p[0] <= bl[1]).map(p => p[1]);
+  if (bv.length) { const m = bv.reduce((a, b) => a + b, 0) / bv.length; g += `<line x1="${X(bl[0])}" x2="${X(bl[1])}" y1="${Y(m)}" y2="${Y(m)}" style="stroke:var(--muted)" stroke-dasharray="4 3"/>`; }
+  if (f) {
+    g += `<rect x="${X(h[0] - 0.5)}" width="${X(h[1] + 0.5) - X(h[0] - 0.5)}" y="${Y(f[2])}" height="${Y(f[1]) - Y(f[2])}" style="fill:var(--band)"/>`;
+    g += `<line x1="${X(h[0] - 0.5)}" x2="${X(h[1] + 0.5)}" y1="${Y(f[0])}" y2="${Y(f[0])}" style="stroke:var(--curve)" stroke-width="2.5"/>`;
+    g += `<line x1="${X(h[0] - 10.5)}" x2="${X(h[0] - 0.5)}" y1="${Y(f[3])}" y2="${Y(f[3])}" style="stroke:var(--ink)" stroke-width="1.5" stroke-dasharray="2 2"/>`;
+  }
+  g += `<polyline fill="none" style="stroke:var(--curve)" stroke-width="2" points="${pts.map(p => `${X(p[0])},${Y(p[1])}`).join(" ")}"/>`;
+  g += pts.map(p => `<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="2.2" style="fill:var(--curve)"/>`).join("");
+  for (const l of lines) g += `<line x1="${X(l[0])}" y1="${Y(l[1])}" x2="${X(l[2])}" y2="${Y(l[3])}" style="stroke:var(--eva)" stroke-width="2.5" opacity=".9"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(name(k))}">${g}</svg>
+  <div class="cc-key"><span style="color:var(--curve)">● ${tr("each year (NASA)", "chaque année (NASA)")}</span><span style="color:var(--eva)">━ ${tr("trend seen by Eva, our AI", "tendance vue par Eva, notre IA")}</span><span>┄ ${tr(`usual (${bl.join("-")})`, `habitude (${bl.join("-")})`)}</span>${f ? `<span>┅ ${tr("last 10 years", "10 dernières années")}</span><span>${tr(`shaded: ${h[0]}-${h[1]}, likely range`, `zone grisée : ${h[0]}-${h[1]}, fourchette probable`)}</span>` : ""}</div>`;
+}
+
+// ----------------------------------------------------------------- panel
+const MAIN6 = ["lgp", "soil_root", "surface_temp", "rain", "erosivity", "npp"]; // shown first; the others under "more"
+function tiles(sel, list, attr, stat) {
+  return `<div class="rows">${list.filter(k => C().indicators[k]).map(k => { const s = stat(k);
+    return `<button class="row ${k === sel ? "on" : ""}" data-${attr}="${k}" aria-pressed="${k === sel}"><span>${esc(name(k))}</span><span class="tb"><i style="width:${s.a}%;background:${s.ca}"></i><i style="width:${s.b}%;background:${s.cb}"></i></span><span class="tc">${s.text}</span></button>`; }).join("")}</div>`;
+}
+const detStat = k => { const I = C().indicators[k], sm = I.summary, g = I.meta.good, a = g ? sm.worse : sm.down, b = g ? sm.better : sm.up;
+  return { a: 100 * a / sm.tested, b: 100 * b / sm.tested, ca: ends(k)[0], cb: ends(k)[3],
+    text: g ? tr(`${a} worse · ${b} better`, `${a} dégradées · ${b} améliorées`) : tr(`${a} down · ${b} up`, `${a} en baisse · ${b} en hausse`) }; };
+const predStat = k => { const I = C().indicators[k]; let a = 0, b = 0, t = 0;
+  for (const f of Object.values(I.forecast)) { t++; const d = likClass(k, f[4])[0][0]; if (d === "1" || d === "2") a++; else if (d === "4" || d === "5") b++; }
+  return { a: 100 * a / (t || 1), b: 100 * b / (t || 1), ca: ends(k)[1], cb: ends(k)[2],
+    text: I.meta.good ? tr(`${a} at risk · ${b} better`, `${a} à risque · ${b} mieux`) : tr(`${a} down · ${b} up`, `${a} en baisse · ${b} en hausse`) }; };
+function chips(sel, list, attr) {
+  return `<div class="chips">${list.filter(k => C().indicators[k]).map(k => `<button class="chip ${k === sel ? "on" : ""}" data-${attr}="${k}" aria-pressed="${k === sel}">${esc(name(k))}</button>`).join("")}</div>`;
+}
+const card = o => `<button class="card" style="--c:${o.c}" data-go="${o.go}"><span class="card-k label"><i></i>${esc(o.k)}</span><span class="card-n">${o.n}</span><span class="card-t">${o.t}</span>${o.s ? `<span class="card-s">${o.s}</span>` : ""}<span class="card-go">${o.cta} →</span></button>`;
+const SEE = () => tr("See it on the map", "Voir sur la carte");
+function renderFindings() {
+  const c = C(), F = facts(), sm = F.sm, h = DATA.horizon, n = Object.keys(c.cells).length;
+  const secs = ready ? Math.round(scenes().reduce((a, s) => a + s.ms, 0) / 1000) : null;
+  let s = `<section><h2>${tr("Is the land losing its ability to grow food?", "La terre perd-elle sa capacité à nourrir ?")}</h2>
+    <p class="small muted">${tr(`We looked at ${c.period[1] - c.period[0] + 1} years of free NASA data (satellites and weather) for ${n} areas of about ${areaSize()}.`,
+      `Nous avons étudié ${c.period[1] - c.period[0] + 1} ans de données gratuites de la NASA (satellites et météo) sur ${n} zones d'environ ${areaSize()}.`)}</p>
+    <button class="btn primary wide" data-act="play" ${ready ? "" : "disabled"}>${ICON.play}<span>${tr("Watch the story", "Voir l'histoire")}</span>${secs ? `<span class="dur">${secs} s</span>` : ""}</button></section><div class="cards">`;
+  const lgpRate = sm.median_rate_detected == null ? "" : change("lgp", sm.median_rate_detected);
+  s += card({ c: P().worse, k: name("lgp"), n: km2(sm.area_worse_km2),
+    t: tr(`where the growing season has clearly become shorter since ${c.period[0]} (${ofArea(sm.area_worse_km2)} of the area)`, `où la saison de culture a nettement raccourci depuis ${c.period[0]} (${ofArea(sm.area_worse_km2)} de la région)`),
+    s: tr(`${lgpRate ? `There: ${lgpRate}. ` : ""}It got clearly longer in ${sm.better} areas only.`, `${lgpRate ? `Là : ${lgpRate}. ` : ""}Elle n'a nettement rallongé que dans ${sm.better} zones.`), go: "detect:lgp", cta: SEE() });
+  if (F.k2) { const k = F.k2, I = c.indicators[k], s2 = I.summary, g = I.meta.good, up = s2.up >= s2.down;
+    const rate = s2.median_rate_detected == null ? "" : change(k, s2.median_rate_detected, medBase(k, detKeys(k)));
+    s += card({ c: g ? ((up ? 1 : -1) * g < 0 ? P().worse : P().better) : (up ? P().up : P().down), k: name(k), n: `${up ? s2.up : s2.down} / ${s2.tested}`,
+      t: tr(`areas clearly going ${up ? "up" : "down"}${rate ? `: ${rate}` : ""}`, `zones nettement en ${up ? "hausse" : "baisse"}${rate ? ` : ${rate}` : ""}`), s: esc(about(k)), go: `detect:${k}`, cta: SEE() }); }
+  if (F.rain) { const y0 = (c.replication.years || [2001])[0], agree = Math.sign(F.rain.median_imerg) === Math.sign(F.rain.median_merra);
+    s += card({ c: agree ? P().better : "var(--warn)", k: tr("Can we trust it?", "Peut-on s'y fier ?"), n: agree ? tr("They agree", "Ils concordent") : tr("Caution", "Prudence"),
+      t: tr(`Since ${y0}, satellites measure ${rainWords(F.rain.median_imerg)}; NASA's weather model gives ${rainWords(F.rain.median_merra)}.`, `Depuis ${y0}, les satellites mesurent ${rainWords(F.rain.median_imerg)} ; le modèle météo de la NASA donne ${rainWords(F.rain.median_merra)}.`),
+      s: agree ? "" : tr("So the changes found here are warnings to check on the ground, not proof.", "Les changements trouvés ici sont donc des alertes à vérifier sur le terrain, pas des preuves."),
+      go: "verify:rain", cta: tr("See the checks", "Voir les vérifications") }); }
+  const cov = F.hc && F.hc.coverage90 ? pct(F.hc.coverage90.blend) : null;
+  s += card({ c: P().worse0, k: tr(`Future ${h[0]}-${h[1]}`, `Avenir ${h[0]}-${h[1]}`), n: tr(`${F.lw.keys.length} areas`, `${F.lw.keys.length} zones`),
+    t: tr("will likely have a shorter growing season than in the last 10 years", "auront probablement une saison de culture plus courte que ces 10 dernières années"),
+    s: tr(`About ${ha(F.lw.crop)} of fields in them.${cov ? ` Tested on past years, our forecast range was right ${cov} of the time.` : ""}`,
+      `Environ ${ha(F.lw.crop)} de champs.${cov ? ` Testée sur des années passées, notre fourchette était juste ${cov} du temps.` : ""}`), go: "predict:lgp", cta: tr("See the forecast", "Voir la prévision") });
+  { const I = c.indicators.lgp; let km = 0, n2 = 0, risk = 0;
+    for (const [key, f] of Object.entries(I.forecast)) if (f[0] >= 120) { n2++; km += c.cells[key].area || 0; if ("12".includes(likClass("lgp", f[4])[0][0])) risk++; }
+    s += card({ c: ZC()[3], k: tr("Where to farm", "Où cultiver"), n: km2(km),
+      t: tr(`can expect at least 120 growing days a year in ${h[0]}-${h[1]}: enough for maize`, `peuvent compter sur au moins 120 jours de culture par an en ${h[0]}-${h[1]} : assez pour le maïs`),
+      s: tr(`${n2} areas, ${risk} of which will likely lose days. The map shows what each zone can grow.`, `${n2} zones, dont ${risk} perdront probablement des jours. La carte montre ce que chaque zone peut cultiver.`),
+      go: "predict:lgp:level", cta: tr("Find land to farm", "Trouver une terre à cultiver") }); }
+  s += card({ c: "var(--accent)", k: tr("Act", "Agir"), n: ha(F.plan.protectedHa),
+    t: tr(`of harvest saved by ${h[1]} (in equivalent hectares) with US$ ${S.budget} million, spent where the land is losing`, `de récoltes sauvées d'ici ${h[1]} (en hectares équivalents) avec ${S.budget} millions de dollars, dépensés là où la terre recule`),
+    s: tr(`${Object.keys(F.plan.plan).length} areas helped. Costs and effects are estimates you can change.`, `${Object.keys(F.plan.plan).length} zones aidées. Coûts et effets sont des estimations modifiables.`), go: "act", cta: tr("Plan a budget", "Préparer un budget") });
+  const groups = [["detect", "Detected"], ["data", "Is it the land or the data?"], ["validate", "Independent checks"], ["eva", "Eva's reading"], ["predict", "Prediction, tested"], ["forecast", "Forecast"]];
+  s += `</div><details class="more"><summary>${tr("Details for scientists", "Détails pour les scientifiques (en anglais)")}</summary><section>`;
+  for (const [kind, title] of groups) {
+    const lines = c.story.filter(x => x.kind === kind); if (!lines.length) continue;
+    s += `<h3>${title}</h3><ul class="story">${lines.map(x => `<li class="small">${esc(x.text)}</li>`).join("")}</ul>`;
+  }
+  s += `<h3>The budget, decided in ${c.test_cut} and judged by what came</h3><ul class="story">${c.budget_text.map(t => `<li class="small">${esc(t)}</li>`).join("")}</ul></section></details><div style="height:18px"></div>`;
+  return s;
+}
+function renderDetect() {
+  const c = C(), k = S.ind, I = c.indicators[k], sm = I.summary, m = I.meta, rest = ORDER.filter(x => !MAIN6.includes(x));
+  let h = `<section><h2>${tr(`What has changed since ${c.period[0]}?`, `Qu'est-ce qui a changé depuis ${c.period[0]} ?`)}</h2>
+    <p class="small muted">${tr("Choose what to look at. Red: worse. Turquoise: better. Big, glowing dots: clear changes.", "Choisissez quoi regarder. Rouge : pire. Turquoise : mieux. Gros points lumineux : changements nets.")}</p>`;
+  h += tiles(k, MAIN6, "ind", detStat) + sci(tr("More things to look at", "Autres choses à regarder"), tiles(k, rest, "ind", detStat), rest.includes(k));
+  if (c.ground) h += `<button class="btn wide" data-act="ground">${tr(`Bare ground since ${c.ground.years[0]}: mines, quarries? (${fmt(c.ground.count, 0)} patches)`, `Sol mis à nu depuis ${c.ground.years[0]} : mines, carrières ? (${fmt(c.ground.count, 0)} zones)`)}</button>`;
+  h += `<h3>${esc(name(k))}</h3><p class="small">${esc(about(k))}</p><p class="small"><b>${sentences(k)}</b></p>`;
+  h += S.years ? `<button class="btn wide" data-act="years">${tr("Back to the overall change", "Retour à l'évolution d'ensemble")}</button>`
+    : `<button class="btn wide" data-act="years" ${ready ? "" : "disabled"}>${ICON.play}<span>${tr(`Replay ${c.years[0]} to ${c.years[c.years.length - 1]}, year by year`, `Rejouer ${c.years[0]} à ${c.years[c.years.length - 1]}, année par année`)}</span></button>`;
+  if (I.eva) {
+    const e = I.eva;
+    h += `<h3>${tr("What Eva, our AI, sees", "Ce que voit Eva, notre IA")}</h3><p class="small">${tr(`Eva reads each area year by year and spots when its trend turns. The trend turned in ${e.changed} of ${e.read} areas, more than chance alone would give (about ${fmt(e.expected, 0)}).`,
+      `Eva lit chaque zone année par année et repère quand sa tendance tourne. La tendance a tourné dans ${e.changed} zones sur ${e.read}, plus que le hasard seul n'en donnerait (environ ${fmt(e.expected, 0)}).`)}</p>`;
+    for (const ch of e.changes) {
+      const w = { "trend turned upward": tr("started rising", "s'est mise à monter"), "trend turned downward": tr("started falling", "s'est mise à baisser"),
+        "level jumped up": tr("jumped up", "a fait un bond vers le haut"), "level dropped": tr("dropped", "a chuté") }[ch.type] || ch.type;
+      h += `<p class="small">${tr(`Around ${fmt(ch.year, 0)}, it ${w} in ${ch.cells} areas at once.`, `Vers ${fmt(ch.year, 0)}, elle ${w} dans ${ch.cells} zones à la fois.`)}</p>`;
+    }
+    const sj = e.stream_joins;
+    if (sj && sj.of && sj.p < 0.05) h += `<div class="box warn small">${tr(`Careful: ${sj.near} of these ${sj.of} turns fall within a year of the moments NASA changed how its weather model was built (1992, 2001, 2011). Some may come from the data, not from the land. See "Trust it?".`,
+      `Attention : ${sj.near} de ces ${sj.of} retournements tombent à moins d'un an des moments où la NASA a changé la fabrication de son modèle météo (1992, 2001, 2011). Certains peuvent venir des données, pas de la terre. Voir « Fiable ? ».`)}</div>`;
+  }
+  h += sci(tr("How we decide a change is clear", "Comment on décide qu'un changement est net"), `<p class="small">${tr("Two different statistical tests must both say the change is real, and we account for testing many areas at once. That way chance alone gives very few false alarms (at most about 1 in 10 of the changes called clear).",
+    "Deux tests statistiques différents doivent tous deux dire que le changement est réel, et l'on tient compte du fait que beaucoup de zones sont testées à la fois. Ainsi le hasard seul donne très peu de fausses alertes (au plus environ 1 sur 10 parmi les changements dits nets).")}</p>
+    <p class="small muted">${tr("For scientists", "Pour les scientifiques")}: Sen's slope; Mann-Kendall (Hamed-Rao) and AR(1)-corrected t-test at 5 %; Benjamini-Hochberg false discovery rate q = ${c.fdr_q} (Wilks 2016). ${sm.local} significant at 5 % (chance: ${fmt(sm.expected_by_chance, 0)} of ${sm.tested}), ${sm.detected} after the FDR. ${esc(m.label)}: ${esc(m.method)}. Source: ${esc(m.source)}.${I.eva ? ` Eva's control expects ${fmt(I.eva.expected, 0)} changes of dynamic (p ${pq(I.eva.p)}).` : ""}</p>`);
+  return h + `<p class="small muted">${tr("Click a dot on the map to see what happened there.", "Cliquez sur un point de la carte pour voir ce qui s'y est passé.")}</p></section>`;
+}
+function renderVerify() {
+  const c = C(), rep = c.replication, v = c.validation || {}, lc = c.cover_change || {}, ry = rep.years || [2001, 2025], r = (rep.indicators || {}).rain;
+  let h = `<section><h2>${tr("Can we trust it?", "Peut-on s'y fier ?")}</h2><p class="small muted">${tr("The changes come from NASA's weather model (MERRA-2), rebuilt from observations. A model can be wrong, so we compared it with measurements made in other ways.",
+    "Les changements viennent du modèle météo de la NASA (MERRA-2), reconstruit à partir d'observations. Un modèle peut se tromper : nous l'avons comparé à des mesures faites autrement.")}</p>`;
+  h += `<h3>${tr("1. Rain measured by satellites", "1. La pluie mesurée par satellite")}</h3>`;
+  if (r) h += `<p class="small">${tr(`Since ${ry[0]}, satellites (GPM) measure ${rainWords(r.median_imerg)}; the model gives ${rainWords(r.median_merra)}. They agree on the direction in ${pct(r.same_sign)} of the ${rep.cells} areas checked.`,
+    `Depuis ${ry[0]}, les satellites (GPM) mesurent ${rainWords(r.median_imerg)} ; le modèle donne ${rainWords(r.median_merra)}. Ils sont d'accord sur le sens dans ${pct(r.same_sign)} des ${rep.cells} zones vérifiées.`)}</p>`;
+  h += `<p class="small muted">${tr("On the map: the big dots are the areas checked, coloured by whether both see the same change. Choose what to compare:", "Sur la carte : les gros points sont les zones vérifiées, colorées selon que les deux voient le même changement. Choisissez quoi comparer :")}</p>`;
+  h += chips(S.vind, ["lgp", "rain", "aridity", "erosivity"], "vind");
+  const yy = (v.year_to_year || {}).soil_root;
+  if (yy) h += `<h3>${tr("2. Plants seen from space", "2. Les plantes vues de l'espace")}</h3><p class="small">${tr(`In ${yy.positive} of ${yy.of} areas, plants grew more in the years the model's soil was wetter. ${yy.positive / yy.of >= 0.6 ? "So the model's soil water mostly follows reality from year to year." : "So the link between the model's soil water and real plant growth is weak."}`,
+    `Dans ${yy.positive} zones sur ${yy.of}, les plantes ont plus poussé les années où le sol du modèle était plus humide. ${yy.positive / yy.of >= 0.6 ? "L'eau du sol du modèle suit donc en gros la réalité d'une année à l'autre." : "Le lien entre l'eau du sol du modèle et la vraie croissance des plantes est donc faible."}`)}</p>`;
+  h += `<h3>${tr("3. How the model was built", "3. La fabrication du modèle")}</h3><p class="small">${tr("NASA built the model in four pieces (1980-1991, 1992-2000, 2001-2010, 2011 onwards). A sudden change right at a seam may come from the model, not from the land.",
+    "La NASA a fabriqué le modèle en quatre morceaux (1980-1991, 1992-2000, 2001-2010, 2011 et après). Un changement brusque pile à une jointure peut venir du modèle, pas de la terre.")}</p>`;
+  if (lc.cells) h += `<h3>${tr("4. Fields and forests", "4. Champs et forêts")}</h3><p class="small">${tr(`Fields covered ${pct(lc.mean_cropland_2001)} of the land in 2001 and ${pct(lc.mean_cropland_2024)} in 2024 (MODIS satellite, ${lc.cells} areas). Forests clearly shrank in ${lc.forest_down} areas.`,
+    `Les champs couvraient ${pct(lc.mean_cropland_2001)} des terres en 2001 et ${pct(lc.mean_cropland_2024)} en 2024 (satellite MODIS, ${lc.cells} zones). La forêt a nettement reculé dans ${lc.forest_down} zones.`)}</p>`;
+  let t = `<table><tr><th>Indicator</th><th class="n">IMERG trend</th><th class="n">MERRA-2 trend</th><th class="n">same way</th><th class="n">r</th><th class="n">confirmed</th><th class="n">contradicted</th></tr>`;
+  for (const [k, x] of Object.entries(rep.indicators || {})) t += `<tr><td>${esc(c.indicators[k].meta.label)}</td><td class="n">${sgn(x.median_imerg, 3)}</td><td class="n">${sgn(x.median_merra, 3)}</td><td class="n">${pct(x.same_sign)}</td><td class="n">${fmt(x.median_r, 2)}</td><td class="n">${x.status.confirmed}</td><td class="n">${x.status.contradicted}</td></tr>`;
+  t += `</table><p class="small muted">Trends per decade (medians over the cells); r: detrended year-to-year correlation. IMERG at its 0.1° pixel at the cell's centre, MERRA-2 over the cell.</p>`;
+  const tr2 = (v.trends || {}).soil_root;
+  if (yy) t += `<p class="small muted">MODIS NPP vs root-zone soil wetness, ${v.cells} cells, ${(v.years || []).join("-")}: positive year-to-year r in ${yy.positive}/${yy.of} (median ${fmt(yy.median_r, 2)}, sign test p ${pq(yy.p_sign)})${tr2 ? `; trends Spearman ${sgn(tr2.spearman, 2)} (p ${pq(tr2.p_shuffled)})` : ""}.</p>`;
+  t += `<table><tr><th>Indicator</th><th class="n">Eva's changes</th><th class="n">near a stream join</th><th class="n">chance</th><th class="n">p</th></tr>`;
+  for (const k of ORDER) { const e = c.indicators[k] && c.indicators[k].eva; if (!e || !e.stream_joins) continue; const sj = e.stream_joins;
+    t += `<tr><td>${esc(c.indicators[k].meta.label)}</td><td class="n">${sj.of}</td><td class="n">${sj.near}</td><td class="n">${pct(sj.chance)}</td><td class="n">${fp(sj.p)}</td></tr>`; }
+  h += sci(tr("Details for scientists", "Détails pour les scientifiques (en anglais)"), t + `</table>`);
+  return h + `</section>`;
+}
+function renderPredict() {
+  const c = C(), k = S.pind, I = c.indicators[k], hc = I.hindcast, h = DATA.horizon, lvl = S.pmode === "level";
+  let s = `<section><h2>${tr(`What comes next (${h[0]} to ${h[1]})?`, `Et demain (${h[0]} à ${h[1]}) ?`)}</h2>`;
+  s += `<div class="chips" role="group" aria-label="${tr("Map", "Carte")}"><button class="chip ${lvl ? "on" : ""}" data-pmode="level" aria-pressed="${lvl}">${k === "lgp" ? tr("Days to grow", "Jours de culture") : tr("Expected level", "Niveau attendu")}</button><button class="chip ${lvl ? "" : "on"}" data-pmode="chance" aria-pressed="${!lvl}">${tr("Risk of getting worse", "Risque d'aggravation")}</button></div>`;
+  s += `<p class="small muted">${lvl ? tr("What each area can expect over the next 10 years.", "Ce que chaque zone peut attendre ces 10 prochaines années.") : tr("How likely each area is to be worse than over the last 10 years.", "La probabilité que chaque zone soit pire que ces 10 dernières années.")}</p>`;
+  s += tiles(k, ORDER.filter(x => c.indicators[x] && Object.keys(c.indicators[x].forecast).length), "pind", predStat);
+  if (lvl && k === "lgp") s += levelPanel();
+  const n = {}, col = {}; let crop = 0, tot = 0;
+  for (const [key, f] of Object.entries(I.forecast)) { const [cl, cc] = likClass(k, f[4]); n[cl] = (n[cl] || 0) + 1; col[cl] = cc; tot++; if (cl.startsWith("1") || cl.startsWith("2")) crop += C().cells[key].crop_ha || 0; }
+  s += `<h3>${I.meta.good ? tr("Risk of getting worse", "Risque d'aggravation") : tr("Chance of going down", "Chance de baisse")}: ${esc(name(k))}</h3><div class="dist">${Object.keys(n).sort().map(cl => `<div><span>${esc(cl.replace(/^\d+ · /, ""))}</span><em><i style="width:${100 * n[cl] / tot}%;background:${col[cl]}"></i></em><b>${n[cl]}</b></div>`).join("")}</div>`;
+  if (I.meta.good) s += `<p class="small">${tr(`Fields in the areas likely to get worse: about <b>${ha(crop)}</b>.`, `Champs dans les zones qui vont probablement empirer : environ <b>${ha(crop)}</b>.`)}</p>`;
+  if (hc && hc.cells) {
+    const me = hc.median_error, w = hc.weights;
+    s += `<h3>${tr("Can we trust the forecast?", "Peut-on se fier à la prévision ?")}</h3><p class="small">${tr(`We tested the method on ${hc.window.join("-")}, years it had never seen: the range it gives held the real value ${pct(hc.coverage90.blend)} of the time. Ten years ahead, the exact number is hard to predict, but the range is honest.`,
+      `Nous avons testé la méthode sur ${hc.window.join("-")}, des années qu'elle n'avait jamais vues : la fourchette donnée contenait la vraie valeur ${pct(hc.coverage90.blend)} du temps. À dix ans, le chiffre exact est difficile à prévoir, mais la fourchette est honnête.`)}</p>`;
+    const way = I.meta.good >= 0 ? "down" : "up", fl = hc[way] && hc[way].blend;
+    s += sci(tr("Details for scientists", "Détails pour les scientifiques (en anglais)"), `<p class="small muted">Each cell's mean over ${h[0]}-${h[1]}: a blend of Eva's last dynamic carried forward, the 1981-2010 norm and the last five years; weights learned on the ten years after ${c.learn_cuts.join(", ")} (Eva ${pct(w.eva)}, norm ${pct(w.norm)}, persistence ${pct(w.persistence)}), 90 % interval calibrated on what it missed there; tested on ${c.test_cut + 1}-${c.test_cut + 10}. Likelihood words: IPCC AR6 calibrated language.</p>
+      <table><tr><th>Method</th><th class="n">median error</th><th class="n">90 % interval holds</th></tr>
+      <tr><td><b>Blend (the forecast)</b></td><td class="n"><b>${fmt(me.blend, 2)}</b></td><td class="n"><b>${pct(hc.coverage90.blend)}</b></td></tr>
+      <tr><td>Eva's last dynamic alone</td><td class="n">${fmt(me.eva, 2)}</td><td class="n">${pct(hc.coverage90.eva)}</td></tr>
+      <tr><td>Straight trend line</td><td class="n">${fmt(me.line, 2)}</td><td class="n"></td></tr>
+      <tr><td>Last five years kept</td><td class="n">${fmt(me.persistence, 2)}</td><td class="n"></td></tr>
+      <tr><td>1981-2010 norm</td><td class="n">${fmt(me.norm, 2)}</td><td class="n"></td></tr></table>
+      <p class="small muted">Errors in year-to-year spreads of each cell (median over ${hc.cells} cells).${fl ? ` Cells flagged as ${I.meta.good >= 0 ? "losing" : "rising"} (at least ${pct(DATA.risk_p)} likely): ${fl.flagged}${fl.flagged ? `, of which ${fl.hits} did (${pct(fl.precision)} against ${pct(fl.base_rate)} of all cells; p ${pq(fl.p_vs_random)})` : ""}.` : ""}</p>`);
+  }
+  return s + `</section>`;
+}
+let lastPlan = null;
+function levelPanel() { // what the expected growing season allows, zone by zone
+  const c = C(), I = c.indicators.lgp, z = ZONES.map(() => ({ n: 0, risk: 0 }));
+  for (const [, f] of Object.entries(I.forecast)) { const i = zoneOf(f[0])[4]; z[i].n++; if ("12".includes(likClass("lgp", f[4])[0][0])) z[i].risk++; }
+  let s = `<h3>${tr("What can grow where", "Que cultiver, et où")}</h3><p class="small">${tr("The growing season each area can expect on rain alone, and what farmers usually grow with it (FAO zones). Red ring: likely to get shorter.",
+    "La saison de culture que chaque zone peut attendre avec la seule pluie, et ce que les agriculteurs y cultivent d'habitude (zones de la FAO). Anneau rouge : risque de raccourcir.")}</p>
+    <table><tr><th>${tr("Zone", "Zone")}</th><th>${tr("Usual crops", "Cultures habituelles")}</th><th class="n">${tr("areas", "zones")}</th><th class="n">${tr("at risk", "à risque")}</th></tr>`;
+  ZONES.forEach((Z, i) => { if (z[i].n) s += `<tr><td><i style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:${ZC()[i]}"></i>${esc(zoneOf(Z[0])[0].replace(/^\d+ · /, ""))}</td><td class="small">${esc(zoneWords(i)[1])}</td><td class="n">${z[i].n}</td><td class="n">${z[i].risk}</td></tr>`; });
+  return s + `</table><p class="small muted">${tr("Not in these data: soils, slopes, land ownership, roads, markets. A first look, to check on the ground.", "Absent de ces données : sols, pentes, propriété de la terre, routes, marchés. Un premier repérage, à vérifier sur le terrain.")}</p>`;
+}
+function renderAct() {
+  const c = C(), b = c.budget, r = lastPlan || allocate(S.budget * 1e6), h1 = DATA.horizon[1];
+  const by = {}; for (const x of Object.values(r.plan)) for (const [j, a] of Object.entries(x)) by[j] = (by[j] || 0) + a;
+  let h = `<section><h2>${tr("Where should the money go?", "Où placer l'argent ?")}</h2><p class="small muted">${tr("Imagine a budget to protect farmland. The page places it where the land is losing most, and where each dollar saves the most harvest.",
+    "Imaginez un budget pour protéger les terres cultivées. La page le place là où la terre recule le plus, et là où chaque dollar sauve le plus de récoltes.")}</p>`;
+  h += `<label class="small" for="budget"><b>${tr(`Budget: US$ <span id="bv">${S.budget}</span> million`, `Budget : <span id="bv">${S.budget}</span> millions de dollars`)}</b></label><input type="range" id="budget" min="1" max="200" step="1" value="${S.budget}">`;
+  h += `<div class="small"><b>${tr("Act on", "Agir sur")}</b>${[["forecast", tr("every warning", "tous les signaux d'alerte")], ["detected", tr("clear changes only (recommended)", "les changements nets seulement (conseillé)")], ["confirmed", tr("clear changes that satellites do not contradict", "les changements nets que les satellites ne contredisent pas")]]
+    .map(([v, l]) => `<label class="radio"><input type="radio" name="ev" value="${v}" ${S.evidence === v ? "checked" : ""}> ${l}</label>`).join("")}</div>`;
+  h += `<div class="kpis"><div class="kpi"><b>${ha(r.protectedHa)}</b><span>${tr(`of harvest saved by ${h1} (equivalent hectares)`, `de récoltes sauvées d'ici ${h1} (hectares équivalents)`)}</span></div>
+    <div class="kpi"><b>${ha(Object.values(by).reduce((a, x) => a + x, 0))}</b><span>${tr("of fields improved", "de champs améliorés")}</span></div>
+    <div class="kpi"><b>${Object.keys(r.plan).length}</b><span>${tr(`areas helped; US$ ${fmt(r.spent / 1e6, 1)} million spent`, `zones aidées ; ${fmt(r.spent / 1e6, 1)} millions de dollars dépensés`)}</span></div></div>`;
+  const used = ivs().filter(v => by[v.key] > 0).sort((a, x) => by[x.key] - by[a.key]);
+  if (used.length) h += `<h3>${tr("What to do", "Quoi faire")}</h3><ul class="small">${used.map(v => `<li><i style="display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;background:${IVC[v.key] || "#999"}"></i>${esc(ivName(v))}${colon()} ${ha(by[v.key])}</li>`).join("")}</ul>`;
+  h += `<details class="how" id="assume" ${S.assume ? "open" : ""}><summary>${tr("Change the costs and effects (estimates)", "Modifier les coûts et les effets (estimations)")}</summary><table class="iv"><colgroup><col style="width:34%"><col style="width:13%"><col span="4" style="width:10%"><col style="width:13%"></colgroup>
+    <tr><th>${tr("Action", "Action")}</th><th class="n">US$/ha</th><th class="n">${tr("drought", "séch.")}</th><th class="n">${tr("rain", "pluie")}</th><th class="n">${tr("wind", "vent")}</th><th class="n">${tr("heat", "chal.")}</th><th class="n">ha</th></tr>${ivs().map((v, i) =>
+    `<tr><td class="small"><i style="display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;background:${IVC[v.key] || "#999"}"></i>${esc(ivName(v))}<div class="muted" style="font-size:11px">${esc(v.ref)}</div></td><td class="n"><input type="number" min="1" data-iv="${i}" data-f="cost" value="${v.cost}"></td>${["water", "erosion", "wind", "heat"].map(t => `<td class="n"><input type="number" min="0" max="1" step="0.05" data-iv="${i}" data-f="${t}" value="${v.effects[t]}"></td>`).join("")}<td class="n">${fmt(by[v.key] || 0, 0)}</td></tr>`).join("")}</table>`;
+  h += `<p class="small muted">${tr("Effects: the share of each threat an action removes, from 0 (nothing) to 1 (all). How much harvest each threat can take by", "Effets : la part de chaque menace qu'une action supprime, de 0 (rien) à 1 (tout). Ce que chaque menace peut prendre aux récoltes d'ici")} ${h1}:</p><table>${Object.entries(sens()).map(([t, v]) => `<tr><td class="small">${esc(threatName(t))}</td><td class="n"><input type="number" min="0" step="0.01" data-sens="${t}" value="${v}"></td><td class="small muted">${esc(b.sensitivity_why[t])}</td></tr>`).join("")}</table>`;
+  h += `<p class="small muted">${tr(`A programme reaches at most <input type="number" id="adopt" min="0.01" max="1" step="0.05" value="${adopt()}"> of an area's fields in 10 years. Areas without a satellite count of fields are taken as <input type="number" id="dcrop" min="0" max="1" step="0.05" value="${S.defaultCrop}"> fields.`,
+    `Un programme touche au plus <input type="number" id="adopt" min="0.01" max="1" step="0.05" value="${adopt()}"> des champs d'une zone en 10 ans. Les zones sans comptage des champs par satellite sont prises à <input type="number" id="dcrop" min="0" max="1" step="0.05" value="${S.defaultCrop}"> de champs.`)} (${tr("Best spending: an exact linear programme, Sinha & Zoltners 1979", "Meilleure répartition : programme linéaire exact, Sinha & Zoltners 1979")})</p></details>`;
+  const hc = b.hindcast, ent = Object.entries(hc.budgets);
+  if (ent.length) {
+    const [B, row] = ent.reduce((a, x) => Math.abs(+x[0] - S.budget * 1e6) < Math.abs(+a[0] - S.budget * 1e6) ? x : a, ent[0]);
+    if (row.detected && row.even) h += `<h3>${tr("Would it have worked?", "Est-ce que ça aurait marché ?")}</h3><p class="small">${tr(`Planned in ${hc.cut} with only what was known then, and judged on what really happened in ${hc.window.join("-")}: with US$ ${fmt(B / 1e6, 0)} million, this method would have protected ${pct(row.detected.of_oracle)} of what a perfect plan could, against ${pct(row.even.of_oracle)} by spending the same everywhere.`,
+      `Planifié en ${hc.cut} avec ce que l'on savait alors, puis jugé sur ce qui s'est vraiment passé en ${hc.window.join("-")} : avec ${fmt(B / 1e6, 0)} millions de dollars, cette méthode aurait protégé ${pct(row.detected.of_oracle)} de ce qu'un plan parfait aurait pu, contre ${pct(row.even.of_oracle)} en dépensant pareil partout.`)}</p>`;
+    let t = `<table><tr><th>Strategy</th>${ent.map(([x]) => `<th class="n">US$ ${fmt(x / 1e6, 0)} M</th>`).join("")}</tr>`;
+    const lab = { detected: "Forecast + detection (this tool)", forecast: "Forecast, no significance filter", eva_alone: "Eva's last dynamic alone", straight_line: "Straight trend line", even: "Even spending, no targeting" };
+    for (const [nm, l] of Object.entries(lab)) t += `<tr><td>${l}</td>${ent.map(([, rw]) => `<td class="n">${rw[nm] ? pct(rw[nm].of_oracle) : "n/a"}</td>`).join("")}</tr>`;
+    h += sci(tr("Details for scientists", "Détails pour les scientifiques (en anglais)"), `<p class="small muted">Share of what perfect foresight would have protected, decision of ${hc.cut} judged by ${hc.window.join("-")}.</p>${t}</table>`);
+  }
+  return h + `</section>`;
+}
+function renderAbout() {
+  return `<section><h2>${tr("About", "À propos")}</h2>
+  <h3>${tr("What is this?", "Qu'est-ce que c'est ?")}</h3><p class="small">${tr("A map showing how the land's ability to grow food has changed since 1981, and what may come in the next 10 years. Made for the NASA Space Apps Challenge 2026, \"Be an Earth System Trend Detective\", from free NASA data.",
+    "Une carte qui montre comment la capacité de la terre à nourrir a changé depuis 1981, et ce qui peut venir ces 10 prochaines années. Réalisée pour le NASA Space Apps Challenge 2026, « Be an Earth System Trend Detective ».")}</p>
+  <h3>${tr("Where does the data come from?", "D'où viennent les données ?")}</h3><ul class="small"><li>${tr("NASA's weather model, rebuilt from observations since 1981 (MERRA-2): rain, soil water, heat, wind.", "Le modèle météo de la NASA, reconstruit à partir d'observations depuis 1981 (MERRA-2) : pluie, eau du sol, chaleur, vent.")}</li>
+    <li>${tr("Rain measured by satellites since 2001 (GPM).", "La pluie mesurée par satellite depuis 2001 (GPM).")}</li><li>${tr("Plant growth, fields and forests seen by the MODIS satellite.", "La croissance des plantes, les champs et les forêts vus par le satellite MODIS.")}</li><li>${tr("Borders and towns: Natural Earth.", "Frontières et villes : Natural Earth.")}</li></ul>
+  <h3>${tr("Who is Eva?", "Qui est Eva ?")}</h3><p class="small">${tr("The AI built in this project. She reads each area year by year and spots when its trend turns, without being told what the numbers mean.", "L'IA construite dans ce projet. Elle lit chaque zone année par année et repère quand sa tendance tourne, sans qu'on lui dise ce que signifient les chiffres.")}</p>
+  <h3>${tr("What it cannot tell", "Ce que la page ne peut pas dire")}</h3><ul class="small"><li>${tr("NASA's model and the satellites disagree about rain here: every change is a warning to check on the ground.", "Le modèle de la NASA et les satellites ne sont pas d'accord sur la pluie ici : chaque changement est une alerte à vérifier sur le terrain.")}</li>
+    <li>${tr("Soils, slopes, land ownership, roads and markets are not included.", "Les sols, les pentes, la propriété de la terre, les routes et les marchés n'y sont pas.")}</li><li>${tr("The costs and effects of actions are rough estimates.", "Les coûts et les effets des actions sont des estimations grossières.")}</li></ul>
+  <h3>${tr("How to use it", "Mode d'emploi")}</h3><ul class="small"><li>${tr("Click a dot to see what happened there; click a line of the legend to show only that.", "Cliquez sur un point pour voir ce qui s'y est passé ; cliquez sur une ligne de la légende pour n'afficher qu'elle.")}</li>
+    <li>${tr("\"Watch the story\" plays a guided tour (Space: pause, arrows: chapters, Esc: leave).", "« Voir l'histoire » lance une visite guidée (Espace : pause, flèches : chapitres, Échap : quitter).")}</li>
+    <li>${tr("Bottom right of the map: whole region, 3D view, light or dark map. FR / EN at the top: the language.", "En bas à droite de la carte : toute la région, vue 3D, carte claire ou sombre. FR / EN en haut : la langue.")}</li>
+    <li>${tr("The web address keeps what you see: copy it to share.", "L'adresse web garde ce que vous voyez : copiez-la pour partager.")}</li></ul>
+  ${sci(tr("Methods, for scientists (in English)", "Méthodes, pour les scientifiques (en anglais)"), `<ul class="small"><li>Indicators: FAO length of growing period (rain at least half the potential evaporation, a 100 mm soil store, air above 5 °C); UNEP aridity index; Hargreaves & Samani (1985) potential evaporation, FAO-56; modified Fournier rain erosivity (Arnoldus 1980); FAO (1979) wind-erosion climatic factor.</li>
+    <li>Trends: Sen's slope; Mann-Kendall with the Hamed & Rao (1998) correction and least squares with an AR(1)-effective sample size (Santer et al. 2000), both must agree; Benjamini & Hochberg (1995) false discovery rate across the map, q = 0.10 (Wilks 2016).</li>
+    <li>Eva (eva/shape.py): every cell's years read as dynamics and their transitions, against her own control; changes many cells make together tested against fields without any change; borders where the trend reverses out of its norm.</li>
+    <li>Prediction: blend of Eva's last dynamic, the norm and persistence, weights and interval learned on past decades, tested on 2016-2025; IPCC AR6 likelihood language.</li>
+    <li>Budget: linear programme over MODIS 2024 cropland, threats from the forecast's expected loss; decision hindcast against perfect foresight.</li>
+    <li>Data: NASA POWER (MERRA-2, CERES), GPM IMERG via POWER, MODIS MOD17A3HGF and MCD12Q1 (ORNL DAAC), Natural Earth.</li></ul>
+    <p class="mono">python -m detective.land fetch --region cameroon_full<br>python -m detective.land analyse --region cameroon_full<br>python -m detective.land_page<br>python -m detective.serve</p>`)}
+  ${DATA.live ? `<h3>${tr("Analyse another area", "Analyser une autre zone")}</h3><p class="small">${tr("Type a box as south, north, west, east in degrees (at most about 20° × 20°), for example 11,17,-17,3. It takes a few minutes.", "Tapez un cadre sud, nord, ouest, est en degrés (au plus environ 20° × 20°), par exemple 11,17,-17,3. Cela prend quelques minutes.")}</p><input type="text" id="newRegion" placeholder="11,17,-17,3" style="width:60%;padding:5px 7px" aria-label="${tr("Area", "Zone")}"> <button class="btn" id="goRegion" data-act="region">${tr("Analyse", "Analyser")}</button><p id="newMsg" class="small muted"></p>` : ""}
+  </section>`;
+}
+// ----------------------------------------------------------------- Ask Eva (begin): questions in plain words
+// The answers come from detective/agent.py (Claude with Eva's tools over these same results), served at
+// api/ask next to the page (python -m detective.serve, or behind nginx at /land/api/ask). From a file, or
+// with no key on the server, the tab says so instead of failing silently.
+const ASK = { log: [], draft: "", busy: false, status: null };
+const askExamples = () => [tr("Is the growing season getting shorter around Garoua?", "La saison de culture raccourcit-elle autour de Garoua ?"),
+  tr("Where is the land losing the most, and can we trust it?", "Où la terre perd-elle le plus, et peut-on s'y fier ?"),
+  tr("Have the June to September rains changed near Bertoua?", "Les pluies de juin à septembre ont-elles changé près de Bertoua ?"),
+  tr("Where is vegetation giving way to bare ground (mines, quarries)?", "Où la végétation laisse-t-elle place au sol nu (mines, carrières) ?")];
+function askMd(s) { // the little markdown the answers use: paragraphs, bullets, bold
+  const blocks = esc(s).split(/\n{2,}/);
+  return blocks.map(b => {
+    const lines = b.split("\n");
+    if (lines.every(l => /^\s*[-*•] /.test(l))) return "<ul>" + lines.map(l => `<li>${l.replace(/^\s*[-*•] /, "")}</li>`).join("") + "</ul>";
+    return `<p>${lines.join("<br>")}</p>`;
+  }).join("").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+}
+function renderAsk() {
+  let s = `<section><h2>${tr("Ask Eva", "Demander à Eva")}</h2><p class="small muted">${tr("Ask in your own words about the land, the rains, the growing season or bare ground, anywhere on the map. Eva answers with the tested results behind this page and the map flies to the places she talks about.", "Posez votre question avec vos mots, sur la terre, les pluies, la saison de culture ou le sol nu, n'importe où sur la carte. Eva répond avec les résultats testés de cette page, et la carte vole vers les lieux dont elle parle.")}</p>`;
+  if (ASK.status === "file") s += `<div class="ask-msg err">${tr("The assistant answers when the page is served, not opened as a file: run python -m detective.serve and open http://127.0.0.1:8765/land.", "L'assistant répond quand la page est servie, pas ouverte comme fichier : lancez python -m detective.serve et ouvrez http://127.0.0.1:8765/land.")}</div>`;
+  else if (ASK.status === "nokey") s += `<div class="ask-msg err">${tr("The assistant is not switched on for this server yet (no API key).", "L'assistant n'est pas encore activé sur ce serveur (pas de clé d'API).")}</div>`;
+  s += `<div class="ask-log" id="askLog" aria-live="polite">`;
+  ASK.log.forEach((m, i) => {
+    if (m.role === "user") s += `<div class="ask-msg user">${esc(m.text)}</div>`;
+    else if (m.role === "error") s += `<div class="ask-msg err">${esc(m.text)}</div>`;
+    else s += `<div class="ask-msg eva">${askMd(m.text)}${m.focus && m.focus.length ? `<button class="btn ask-show" data-act="askshow" data-i="${i}">${tr("Show on the map", "Voir sur la carte")}</button>` : ""}</div>`;
+  });
+  if (ASK.busy) s += `<div class="ask-wait">${tr("Eva is reading the data…", "Eva lit les données…")}</div>`;
+  s += `</div>`;
+  if (!ASK.log.length) s += `<div class="chips">${askExamples().map((q, i) => `<button class="chip" data-act="askex" data-i="${i}">${esc(q)}</button>`).join("")}</div>`;
+  s += `<div class="ask-form"><textarea id="askBox" rows="2" maxlength="1200" placeholder="${tr("Your question…", "Votre question…")}" aria-label="${tr("Your question", "Votre question")}" ${ASK.busy ? "disabled" : ""}>${esc(ASK.draft)}</textarea>
+    <button class="btn primary" data-act="ask" ${ASK.busy ? "disabled" : ""}>${tr("Ask", "Demander")}</button></div>
+    <p class="small muted">${tr("Answers can be wrong: every number comes from the analysis, but check what matters on the other tabs.", "Les réponses peuvent se tromper : chaque chiffre vient de l'analyse, mais vérifiez ce qui compte dans les autres onglets.")}</p></section>`;
+  return s;
+}
+async function askStatus() {
+  if (ASK.status) return;
+  if (location.protocol === "file:") { ASK.status = "file"; return; }
+  try { const r = await fetch("api/ask/status"); const j = r.ok ? await r.json() : {}; ASK.status = j.agent ? "ok" : "nokey"; }
+  catch (e) { ASK.status = "nokey"; } // a server without the assistant (404, not JSON): it is not switched on here
+  if (S.tab === "ask") renderPanel();
+}
+async function askSend(q) {
+  q = (q || "").trim(); if (!q || ASK.busy) return;
+  const history = ASK.log.filter(m => m.role !== "error").map(m => ({ role: m.role === "user" ? "user" : "assistant", text: m.text }));
+  ASK.log.push({ role: "user", text: q }); ASK.draft = ""; ASK.busy = true; renderPanel(); askScroll();
+  try {
+    const r = await fetch("api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: q, history, lang: S.lang }) });
+    const j = await r.json().catch(() => ({ error: r.statusText }));
+    if (!r.ok) throw new Error(j.error || r.statusText);
+    ASK.log.push({ role: "eva", text: j.text || "…", focus: j.focus || [] });
+    askFocus(j.focus || []);
+  } catch (e) {
+    ASK.log.push({ role: "error", text: location.protocol === "file:" ? tr("Not available from a file.", "Indisponible depuis un fichier.") : tr("No answer: ", "Pas de réponse : ") + e.message });
+  }
+  ASK.busy = false; renderPanel(); askScroll();
+  const b = $("askBox"); if (b) b.focus();
+}
+function askScroll() { const l = $("askLog"); if (l) l.lastElementChild && l.lastElementChild.scrollIntoView({ block: "nearest" }); }
+function askFocus(focus) { // fly to what the answer talked about: cells of a region on the page, or towns and patches
+  if (!focus.length || !ready) return;
+  const ci = DATA.cases.findIndex(c => c.region.key === focus[0].region);
+  if (ci >= 0 && ci !== S.c) { S.c = ci; $("caseSel").value = ci; S.cell = null; S.only = null; draw(); }
+  const keys = focus.filter(f => f.kind === "cell").map(f => `${f.lat.toFixed(3)},${f.lon.toFixed(3)}`).filter(k => C().cells[k]);
+  const m = mapNow();
+  if (keys.length === 1) { S.cell = null; flyTo(fitCells(keys, { pitch: m.pitch, bearing: m.bearing, zoomBias: 0.3 }), 1600); }
+  else if (keys.length > 1) flyTo(fitCells(keys, { zoomBias: 0.1 }), 1600);
+  else { const lat = focus.reduce((a, f) => a + f.lat, 0) / focus.length, lon = focus.reduce((a, f) => a + f.lon, 0) / focus.length;
+    flyTo({ latitude: lat, longitude: lon, zoom: focus.length > 1 ? 7.4 : 8.6, pitch: m.pitch, bearing: m.bearing }, 1600); }
+}
+// ----------------------------------------------------------------- Ask Eva (end)
+// ----------------------------------------------------------------- bare ground (begin): detective/scars.py
+// Where the vegetation of 2001 gave way to bare ground that stayed bare (MODIS land cover, 500 m): the trace of
+// open-pit and artisanal mines and quarries, but also of towns, roads, fire and water. Candidates, checked
+// against the mines people mapped (OpenStreetMap); minerals themselves are not in this data.
+const GP = () => S.night ? { a: "#f6c453", b: "#f08a4b", c: "#ff4f73", mine: "#ffffff" } : { a: "#c98a00", b: "#d0581c", c: "#c2284f", mine: "#1a1915" };
+const gPeriod = y => { const ys = C().ground.years; return y <= ys[1] ? `${ys[0] + 1}-${ys[1]}` : y <= ys[2] ? `${ys[1] + 1}-${ys[2]}` : `${ys[2] + 1}-${ys[3]}`; };
+function gCell(lat, lon) { const g = C().grid, k = `${(Math.round(lat / g.dlat) * g.dlat).toFixed(3)},${(Math.round(lon / g.dlon) * g.dlon).toFixed(3)}`; return C().cells[k] ? k : null; }
+function viewGround() {
+  const G = C().ground, P = GP(), ys = G.years, colors = {}, rows = [], keys = [];
+  const per = [gPeriod(ys[1]), gPeriod(ys[2]), gPeriod(ys[3])];
+  colors[tr(`Opened ${per[0]}`, `Ouvert ${per[0]}`)] = P.a; colors[tr(`Opened ${per[1]}`, `Ouvert ${per[1]}`)] = P.b; colors[tr(`Opened ${per[2]}`, `Ouvert ${per[2]}`)] = P.c;
+  const lab = y => tr(`Opened ${gPeriod(y)}`, `Ouvert ${gPeriod(y)}`);
+  for (const p of G.patches) { rows.push([p[0], p[1], lab(p[3]), `${fmt(p[2], 2)} km²`, p[4], Math.sqrt(p[2]), p[2]]); keys.push(gCell(p[0], p[1])); }
+  const mineL = tr("Mine or quarry mapped by people (OpenStreetMap)", "Mine ou carrière cartographiée (OpenStreetMap)");
+  const mrows = G.mines.map(m => [m[0], m[1], mineL, m[3] || m[2], m[4]]);
+  const F = [CF(), tr("Size", "Taille"), tr("Before", "Avant")], FM = [CF(), tr("Name", "Nom"), tr("Resource", "Ressource")];
+  MAIN = { dataId: "ground", field: F[0] };
+  const ds = [dataset("ground", tr("Bare ground", "Sol nu"), [...PT, { name: F[0], type: "string" }, { name: F[1], type: "string" }, { name: F[2], type: "string" }, { name: "dot", type: "real" }, { name: "area", type: "real" }], rows, keys),
+    dataset("mines", mineL, [...PT, { name: FM[0], type: "string" }, { name: FM[1], type: "string" }, { name: FM[2], type: "string" }], mrows, mrows.map(() => null))];
+  const mc = {}; mc[mineL] = P.mine;
+  send(ds, [dots("Lground", "ground", "ground", rows, 2, colors, { field: F[0], size: "dot", range: [2.5, 14] }),
+    glow("Gground", "ground", "gw", rows, 6, S.night ? ["#00000000", "#5a2a0a", "#c4561c", "#f6c453"] : ["#ffffff00", "#f3d9a4", "#e08a3c", "#a8321c"]),
+    ...(mrows.length ? [dots("Lmines", "mines", "mines", mrows, 2, mc, { field: FM[0], radius: 2.5, outline: true, opacity: 0.9 })] : [])],
+    { ...tip("ground", F), ...tip("mines", FM) });
+  const n = tally(rows, 2);
+  return { title: tr("Bare ground opened since 2001: mines, quarries, towns?", "Sol mis à nu depuis 2001 : mines, carrières, villes ?"),
+    items: [...items(colors, n), ...(mrows.length ? [[mineL, P.mine, mrows.length]] : [])],
+    note: tr("Each dot: ground that had vegetation in 2001 and is bare since. Candidates to check, not confirmed mines.", "Chaque point : un sol couvert de végétation en 2001 et nu depuis. Des pistes à vérifier, pas des mines confirmées.") };
+}
+function renderGround() {
+  const G = C().ground, v = G.validation || {}, ys = G.years;
+  let s = `<section><div class="cc-head"><button class="btn" data-act="ground">← ${tr("Back", "Retour")}</button></div>
+    <h2>${tr("Where is the ground being stripped bare?", "Où le sol est-il mis à nu ?")}</h2>
+    <p class="small">${tr(`Places where trees, savanna or fields of ${ys[0]} have become bare ground and stayed bare until ${ys[3]}, seen by NASA's MODIS satellites (pixels of 500 m). That is the trace open-pit and artisanal mines, quarries and dug river beds leave, but also towns, roads, fire or water: <b>candidates to check on the ground, not confirmed mines</b>.`,
+      `Les endroits où des arbres, de la savane ou des champs de ${ys[0]} sont devenus du sol nu, resté nu jusqu'en ${ys[3]}, vus par les satellites MODIS de la NASA (pixels de 500 m). C'est la trace que laissent les mines à ciel ouvert et artisanales, les carrières et les lits de rivière creusés, mais aussi les villes, les routes, le feu ou l'eau : <b>des pistes à vérifier sur le terrain, pas des mines confirmées</b>.`)}</p>
+    <p class="small"><b>${tr(`${fmt(G.count, 0)} patches, ${fmt(G.area_km2, 0)} km² in all.`, `${fmt(G.count, 0)} zones, ${fmt(G.area_km2, 0)} km² en tout.`)}</b></p>`;
+  if (v.mapped_mines) {
+    const enr = v.enrichment, sig = v.p < 0.05 && enr > 1;
+    s += `<h3>${tr("Does it find real mines?", "Trouve-t-elle de vraies mines ?")}</h3><p class="small">${tr(`People have mapped ${v.mapped_mines} mines and quarries here (OpenStreetMap). ${v.mapped_with_patch} of them (${pct(v.share_mapped, v.share_mapped < 0.01 ? 2 : v.share_mapped < 0.1 ? 1 : 0)}) have a patch within ${v.with_patch_within_km} km, against ${pct(v.share_random_places, v.share_random_places < 0.01 ? 2 : v.share_random_places < 0.1 ? 1 : 0)} of random places of the region.`,
+      `Les gens ont cartographié ${v.mapped_mines} mines et carrières ici (OpenStreetMap). ${v.mapped_with_patch} d'entre elles (${pct(v.share_mapped, v.share_mapped < 0.01 ? 2 : v.share_mapped < 0.1 ? 1 : 0)}) ont une zone à moins de ${v.with_patch_within_km} km, contre ${pct(v.share_random_places, v.share_random_places < 0.01 ? 2 : v.share_random_places < 0.1 ? 1 : 0)} des lieux pris au hasard dans la région.`)}
+      ${sig ? tr(` That is ${fmt(enr, 1)} times more often than chance: the patches do lean toward mines.`, ` C'est ${fmt(enr, 1)} fois plus souvent que le hasard : les zones penchent bien vers les mines.`)
+        : tr(" No more often than chance: most mapped mines are too small or too hidden for 500 m pixels, so treat every patch with care.", " Pas plus souvent que le hasard : la plupart des mines cartographiées sont trop petites ou trop cachées pour des pixels de 500 m ; prenez chaque zone avec prudence.")}</p>`;
+  }
+  s += `<h3>${tr("What this cannot see", "Ce que cela ne peut pas voir")}</h3><p class="small">${tr("Minerals themselves. Rare earths, gold or iron underground leave no mark in climate, rain, plant or land-cover data: finding deposits needs geological maps or an instrument that maps minerals from space (NASA EMIT, ASTER). Small mines (a few hectares) and mines under forest are also below what 500 m pixels resolve.",
+    "Les minerais eux-mêmes. Les terres rares, l'or ou le fer sous terre ne laissent aucune trace dans les données de climat, de pluie, de plantes ou de couverture du sol : trouver des gisements demande des cartes géologiques ou un instrument qui cartographie les minéraux depuis l'espace (NASA EMIT, ASTER). Les petites mines (quelques hectares) et les mines sous la forêt échappent aussi à des pixels de 500 m.")}</p>`;
+  s += `<h3>${tr("The largest patches", "Les plus grandes zones")}</h3>`;
+  G.patches.slice(0, 8).forEach((p, i) => { const k = gCell(p[0], p[1]);
+    s += `<button class="card" data-act="groundfly" data-i="${i}"><div class="card-k"><b>${fmt(p[2], 1)} km²</b>&nbsp;<span class="small muted">${tr("opened", "ouvert")} ${gPeriod(p[3])}${colon()} ${tr("before", "avant")} ${esc(p[4])}</span></div><div class="small muted">${k ? esc(placeText(k)) : `${fmt(p[0], 3)}, ${fmt(p[1], 3)}`}</div></button>`; });
+  s += sci(tr("Method, for scientists (in English)", "Méthode, pour les scientifiques (en anglais)"), `<p class="small">${esc(G.method || "")} Check: OpenStreetMap landuse=quarry, man_made=mineshaft, industrial=mine, landuse=mining, historic=mine; share of mapped features with a patch within ${v.with_patch_within_km || 5} km vs 2000 random points of the region's cells, binomial p = ${v.p != null ? fmt(v.p, 3) : "n/a"}.</p><p class="mono">python -m detective.scars --region ${esc(C().region.key)}</p>`);
+  return s + `</section>`;
+}
+// ----------------------------------------------------------------- bare ground (end)
+const R = { findings: renderFindings, detect: renderDetect, verify: renderVerify, predict: renderPredict, act: renderAct, ask: renderAsk, about: renderAbout };
+const TABS = ["findings", "detect", "verify", "predict", "act", "ask"];
+const tabName = k => ({ findings: tr("Summary", "Résumé"), detect: tr("Changes", "Changements"), verify: tr("Trust it?", "Fiable ?"), predict: tr("Future", "Avenir"), act: tr("Act", "Agir"), ask: tr("Ask Eva", "Demander à Eva"), about: tr("About", "À propos") }[k]);
+let shownTab = null;
+function renderPanel() {
+  $("body").classList.toggle("fresh", S.tab !== shownTab); shownTab = S.tab;
+  $("tabs").innerHTML = TABS.map(k => `<button class="${S.tab === k ? "on" : ""}" data-tab="${k}" ${S.tab === k ? 'aria-current="page"' : ""}>${tabName(k)}</button>`).join("");
+  $("body").innerHTML = S.cell && C().cells[S.cell] ? cellView() : S.ground && S.tab === "detect" && C().ground ? renderGround() : R[S.tab]();
+  paintHead();
+  if (S.tab === "ask") askStatus();
+}
+function paintHead() {
+  document.documentElement.lang = S.lang; document.title = tr("Land Intelligence", "Intelligence des terres");
+  $("brandName").textContent = tr("Land Intelligence", "Intelligence des terres");
+  document.querySelectorAll("[data-lang]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang)));
+  const ab = $("aboutBtn"); ab.title = tabName("about"); ab.setAttribute("aria-label", tabName("about")); ab.setAttribute("aria-pressed", String(S.tab === "about"));
+  $("caseSel").setAttribute("aria-label", tr("Region", "Région"));
+  $("tabs").setAttribute("aria-label", tr("Sections", "Rubriques"));
+}
+function tools() {
+  $("mapctl").innerHTML = `<button data-act="home" title="${tr("Show the whole region", "Voir toute la région")}" aria-label="${tr("Show the whole region", "Voir toute la région")}">${ICON.home}</button>
+    <button data-act="tilt" aria-pressed="${S.d3}" title="${S.d3 ? tr("3D view: click to look straight down", "Vue 3D : cliquez pour voir d'en haut") : tr("Seen from above: click for 3D", "Vue d'en haut : cliquez pour la 3D")}" aria-label="${tr("3D view", "Vue 3D")}">3D</button>
+    <button data-act="night" title="${S.night ? tr("Light map", "Carte claire") : tr("Dark map", "Carte sombre")}" aria-label="${S.night ? tr("Light map", "Carte claire") : tr("Dark map", "Carte sombre")}">${S.night ? ICON.sun : ICON.moon}</button>`;
+  $("mapctl").setAttribute("aria-label", tr("Map", "Carte"));
+}
+
+// ----------------------------------------------------------------- one redraw for everything
+function draw(o = {}) {
+  if (S.tab === "act") lastPlan = allocate(S.budget * 1e6);
+  if (store && ready) {
+    if (o.grow && !REDUCED) { if (growId) cancelAnimationFrame(growId); growId = null; scaleNow = 0; }
+    if (S.tab === "verify") LEG = viewVerify(S.vind);
+    else if (S.tab === "predict") LEG = S.pmode === "level" ? viewLevel(S.pind) : viewPredict(S.pind);
+    else if (S.tab === "act") LEG = viewAct(lastPlan);
+    else LEG = S.ground && C().ground ? viewGround() : S.years ? viewYears(yearsInd()) : viewDetect(yearsInd());
+    if (o.grow) grow(o.growMs || 750);
+    if (o.recentre) flyTo(homeView(), 1600);
+  }
+  renderPanel(); paintLegend(); paintTimeline(); cellCard(); tools(); saveHash();
+}
+function goTo(tab, k, mode) { // a card or a link: switch the view and frame the cells it is about
+  S.cell = null; S.tab = tab; S.years = false; S.only = null; stopYears();
+  if (tab === "predict") S.pmode = mode || "chance";
+  if (k) { if (tab === "detect") S.ind = k; else if (tab === "predict") S.pind = k; else if (tab === "verify") S.vind = k; }
+  draw({ grow: true }); $("body").scrollTop = 0;
+  if (!ready) return;
+  const keys = tab === "detect" ? detKeys(k) : tab === "predict" && S.pmode === "level" ? [] : tab === "predict" ? likelyWorse(k).keys : tab === "act" && lastPlan ? Object.keys(lastPlan.plan) : [];
+  flyTo(keys.length >= 3 ? fitCells(keys, { zoomBias: 0.1 }) : homeView(), 1800);
+}
+function saveHash() {
+  if (tour) return;
+  const p = new URLSearchParams(); if (S.c) p.set("r", S.c); p.set("tab", S.tab);
+  if (S.tab === "detect") p.set("ind", S.ind); if (S.tab === "predict") { p.set("pind", S.pind); if (S.pmode === "level") p.set("pmode", "level"); } if (S.tab === "verify") p.set("vind", S.vind);
+  if (S.years) p.set("years", 1); if (S.ground) p.set("ground", 1); if (S.cell) p.set("cell", S.cell); if (!S.d3) p.set("flat", 1); if (!S.night) p.set("day", 1); p.set("lang", S.lang);
+  try { history.replaceState(null, "", "#" + p.toString()); } catch (e) { /* file:// in some browsers */ }
+}
+function loadHash() {
+  const p = new URLSearchParams(location.hash.slice(1)), r = +p.get("r");
+  if (r > 0 && r < DATA.cases.length) S.c = r;
+  const ok = k => k && C().indicators[k] ? k : null;
+  if ([...TABS, "about"].includes(p.get("tab"))) S.tab = p.get("tab");
+  let saved = null; try { saved = localStorage.getItem("lang"); } catch (e) { /* private mode */ }
+  const lg = p.get("lang") || saved || ((navigator.language || "").toLowerCase().startsWith("fr") ? "fr" : "en");
+  S.lang = lg === "fr" ? "fr" : "en";
+  S.ind = ok(p.get("ind")) || S.ind; S.pind = ok(p.get("pind")) || S.pind; S.vind = ok(p.get("vind")) || S.vind;
+  if (p.get("cell") && C().cells[p.get("cell")]) S.cell = p.get("cell");
+  if (p.get("flat") === "1") S.d3 = false;
+  if (p.get("day") === "1") S.night = false;
+  if (p.get("years") === "1" && S.tab === "detect") S.years = true;
+  if (p.get("ground") === "1" && S.tab === "detect" && C().ground) S.ground = true;
+  if (p.get("pmode") === "level") S.pmode = "level";
+  if (p.has("story")) startScene = Math.max(0, (parseInt(p.get("story"), 10) || 1) - 1);
+}
+function applyNight() {
+  document.body.classList.toggle("night", S.night);
+  if (themeSet) themeSet(S.night ? null : "light");
+  if (store && ready) setStyle();
+}
+function setLang(l) { // French or English: every word of the page, the map's legend and tooltips
+  if (l === S.lang) return;
+  S.lang = l; S.only = null; STRIPES = null;
+  try { localStorage.setItem("lang", l); } catch (e) { /* private mode */ }
+  fillCases(); draw();
+}
+function newRegion() {
+  S.ivs = null; S.sens = null; S.adopt = null; S.cell = null; S.only = null; S.years = false; STRIPES = null; stopYears();
+  draw({ grow: true, recentre: true });
+}
+
+// ----------------------------------------------------------------- events
+document.addEventListener("click", e => {
+  const t = e.target.closest("button, [data-y]"); if (!t) return;
+  const d = t.dataset;
+  if (d.lang) setLang(d.lang);
+  else if (d.tab) { S.cell = null; S.tab = d.tab; S.years = false; S.ground = false; S.only = null; stopYears(); draw({ grow: true }); $("body").scrollTop = 0; }
+  else if (d.ind) { S.ind = d.ind; S.only = null; if (S.years) S.year = 0; draw({ grow: !S.years }); }
+  else if (d.pind) { S.pind = d.pind; S.only = null; draw({ grow: true }); }
+  else if (d.pmode) { S.pmode = d.pmode; S.only = null; draw({ grow: true }); }
+  else if (d.vind) { S.vind = d.vind; S.only = null; draw(); }
+  else if (d.only != null) { S.only = S.only === d.only ? null : d.only; draw(); }
+  else if (d.go) { const [tab, k, mode] = d.go.split(":"); goTo(tab, k, mode); }
+  else if (d.y != null) { stopYears(); setYear(+d.y); }
+  else if (d.scene != null) goScene(+d.scene);
+  else if (d.act) act(d.act, t);
+});
+function act(a, t) {
+  if (a === "play") startTour(0);
+  else if (a === "tilt") { S.d3 = !S.d3; draw({ recentre: true }); }
+  else if (a === "orbit") { S.orbit = !S.orbit; tools(); spin(); }
+  else if (a === "night") { S.night = !S.night; STRIPES = null; applyNight(); draw(); }
+  else if (a === "home") flyTo(homeView(), 1600);
+  else if (a === "years") { S.years = !S.years; S.only = null; stopYears(); if (S.years) { S.year = 0; draw(); playYears(); } else draw({ grow: true }); }
+  else if (a === "ytoggle") { if (yearsTimer) stopYears(); else playYears(); }
+  else if (a === "closecell") { S.cell = null; draw(); }
+  else if (a === "flycell" && S.cell) { const m = ready ? mapNow() : null; flyTo(fitCells([S.cell], { pitch: m ? m.pitch : undefined, bearing: m ? m.bearing : undefined, zoomBias: 0.3 }), 1500); }
+  else if (a === "tplay") tourPlay();
+  else if (a === "tnext" && tour) goScene(tour.i + 1);
+  else if (a === "tprev" && tour) goScene(tour.i - 1);
+  else if (a === "texit") endTour();
+  else if (a === "region") analyseRegion(t);
+  else if (a === "ask") { const b = $("askBox"); askSend(b ? b.value : ASK.draft); }
+  else if (a === "askex") askSend(askExamples()[+t.dataset.i]);
+  else if (a === "ground") { S.ground = !S.ground && !!C().ground; S.years = false; S.cell = null; S.only = null; stopYears(); draw({ grow: true }); $("body").scrollTop = 0;
+    if (S.ground && ready) { const ks = [...new Set(C().ground.patches.map(q => gCell(q[0], q[1])).filter(Boolean))]; flyTo(ks.length >= 3 ? fitCells(ks, { zoomBias: 0.1 }) : homeView(), 1600); } }
+  else if (a === "groundfly") { const q = C().ground.patches[+t.dataset.i]; if (q && ready) { const m = mapNow(); flyTo({ latitude: q[0], longitude: q[1], zoom: 10.5, pitch: m.pitch, bearing: m.bearing }, 1600); } }
+  else if (a === "askshow") askFocus((ASK.log[+t.dataset.i] || {}).focus || []);
+}
+async function analyseRegion(go) {
+  $("newMsg").textContent = tr("Getting NASA data and analysing (several minutes)…", "Téléchargement des données de la NASA et analyse (plusieurs minutes)…"); go.disabled = true;
+  try { const r = await fetch("/api/land", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ region: $("newRegion").value }) });
+    const j = await r.json(); if (!r.ok) throw new Error(j.error || r.statusText);
+    DATA.cases.push(j.case); fillCases(); S.c = DATA.cases.length - 1; $("caseSel").value = S.c; S.tab = "findings"; newRegion();
+  } catch (e) { $("newMsg").textContent = tr("Failed: ", "Échec : ") + e.message; go.disabled = false; }
+}
+document.addEventListener("toggle", e => { if (e.target.id === "assume") S.assume = e.target.open; }, true);
+document.addEventListener("input", e => { if (e.target.id === "budget") $("bv").textContent = e.target.value; else if (e.target.id === "askBox") ASK.draft = e.target.value; });
+document.addEventListener("keydown", e => { if (e.target.id === "askBox" && e.key === "Enter" && !e.shiftKey) { e.preventDefault(); askSend(e.target.value); } });
+document.addEventListener("change", e => {
+  const el = e.target, d = el.dataset;
+  if (el.id === "caseSel") { S.c = +el.value; newRegion(); }
+  else if (el.id === "budget") { S.budget = +el.value; draw(); }
+  else if (el.name === "ev") { S.evidence = el.value; draw(); }
+  else if (d.iv != null) { const v = ivs()[+d.iv]; if (d.f === "cost") v.cost = Math.max(1, +el.value); else v.effects[d.f] = Math.min(1, Math.max(0, +el.value)); draw(); }
+  else if (d.sens) { sens()[d.sens] = Math.max(0, +el.value); draw(); }
+  else if (el.id === "dcrop") { S.defaultCrop = Math.min(1, Math.max(0, +el.value)); draw(); }
+  else if (el.id === "adopt") { S.adopt = Math.min(1, Math.max(0.01, +el.value)); draw(); }
+});
+document.addEventListener("keydown", e => {
+  if (e.target.closest && e.target.closest("input, select, textarea")) return;
+  if (tour) {
+    if (e.key === "Escape") endTour();
+    else if (e.key === " ") { e.preventDefault(); tourPlay(); }
+    else if (e.key === "ArrowRight") goScene(tour.i + 1);
+    else if (e.key === "ArrowLeft") goScene(tour.i - 1);
+    return;
+  }
+  if (e.key === "Escape") { if (S.cell) { S.cell = null; draw(); } else if (S.years) { S.years = false; stopYears(); draw({ grow: true }); } }
+  else if (e.key === " " && S.years) { e.preventDefault(); if (yearsTimer) stopYears(); else playYears(); }
+  else if (S.years && (e.key === "ArrowRight" || e.key === "ArrowLeft")) { stopYears(); setYear(S.year + (e.key === "ArrowRight" ? 1 : -1)); }
+  else if ((e.key === "o" || e.key === "O") && ready) { S.orbit = !S.orbit; tools(); spin(); }
+});
+for (const ev of ["pointerdown", "wheel"]) $("map").addEventListener(ev, () => { // the user takes the camera
+  stopFly(); if (S.orbit) { S.orbit = false; tools(); } if (tour && tour.playing) tourPlay(false);
+}, { capture: true, passive: true });
+function fillCases() { $("caseSel").innerHTML = DATA.cases.map((c, i) => `<option value="${i}">${esc(regionName(c))}</option>`).join(""); $("caseSel").value = S.c; }
+
+loadHash();
+fillCases();
+applyNight();
+draw();
+$("spMsg").textContent = tr("Loading the map (internet needed)", "Chargement de la carte (internet nécessaire)");
+loadLibs(() => { $("spMsg").textContent = tr("Building the map", "Construction de la carte"); try { mountKepler(); } catch (err) { console.error(err); offline(); } }, () => offline());
+</script>
+</body>
+</html>
