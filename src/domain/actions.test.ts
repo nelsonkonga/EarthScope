@@ -35,6 +35,7 @@ const session = (): SessionSlice => ({
   activePanel: null,
   zoneCardOpen: false,
   comparison: null,
+  analyticsView: "single",
 });
 
 const catalog = {
@@ -83,6 +84,16 @@ describe("reduceAssistantActions", () => {
     );
     expect(result.results.map((entry) => entry.reason)).toEqual(["unknown_action", "primary_not_active"]);
     expect(result.session.primaryVariableId).toBeNull();
+  });
+
+  it("switches the analytics view", () => {
+    const result = reduceAssistantActions(
+      [{ type: "SET_VIEW_MODE", mode: "superposition" }],
+      session(),
+      catalog,
+    );
+    expect(result.session.analyticsView).toBe("superposition");
+    expect(selectionSummary(result.results, catalog)).toBe("Affichage : superposition.");
   });
 
   it("rejects a comparison that is not between 2 and 6 known zones", () => {

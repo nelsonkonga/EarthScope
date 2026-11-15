@@ -186,6 +186,14 @@ input[type="text"], input:not([type]), .composer input, #zone-search {
 .axis { stroke: rgba(255,255,255,0.25); }
 .axis-label { fill: var(--muted); font-size: 10px; }
 .cursor-line { stroke: var(--accent); stroke-width: 1; }
+.view-switch { display: flex; flex-wrap: wrap; gap: 6px; }
+.view-switch button { border: 1px solid var(--line); background: transparent; color: inherit; border-radius: 999px; padding: 4px 8px; }
+.view-switch button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.insight { border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.insights { display: flex; flex-direction: column; gap: 8px; }
+.corr-track { position: relative; height: 6px; border-radius: 99px; background: linear-gradient(90deg, #8C2F1B, #a7b0b8, #1C4558); }
+.corr-mark { position: absolute; top: -3px; width: 12px; height: 12px; border-radius: 50%; background: var(--ink); transform: translateX(-50%); }
+.brush { fill: rgba(142, 171, 196, 0.18); }
 .chart-tip {
   position: absolute;
   left: 8px;

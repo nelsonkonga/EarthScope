@@ -2,7 +2,7 @@ import { keepPreviousData, useQuery, useQueries } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import type { Variable } from "../domain/types";
 import { useWorkspace } from "../state/workspaceStore";
-import { fetchComparison, fetchLayer, fetchRanking, fetchSeries, fetchVariables, fetchZones } from "./resources";
+import { fetchAnalytics, fetchComparison, fetchLayer, fetchMultivariable, fetchRanking, fetchSeries, fetchVariables, fetchZones } from "./resources";
 
 export function useZoneCatalog(search?: string, remote = false) {
   return useQuery({
@@ -58,6 +58,24 @@ export function useRankingQuery(variableId: string | null, metric: string | null
     queryKey: ["ranking", variableId, metric],
     enabled: Boolean(variableId && metric),
     queryFn: ({ signal }) => fetchRanking(variableId as string, metric as string, signal),
+    staleTime: Infinity,
+  });
+}
+
+export function useAnalyticsQuery(zoneId: string | null, variableId: string | null, start: string | null, end: string | null) {
+  return useQuery({
+    queryKey: ["analytics", zoneId, variableId, start, end],
+    enabled: Boolean(zoneId && variableId),
+    queryFn: ({ signal }) => fetchAnalytics(zoneId as string, variableId as string, start, end, signal),
+    staleTime: Infinity,
+  });
+}
+
+export function useMultivariableQuery(zoneId: string | null, variableIds: string[], start: string | null, end: string | null) {
+  return useQuery({
+    queryKey: ["analytics-multi", zoneId, [...variableIds].sort().join(","), start, end],
+    enabled: Boolean(zoneId && variableIds.length >= 2),
+    queryFn: ({ signal }) => fetchMultivariable(zoneId as string, variableIds, start, end, signal),
     staleTime: Infinity,
   });
 }

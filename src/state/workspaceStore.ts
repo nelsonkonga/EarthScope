@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { reduceAssistantActions, type CatalogIndex, type SessionSlice } from "../domain/actions";
-import type { ActionResult, Comparison, PanelId } from "../domain/types";
+import type { ActionResult, AnalyticsView, Comparison, PanelId } from "../domain/types";
 
 type WorkspaceState = SessionSlice & {
   playbackSpeed: 1 | 2 | 4;
@@ -21,6 +21,7 @@ type WorkspaceState = SessionSlice & {
   togglePanel: (panel: PanelId) => void;
   setExpandedChart: (id: string | null) => void;
   setComparison: (comparison: Comparison | null) => void;
+  setAnalyticsView: (view: AnalyticsView) => void;
   setNotice: (notice: string | null) => void;
   setAssistantSessionId: (id: string | null) => void;
   ensureDate: (date: string) => void;
@@ -36,6 +37,7 @@ const initial: SessionSlice = {
   activePanel: null,
   zoneCardOpen: false,
   comparison: null,
+  analyticsView: "single",
 };
 
 export const useWorkspace = create<WorkspaceState>((set, get) => ({
@@ -81,6 +83,7 @@ export const useWorkspace = create<WorkspaceState>((set, get) => ({
   togglePanel: (panel) => set((state) => ({ activePanel: state.activePanel === panel ? null : panel })),
   setExpandedChart: (id) => set({ expandedChartVariableId: id }),
   setComparison: (comparison) => set({ comparison }),
+  setAnalyticsView: (analyticsView) => set({ analyticsView }),
   setNotice: (notice) => set({ notice }),
   setAssistantSessionId: (id) => set({ assistantSessionId: id }),
   ensureDate: (date) => {

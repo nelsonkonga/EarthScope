@@ -3,9 +3,9 @@ import { formatLatLon, formatNumber, formatTrend, statusWord } from "../../domai
 import type { Variable, Zone } from "../../domain/types";
 import { useComparisonQuery, useRankingQuery, useSeriesQueries } from "../../api/queries";
 import { useWorkspace } from "../../state/workspaceStore";
-import { ComparisonChart, TrendChart } from "../charts/TrendChart";
+import { AnalyticsPanel } from "../analytics/AnalyticsPanel";
+import { ComparisonChart } from "../charts/TrendChart";
 import { Icon } from "../../ui/icons";
-import { Modal } from "../../ui/Modal";
 
 export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variables: Variable[] }) {
   const zoneId = useWorkspace((state) => state.selectedZoneId);
@@ -15,8 +15,6 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
   const date = useWorkspace((state) => state.selectedDate);
   const comparison = useWorkspace((state) => state.comparison);
   const clearComparison = useWorkspace((state) => state.setComparison);
-  const expanded = useWorkspace((state) => state.expandedChartVariableId);
-  const setExpanded = useWorkspace((state) => state.setExpandedChart);
   const zone = zones.find((item) => item.id === zoneId) ?? null;
   const active = activeIds.map((id) => variables.find((variable) => variable.id === id)).filter((item): item is Variable => Boolean(item));
   const available = zone ? active.filter((variable) => zone.availableVariableIds.includes(variable.id)) : [];
@@ -39,7 +37,7 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
               <Icon name="close" />
             </button>
           </div>
-          <p className="hint">{fr.fixtureValues}</p>
+          {variables.some((variable) => variable.datasetVersion.startsWith("fixture")) && <p className="hint">{fr.fixtureValues}</p>}
           {active.length === 0 && <p>{fr.chooseVariable}</p>}
           {active.map((variable) => {
             const allowed = zone.availableVariableIds.includes(variable.id);
@@ -74,19 +72,7 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
                       )}
                     </p>
                     <p>{formatTrend(series.trend, variable.unit)}</p>
-                    {series.observations.some((item) => item.status !== "missing" && item.value != null) ? (
-                      <>
-                        <TrendChart series={series} color={variable.color} selectedDate={date} label={variable.name} />
-                        <button type="button" className="text-btn" onClick={() => setExpanded(variable.id)}>
-                          {fr.expand}
-                        </button>
-                        {expanded === variable.id && (
-                          <Modal title={variable.name} onClose={() => setExpanded(null)}>
-                            <TrendChart series={series} color={variable.color} selectedDate={date} label={variable.name} />
-                          </Modal>
-                        )}
-                      </>
-                    ) : (
+                    {!series.observations.some((item) => item.status !== "missing" && item.value != null) && (
                       <p>{fr.noDataFor(variable.name, zone.name)}</p>
                     )}
                   </>
@@ -94,6 +80,7 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
               </section>
             );
           })}
+          <AnalyticsPanel zone={zone} variables={variables} />
         </>
       )}
       {comparison && (

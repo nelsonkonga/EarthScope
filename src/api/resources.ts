@@ -2,8 +2,10 @@ import type {
   ChatMessage,
   ChatSession,
   MapLayer,
+  MultivariableReport,
   RankingEntry,
   TimeSeries,
+  UnivariateAnalytics,
   Variable,
   VariableCategory,
   Zone,
@@ -45,6 +47,20 @@ export function fetchComparison(variableId: string, zoneIds: string[], signal?: 
   return request<{ comparison: { series: TimeSeries[] } }>(`/api/v1/comparisons?${params}`, { signal }).then(
     (body) => body.comparison,
   );
+}
+
+export function fetchAnalytics(zoneId: string, variableId: string, start: string | null, end: string | null, signal?: AbortSignal) {
+  const params = new URLSearchParams({ zoneId, variableId });
+  if (start) params.set("startDate", start);
+  if (end) params.set("endDate", end);
+  return request<UnivariateAnalytics>(`/api/v1/analytics?${params}`, { signal });
+}
+
+export function fetchMultivariable(zoneId: string, variableIds: string[], start: string | null, end: string | null, signal?: AbortSignal) {
+  const params = new URLSearchParams({ zoneId, variableIds: variableIds.join(",") });
+  if (start) params.set("startDate", start);
+  if (end) params.set("endDate", end);
+  return request<MultivariableReport>(`/api/v1/analytics/multivariable?${params}`, { signal });
 }
 
 export function createAssistantSession(signal?: AbortSignal) {
