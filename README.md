@@ -29,3 +29,41 @@ Le serveur de développement proxifie `/api/v1` vers `http://127.0.0.1:8000`. Ya
 npm test
 npm run build
 ```
+
+---
+
+## Module IA : Sélection Intelligente des Variables (`src/variable_selector.py`)
+
+Ce module agit comme le moteur sémantique de l'assistant. Il analyse les requêtes en langage naturel (Français et Anglais), détecte automatiquement la ville ou région du Cameroun concernée, filtre les négations et sélectionne jusqu'à **5 variables pertinentes** parmi les 11 disponibles (**Climat 2003–2026**, **SoilGrids 0–200 cm**, et **NASA Giovanni**).
+
+### 1. Installation des dépendances IA
+Si ce n'est pas déjà inclus dans `backend/requirements.txt`, installez les bibliothèques requises :
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Installation du modèle neuronal entraîné (Hors-ligne)
+Le poids du modèle entraîné dépasse la limite de 100 Mo de GitHub et est partagé séparément via Drive/Telegram (`modele_terrasense_final.zip`) :
+1. Téléchargez et décompressez `modele_terrasense_final.zip`.
+2. Placez le dossier obtenu dans `models/modele_terrasense_final/` à la racine du projet.
+*(Note : Si ce dossier est absent, le script téléchargera automatiquement le modèle multilingue de base en ligne lors du premier lancement).*
+
+### 3. Tester le sélecteur et l'intégrer au backend
+Pour exécuter un test autonome en terminal :
+```bash
+python src/variable_selector.py
+```
+
+Exemple d'appel depuis le backend Python (`FastAPI`) :
+```python
+from src.variable_selector import analyser_requete
+
+resultat = analyser_requete(
+    "Analyser le risque d'inondation et l'argile à Bonabéri Douala", 
+    top_k=5
+)
+
+print("Ville détectée :", resultat["localisation"]["ville"])
+print("Fichiers CSV :", resultat["localisation"]["fichiers"])
+print("Variables retenues :", resultat["variables_retenues"])
+```
