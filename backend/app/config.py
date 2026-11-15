@@ -3,6 +3,7 @@ from pathlib import Path
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 GIOVANNI_CSV = DATA_DIR / "fusion-Yaounde.csv"
 REGIONAL_JSON = DATA_DIR / "years.json"
+YAOUNDE_BOUNDARY = DATA_DIR / "yaounde_boundary.geojson"
 DATASET_VERSION = "observations-1"
 MANN_KENDALL_ALPHA = 0.05
 MIN_SAMPLES = 8

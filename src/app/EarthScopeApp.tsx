@@ -1,10 +1,22 @@
-import { MainWorkspace } from "./MainWorkspace";
+import { lazy, Suspense } from "react";
+import { LandingPage } from "../features/landing/LandingPage";
 import { Providers } from "./providers";
+import { isWorkspacePath, usePath } from "./router";
+
+// The globe (Cesium) is only downloaded when the visitor enters the workspace.
+const MainWorkspace = lazy(() => import("./MainWorkspace").then((module) => ({ default: module.MainWorkspace })));
 
 export function EarthScopeApp() {
+  const path = usePath();
   return (
     <Providers>
-      <MainWorkspace />
+      {isWorkspacePath(path) ? (
+        <Suspense fallback={<div className="workspace-loading" role="status" aria-label="Chargement de la visualisation" />}>
+          <MainWorkspace />
+        </Suspense>
+      ) : (
+        <LandingPage />
+      )}
     </Providers>
   );
 }

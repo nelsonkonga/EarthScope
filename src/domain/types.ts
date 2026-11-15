@@ -21,6 +21,9 @@ export type Zone = {
   aliases?: string[];
   /** West, south, east, north. The measured cell, not a navigation pin. */
   footprint?: [number, number, number, number];
+  /** Real administrative outline, [longitude, latitude] pairs. Drawn instead of the rectangle when present. */
+  boundary?: [number, number][];
+  boundarySource?: string;
   availableVariableIds: string[];
   coverage?: DataCoverage[];
 };
@@ -223,6 +226,8 @@ export type ChatMessage = {
   actionResults?: ActionResult[];
   dataReferences?: { kind: string; id: string; zoneId?: string; variableId?: string; date?: string }[];
   suggestedFollowUps?: string[];
+  /** "gemini" when the wording comes from the language model, "rules" for the built-in engine. */
+  source?: "gemini" | "rules";
 };
 
 export type ChatSession = {

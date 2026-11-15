@@ -10,6 +10,7 @@ from app.config import MANN_KENDALL_ALPHA, MIN_SAMPLES
 from app.services.catalog import VARIABLES, Catalog, get_catalog
 from app.services.mann_kendall import mann_kendall, sen_slope
 from app.services.statistics import decimal_year, is_missing
+from app.services import llm
 from app.services.variable_selector import analyser_requete
 
 PROMPTS = [
@@ -194,7 +195,27 @@ def _view_mode(text: str, count: int) -> str | None:
     return None
 
 
+METHODS = (
+    (("mann-kendall", "mann kendall", "kendall"), "Le test de Mann-Kendall vérifie si une série monte ou descend de façon régulière plutôt que par hasard : il compare chaque mesure à toutes les suivantes. Une valeur p inférieure à 0,05 signifie qu'une tendance aussi nette aurait moins de 5 % de chances d'apparaître par hasard."),
+    (("theil", "pente de sen", "sen slope"), "La pente de Theil-Sen est la médiane des pentes entre toutes les paires de mesures : elle donne la vitesse du changement (par an ou par décennie) sans se laisser tromper par une valeur extrême."),
+    (("valeur p", "p-value", "p value"), "La valeur p mesure la probabilité d'observer une tendance au moins aussi forte si, en réalité, il n'y en avait aucune. Sous 0,05, la plateforme parle de tendance significative."),
+    (("shap",), "SHAP attribue à chaque facteur sa part dans une prédiction. La plateforme ne publie pas encore de modèle SHAP pour Yaoundé ; la section À propos décrit la méthode."),
+)
+
+
+def _method_notes(folded: str) -> list[str]:
+    return [note for keys, note in METHODS if any(key in folded for key in keys)]
+
+
 def answer(text: str, context: dict, catalog: Catalog | None = None) -> dict:
+    result = _answer(text, context, catalog)
+    notes = _method_notes(fold(text))
+    if notes:
+        result["text"] = " ".join(notes) + " Illustration sur les données : " + result["text"]
+    return result
+
+
+def _answer(text: str, context: dict, catalog: Catalog | None = None) -> dict:
     catalog = catalog or get_catalog()
     zones = _zones_in(text, catalog)
     unknown = []
@@ -267,10 +288,12 @@ def post_message(session_id: str, text: str, context: dict) -> dict | None:
         return None
     user = {"id": f"user-{uuid.uuid4()}", "role": "user", "text": text, "createdAt": _now()}
     result = answer(text, context)
+    worded = llm.rewrite(text, result["text"], context, locale=str(context.get("locale") or "fr"), history=session["messages"])
     message = {
         "id": f"assistant-{uuid.uuid4()}",
         "role": "assistant",
-        "text": result["text"],
+        "text": worded or result["text"],
+        "source": "gemini" if worded else "rules",
         "createdAt": _now(),
         "actions": result["actions"],
         "dataReferences": result["dataReferences"],

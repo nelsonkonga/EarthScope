@@ -7,7 +7,10 @@ export function ChatMessageView({ message, catalog }: { message: Message; catalo
   const rejected = message.actionResults?.filter((result) => result.status === "rejected") ?? [];
   return (
     <article className={message.role === "user" ? "bubble user" : "bubble"}>
-      <p>{message.text}</p>
+      {message.text.split(/\n{2,}/).map((paragraph, index) => (
+        <p key={index}>{paragraph}</p>
+      ))}
+      {message.role === "assistant" && message.source === "gemini" && <p className="hint source-line">{fr.writtenByGemini}</p>}
       {summary && <p className="selection-line">{summary}</p>}
       {rejected.map((result, index) => (
         <p key={`${result.reason}-${index}`} className="hint">

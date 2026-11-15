@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
+from functools import lru_cache
 
-from app.config import DATASET_VERSION
+from app.config import DATASET_VERSION, YAOUNDE_BOUNDARY
 from app.services.ingestion import Series, read_giovanni
 from app.services.statistics import (
     compute_climatology,
@@ -29,6 +31,16 @@ YAOUNDE = {
     "description": "Moyennes mensuelles GLDAS/MODIS sur l'emprise Giovanni 11,4–11,65 °E, 3,75–3,98 °N. Les coordonnées servent à la navigation.",
     "footprint": [11.4, 3.75, 11.65, 3.98],
 }
+
+
+@lru_cache(maxsize=1)
+def yaounde_boundary() -> list[list[float]] | None:
+    """Outer ring of the city (Yaoundé I–VII), longitude then latitude. None when the file is absent."""
+    try:
+        collection = json.loads(YAOUNDE_BOUNDARY.read_text(encoding="utf-8"))
+        return collection["features"][0]["geometry"]["coordinates"][0]
+    except (OSError, KeyError, IndexError, ValueError):
+        return None
 
 REGIONS = {
     "zone_barents": ("Mer de Barents et Svalbard", "Arctique", None, 76.5, 30.0, ["barents", "svalbard"]),
@@ -94,7 +106,12 @@ class Catalog:
 
     def zone_record(self, zone_id: str) -> dict:
         if zone_id == YAOUNDE["id"]:
-            return {key: value for key, value in YAOUNDE.items() if key != "aliases"} | {"aliases": YAOUNDE["aliases"]}
+            record = {key: value for key, value in YAOUNDE.items() if key != "aliases"} | {"aliases": YAOUNDE["aliases"]}
+            boundary = yaounde_boundary()
+            if boundary:
+                record["boundary"] = boundary
+                record["boundarySource"] = "geoBoundaries gbOpen CMR ADM3, Yaoundé I–VII (CC BY 4.0)"
+            return record
         name, country, code, latitude, longitude, aliases = REGIONS[zone_id]
         record = {
             "id": zone_id,

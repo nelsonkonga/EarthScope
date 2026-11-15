@@ -7,6 +7,7 @@ import { useComparisonQuery, useRankingQuery, useSeriesQueries } from "../../api
 import { useWorkspace } from "../../state/workspaceStore";
 import { AnalyticsPanel } from "../analytics/AnalyticsPanel";
 import { ComparisonChart } from "../charts/TrendChart";
+import { ExpandableFigure } from "../../ui/ExpandableFigure";
 import { Icon } from "../../ui/icons";
 
 export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variables: Variable[] }) {
@@ -127,14 +128,29 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
                   </li>
                 ))}
               </ul>
-              <ComparisonChart
-                selectedDate={date}
-                items={compared.data.series.map((series, index) => ({
-                  series,
-                  color: ZONE_COLORS[index % ZONE_COLORS.length],
-                  name: zones.find((item) => item.id === series.zoneId)?.name ?? series.zoneId,
-                }))}
-              />
+              <ExpandableFigure
+                title={fr.comparison}
+                large={() => (
+                  <ComparisonChart
+                    large
+                    selectedDate={date}
+                    items={compared.data.series.map((series, index) => ({
+                      series,
+                      color: ZONE_COLORS[index % ZONE_COLORS.length],
+                      name: zones.find((item) => item.id === series.zoneId)?.name ?? series.zoneId,
+                    }))}
+                  />
+                )}
+              >
+                <ComparisonChart
+                  selectedDate={date}
+                  items={compared.data.series.map((series, index) => ({
+                    series,
+                    color: ZONE_COLORS[index % ZONE_COLORS.length],
+                    name: zones.find((item) => item.id === series.zoneId)?.name ?? series.zoneId,
+                  }))}
+                />
+              </ExpandableFigure>
             </>
           )}
         </section>

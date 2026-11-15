@@ -45,6 +45,7 @@ export function MainWorkspace() {
   const notice = useWorkspace((state) => state.notice);
   const selectedDate = useWorkspace((state) => state.selectedDate);
   const playback = useWorkspace((state) => state.playback);
+  const playbackSpeed = useWorkspace((state) => state.playbackSpeed);
   const cardOpen = useWorkspace((state) => state.zoneCardOpen);
   const togglePanel = useWorkspace((state) => state.togglePanel);
   const setPanel = useWorkspace((state) => state.setPanel);
@@ -77,7 +78,7 @@ export function MainWorkspace() {
     .join("|");
   const primaryKey = primary ? `${primary.id}:${primary.datasetVersion}` : "";
   const secondaryKey = secondaries.map((variable) => `${variable.id}:${variable.datasetVersion}`).join(",");
-  const footprintKey = studyZone ? `${studyZone.id}:${studyZone.footprint?.join(",") ?? ""}` : "";
+  const footprintKey = studyZone ? `${studyZone.id}:${studyZone.footprint?.join(",") ?? ""}:${studyZone.boundary?.length ?? 0}` : "";
   const field = useMemo(
     () =>
       studyZone
@@ -109,6 +110,11 @@ export function MainWorkspace() {
       : comparison?.mode === "rank" && ranking.data
         ? ranking.data.entries.map((entry) => entry.zoneId)
         : null;
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("ask")) setPanel("assistant");
+    document.title = `${fr.appName} · Terra Sense Cameroun`;
+  }, [setPanel]);
 
   useEffect(() => {
     const end = maxEnd(variables);
@@ -150,8 +156,8 @@ export function MainWorkspace() {
   }, [highlighted, primary, primaryLayer, secondaries, selectedZoneId, zones]);
 
   useEffect(() => {
-    showField(field ? { ...field, transitionMs: reducedMotion ? 0 : playback === "playing" ? 140 : 480, animate: !reducedMotion } : null);
-  }, [field, playback, reducedMotion]);
+    showField(field ? { ...field, transitionMs: reducedMotion ? 0 : playback === "playing" ? Math.round(760 / playbackSpeed) : 720, animate: !reducedMotion } : null);
+  }, [field, playback, playbackSpeed, reducedMotion]);
 
   useEffect(() => {
     const onChange = () => setFullscreen(Boolean(document.fullscreenElement));

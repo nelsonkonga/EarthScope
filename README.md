@@ -4,6 +4,22 @@ Poste de travail d’observation de la Terre : globe Google plein écran, zones 
 
 Le blueprint d’implémentation est dans [docs/earthscope-specification.md](docs/earthscope-specification.md). La spécification de l’interface livrée est dans [docs/earthscope-frontend.md](docs/earthscope-frontend.md).
 
+## Pages
+
+- `/` : page d’accueil Terra Sense Cameroun (FR/EN, thèmes clair, sombre et tamisé, À propos, assistant). Textes dans `src/i18n/fr.json` et `src/i18n/en.json`.
+- `/app` : le poste de travail (globe, variables, graphiques). Tous les graphiques s’agrandissent d’un clic.
+
+Yaoundé est dessinée selon son contour réel : union des arrondissements Yaoundé I à VII (geoBoundaries gbOpen CMR ADM3, CC BY 4.0), dans `backend/data/yaounde_boundary.geojson`. La couleur reste la moyenne Giovanni de la maille ; elle glisse d’une valeur à l’autre sans inventer de mesure intermédiaire.
+
+## Assistant et Gemini
+
+L’assistant est hybride. Le moteur intégré choisit la zone et les variables, pilote le globe et calcule les tendances (Mann-Kendall, Theil-Sen). Si `GEMINI_API_KEY` est défini dans l’environnement du backend, Gemini (prompt repris de la branche `nasser`) rédige la réponse à partir de ces seuls résultats et cite ses sources. Sans clé, ou en cas d’erreur, la réponse du moteur intégré est conservée.
+
+```bash
+export GEMINI_API_KEY=...        # facultatif
+export GEMINI_MODEL=gemini-2.5-flash   # facultatif
+```
+
 ## Lancer l’interface
 
 Le frontend lit `/api/v1` sur le backend Python. Les statistiques (Theil-Sen, Mann-Kendall, corrélations) sont calculées à chaque requête à partir des observations de `backend/data/`.

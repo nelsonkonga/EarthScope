@@ -53,6 +53,18 @@ export function AIChatPanel({ catalog }: { catalog: CatalogIndex }) {
     return () => controller.abort();
   }, [queryClient, sessionId, setSessionId]);
 
+  // A question handed over by the landing page assistant (/app?ask=…) is asked once, here.
+  const handedOver = useRef<string | null>(new URLSearchParams(window.location.search).get("ask"));
+  useEffect(() => {
+    const question = handedOver.current?.trim();
+    if (!sessionId || !session.data || !question || catalog.zones.length === 0 || catalog.variables.length === 0) return;
+    handedOver.current = null;
+    window.history.replaceState(null, "", window.location.pathname);
+    void send(question);
+    // send reads the latest state from the store; only the session matters here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId, session.data, catalog.zones.length, catalog.variables.length]);
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [session.data?.messages.length, pending]);

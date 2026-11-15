@@ -79,6 +79,7 @@ export function postAssistantMessage(
     activeVariableIds: string[];
     primaryVariableId: string | null;
     selectedDate: string | null;
+    locale?: "fr" | "en";
   },
   signal?: AbortSignal,
 ) {

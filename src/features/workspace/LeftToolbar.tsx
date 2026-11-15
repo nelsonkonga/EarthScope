@@ -1,3 +1,4 @@
+import { navigate } from "../../app/router";
 import { fr } from "../../config/strings.fr";
 import type { PanelId } from "../../domain/types";
 import { Icon } from "../../ui/icons";
@@ -6,6 +7,9 @@ import { IconButton } from "../../ui/IconButton";
 export function LeftToolbar({ active, onSelect }: { active: PanelId | null; onSelect: (panel: PanelId) => void }) {
   return (
     <nav className="toolbar" aria-label={fr.appName}>
+      <IconButton label={fr.backHome} onClick={() => navigate("/")}>
+        <Icon name="home" />
+      </IconButton>
       <IconButton label={fr.variables} pressed={active === "variables"} onClick={() => onSelect("variables")}>
         <Icon name="variables" />
       </IconButton>

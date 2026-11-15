@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { useAnalyticsQuery, useMultivariableQuery, useSeriesQueries } from "../../api/queries";
 import { fr } from "../../config/strings.fr";
 import { formatDate, formatNumber } from "../../domain/format";
-import type { AnalyticsView, Variable, Zone } from "../../domain/types";
+import type { AnalyticsView, ClimatologyMonth, Variable, Zone } from "../../domain/types";
 import { useWorkspace } from "../../state/workspaceStore";
 import { Modal } from "../../ui/Modal";
-import { Icon } from "../../ui/icons";
+import { ExpandableFigure } from "../../ui/ExpandableFigure";
 import { InteractiveTimeSeriesChart, type ChartLine } from "./InteractiveTimeSeriesChart";
 import { MultivariableInsightCard } from "./MultivariableInsightCard";
 
 const MONTHS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+const MONTH_NAMES = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
 
 function trendWord(direction: string) {
   if (direction === "up") return "hausse";
@@ -22,6 +23,47 @@ function pText(value: number | null) {
   if (value == null) return "p non calculée";
   if (value < 0.001) return "p < 0,001";
   return `p = ${formatNumber(value)}`;
+}
+
+function SeasonalBoxplot({ climatology, color, unit, large = false }: { climatology: ClimatologyMonth[]; color: string; unit: string; large?: boolean }) {
+  const width = large ? 960 : 340;
+  const height = large ? 420 : 92;
+  const pad = large ? { l: 64, r: 16, t: 16, b: 32 } : { l: 14, r: 0, t: 8, b: 16 };
+  const step = (width - pad.l - pad.r) / 12;
+  const finite = climatology.flatMap((item) => (item.min == null || item.max == null ? [] : [item.min, item.max]));
+  const min = Math.min(...finite);
+  const max = Math.max(...finite);
+  const span = max - min || 1;
+  const y = (value: number) => pad.t + (1 - (value - min) / span) * (height - pad.t - pad.b);
+  const box = large ? 22 : 6;
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} className="boxplot" role="img" aria-label={fr.seasonal}>
+      {large && (
+        <>
+          <text x={4} y={pad.t + 10} className="axis-label">
+            {formatNumber(max)} {unit}
+          </text>
+          <text x={4} y={height - pad.b} className="axis-label">
+            {formatNumber(min)} {unit}
+          </text>
+        </>
+      )}
+      {climatology.map((row, index) => {
+        const x = pad.l + step * index + (large ? step / 2 : 0);
+        if (row.min == null || row.max == null || row.q1 == null || row.q3 == null || row.median == null) return null;
+        return (
+          <g key={row.month}>
+            <line x1={x} x2={x} y1={y(row.min)} y2={y(row.max)} stroke={color} strokeWidth={large ? 2 : 1} />
+            <rect x={x - box} y={y(row.q3)} width={box * 2} height={Math.max(1, y(row.q1) - y(row.q3))} fill={color} opacity={0.85} rx={large ? 3 : 0} />
+            <line x1={x - box} x2={x + box} y1={y(row.median)} y2={y(row.median)} style={{ stroke: "var(--chart-median)" }} strokeWidth={large ? 2 : 1} />
+            <text x={x} y={height - 2} textAnchor="middle" className="axis-label">
+              {large ? MONTH_NAMES[index] : MONTHS[index]}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
 }
 
 export function AnalyticsPanel({ zone, variables }: { zone: Zone; variables: Variable[] }) {
@@ -139,27 +181,13 @@ export function AnalyticsPanel({ zone, variables }: { zone: Zone; variables: Var
       {effective === "single" && climatology.some((row) => row.count > 0) && (
         <div>
           <p className="hint">{fr.seasonal}</p>
-          <svg viewBox="0 0 340 92" className="boxplot" role="img" aria-label={fr.seasonal}>
-            {climatology.map((row, index) => {
-              const finite = climatology.flatMap((item) => (item.min == null || item.max == null ? [] : [item.min, item.max]));
-              const min = Math.min(...finite);
-              const max = Math.max(...finite);
-              const span = max - min || 1;
-              const y = (value: number) => 8 + (1 - (value - min) / span) * 68;
-              const x = 14 + index * 27;
-              if (row.min == null || row.max == null || row.q1 == null || row.q3 == null || row.median == null) return null;
-              return (
-                <g key={row.month}>
-                  <line x1={x} x2={x} y1={y(row.min)} y2={y(row.max)} stroke={primary?.color} />
-                  <rect x={x - 6} y={y(row.q3)} width={12} height={Math.max(1, y(row.q1) - y(row.q3))} fill={primary?.color} opacity={0.85} />
-                  <line x1={x - 6} x2={x + 6} y1={y(row.median)} y2={y(row.median)} stroke="#ebe7df" />
-                  <text x={x} y={90} textAnchor="middle" className="axis-label">
-                    {MONTHS[index]}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
+          <ExpandableFigure
+            title={`${fr.seasonal} · ${primary?.name ?? ""}`}
+            subtitle={`${zone.name} · ${primary?.unit ?? ""}`}
+            large={() => <SeasonalBoxplot climatology={climatology} color={primary?.color ?? "currentColor"} unit={primary?.unit ?? ""} large />}
+          >
+            <SeasonalBoxplot climatology={climatology} color={primary?.color ?? "currentColor"} unit={primary?.unit ?? ""} />
+          </ExpandableFigure>
         </div>
       )}
       {effective !== "single" && multi.isError && (
@@ -170,15 +198,16 @@ export function AnalyticsPanel({ zone, variables }: { zone: Zone; variables: Var
           </button>
         </p>
       )}
-      {effective !== "single" && multi.data && <MultivariableInsightCard pairs={multi.data.pairs} />}
+      {effective !== "single" && multi.data && multi.data.pairs.length > 0 && (
+        <ExpandableFigure title={fr.correlation} subtitle={`${zone.name} · ${available.map((variable) => variable.name).join(", ")}`}>
+          <MultivariableInsightCard pairs={multi.data.pairs} />
+        </ExpandableFigure>
+      )}
+      {effective !== "single" && multi.data && multi.data.pairs.length === 0 && <MultivariableInsightCard pairs={[]} />}
       {lines.length > 0 && lines.some((line) => line.points.some((point) => point.value != null)) && (
         <>
-          <div className="chart-head">
-            <p className="hint">{fr.gapHint}</p>
-            <button type="button" className="icon-btn" aria-label={fr.expandChart} onClick={() => primary && setExpanded(primary.id)}>
-              <Icon name="expand" />
-            </button>
-          </div>
+          <p className="hint">{fr.gapHint}</p>
+          <ExpandableFigure interactive title={primary?.name ?? fr.chartStage} onExpand={() => primary && setExpanded(primary.id)}>
           <InteractiveTimeSeriesChart
             lines={lines}
             mode={effective}
@@ -191,6 +220,7 @@ export function AnalyticsPanel({ zone, variables }: { zone: Zone; variables: Var
             onSelectDate={setDate}
             onBrush={(start, end) => setWindowed({ start, end })}
           />
+          </ExpandableFigure>
         </>
       )}
       {expandedId && lines.length > 0 && (
