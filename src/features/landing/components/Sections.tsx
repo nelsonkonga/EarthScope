@@ -13,6 +13,7 @@ function GlobeIconSafe({ size = 22 }: { size?: number }) {
 const problemIcons = [SoilIcon, LeafIcon, WaterIcon];
 const problemPhotos: PhotoSlot[] = ['agriculture', 'ecosystem', 'water'];
 const capabilityIcons = [GlobeIconSafe, ChartIcon, LayersIcon];
+const capabilityPhotos: PhotoSlot[] = ['satellite', 'trends', 'results'];
 
 export function ProblemSection() {
   const { t } = useLandingLanguage();
@@ -65,11 +66,12 @@ export function MissionSection({ onAssistant }: { onAssistant: () => void }) {
         <div className="ts-capabilities">
           {t.mission.capabilities.map((item, index) => {
             const Icon = capabilityIcons[index];
-            const photo = index === 0 && hasPhoto('satellite');
+            const slot = capabilityPhotos[index];
+            const photo = hasPhoto(slot);
             return (
               <SectionReveal key={item.title} delay={index * 100}>
                 <article className={`ts-capability ${photo ? 'ts-capability--photo' : ''}`}>
-                  {photo && <Photo slot="satellite" className="ts-capability__photo" sizes="(max-width: 900px) 100vw, 33vw" />}
+                  {photo && <Photo slot={slot} className="ts-capability__photo" sizes="(max-width: 900px) 100vw, 33vw" />}
                   <div className="ts-capability__icon" aria-hidden="true"><Icon size={25} /></div>
                   <span className="ts-overline">{item.label}</span>
                   <h3>{item.title}</h3>

@@ -145,12 +145,36 @@
     "sourcesTitle": "Sources des données",
     "sourcesText": "Toutes les variables ne viennent pas du même produit. Chaque série est rattachée à son jeu d'origine.",
     "sources": [
-      { "name": "NASA Giovanni", "detail": "Séries temporelles mensuelles moyennées sur la zone, exportées en CSV.", "url": "https://giovanni.gsfc.nasa.gov/giovanni/" },
-      { "name": "GLDAS Noah 0,25° mensuel, v2.0", "detail": "GLDAS_NOAH025_M_2.0 — humidité du sol 0–10 et 10–40 cm, température du sol 0–10 cm. Estimations de modèle ; la version 2.0 s'arrête en 2014.", "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.0/summary" },
-      { "name": "GLDAS Noah 0,25° mensuel, v2.1", "detail": "GLDAS_NOAH025_M_2.1 — évaporation, ruissellement de surface, température du sol 10–40 cm.", "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.1/summary" },
-      { "name": "MODIS Aqua MYD08_M3 v6.1", "detail": "Épaisseur optique des aérosols Deep Blue à 550 nm. Mesure satellitaire sur une maille de 1°.", "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3" },
-      { "name": "NASA Earthdata", "detail": "Portail d'accès et documentation de GLDAS et MODIS.", "url": "https://www.earthdata.nasa.gov/" },
-      { "name": "geoBoundaries gbOpen CMR ADM3", "detail": "Contour de Yaoundé (union des arrondissements I à VII), CC BY 4.0. Sert uniquement au tracé.", "url": "https://www.geoboundaries.org/" }
+      {
+        "name": "NASA Giovanni",
+        "detail": "Séries temporelles mensuelles moyennées sur la zone, exportées en CSV.",
+        "url": "https://giovanni.gsfc.nasa.gov/giovanni/"
+      },
+      {
+        "name": "GLDAS Noah 0,25° mensuel, v2.0",
+        "detail": "GLDAS_NOAH025_M_2.0 — humidité du sol 0–10 et 10–40 cm, température du sol 0–10 cm. Estimations de modèle ; la version 2.0 s'arrête en 2014.",
+        "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.0/summary"
+      },
+      {
+        "name": "GLDAS Noah 0,25° mensuel, v2.1",
+        "detail": "GLDAS_NOAH025_M_2.1 — évaporation, ruissellement de surface, température du sol 10–40 cm.",
+        "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.1/summary"
+      },
+      {
+        "name": "MODIS Aqua MYD08_M3 v6.1",
+        "detail": "Épaisseur optique des aérosols Deep Blue à 550 nm. Mesure satellitaire sur une maille de 1°.",
+        "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3"
+      },
+      {
+        "name": "NASA Earthdata",
+        "detail": "Portail d'accès et documentation de GLDAS et MODIS.",
+        "url": "https://www.earthdata.nasa.gov/"
+      },
+      {
+        "name": "geoBoundaries gbOpen CMR ADM3",
+        "detail": "Contour de Yaoundé (union des arrondissements I à VII), CC BY 4.0. Sert uniquement au tracé.",
+        "url": "https://www.geoboundaries.org/"
+      }
     ],
     "methodLabel": "03 / Méthodes",
     "methodTitle": "Méthodologie",
@@ -163,7 +187,7 @@
     "updatedTitle": "Fraîcheur des données",
     "updatedText": "Le catalogue ne fournit pas de date de mise à jour. Dernière observation publiée : {end}.",
     "kindsTitle": "Observation, modèle, statistique",
-    "kindsText": "MODIS est une mesure satellitaire. GLDAS est une estimation par modèle. Les tendances, pentes et valeurs p sont des résultats dérivés, calculés par la plateforme. Les photographies de cette page sont des illustrations Pexels, pas des données.",
+    "kindsText": "MODIS est une mesure satellitaire. GLDAS est une estimation par modèle. Les tendances, pentes et valeurs p sont des résultats dérivés, calculés par la plateforme. Les photographies de cette page sont des illustrations, pas des données.",
     "disclaimer": "Terra Sense est un projet indépendant développé pour le NASA Space Apps Challenge. L'attribution de données à la NASA ne signifie pas que la NASA approuve la plateforme."
   },
   "footer": {
@@ -175,7 +199,6 @@
     "visualization": "Visualisation",
     "assistant": "Assistant",
     "dataPolicy": "Données et transparence",
-    "photoCredits": "Crédits photo",
     "copyright": "Données NASA librement accessibles ; voir les conditions de chaque source.",
     "signature": "OBSERVATION DE LA TERRE"
   },
@@ -204,10 +227,6 @@
     "sourceRules": "Issu du moteur statistique de la plateforme",
     "openInWorkspace": "Voir sur la visualisation",
     "disclaimer": "Les réponses peuvent être incomplètes. Vérifiez les chiffres dans la visualisation avant toute conclusion scientifique."
-  },
-  "photos": {
-    "credit": "Photo : {name} / Pexels",
-    "illustration": "Photo d'illustration, pas une donnée du projet"
   },
   "common": {
     "fr": "FR",

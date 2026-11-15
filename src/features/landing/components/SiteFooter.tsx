@@ -1,11 +1,9 @@
 import { useLandingLanguage } from '../context/LandingContext';
-import { PHOTOS } from '../photos';
 import { BrandMark } from './BrandMark';
 import { ArrowUpRight } from './Icons';
 
-export function SiteFooter({ onAbout, onCredits, onAssistant, onNavigate }: { onAbout: () => void; onCredits: () => void; onAssistant: () => void; onNavigate: () => void }) {
+export function SiteFooter({ onAbout, onAssistant, onNavigate }: { onAbout: () => void; onAssistant: () => void; onNavigate: () => void }) {
   const { t } = useLandingLanguage();
-  const hasPhotos = Object.keys(PHOTOS).length > 0;
   return (
     <footer className="ts-footer">
       <div className="ts-container">
@@ -17,7 +15,6 @@ export function SiteFooter({ onAbout, onCredits, onAssistant, onNavigate }: { on
             <button type="button" onClick={onAssistant}>{t.footer.assistant}</button>
             <button type="button" onClick={onAbout}>{t.footer.about}</button>
             <button type="button" onClick={onAbout}>{t.footer.dataPolicy}</button>
-            {hasPhotos && <button type="button" onClick={onCredits}>{t.footer.photoCredits}</button>}
           </nav>
           <div className="ts-footer__column">
             <span className="ts-overline">{t.footer.resources}</span>

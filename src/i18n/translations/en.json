@@ -145,12 +145,36 @@
     "sourcesTitle": "Data sources",
     "sourcesText": "Not every variable comes from the same product. Each series is tied to its original dataset.",
     "sources": [
-      { "name": "NASA Giovanni", "detail": "Area-averaged monthly time series exported as CSV.", "url": "https://giovanni.gsfc.nasa.gov/giovanni/" },
-      { "name": "GLDAS Noah 0.25° monthly, v2.0", "detail": "GLDAS_NOAH025_M_2.0 — soil moisture 0–10 and 10–40 cm, soil temperature 0–10 cm. Model estimates; version 2.0 ends in 2014.", "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.0/summary" },
-      { "name": "GLDAS Noah 0.25° monthly, v2.1", "detail": "GLDAS_NOAH025_M_2.1 — evaporation, surface runoff, soil temperature 10–40 cm.", "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.1/summary" },
-      { "name": "MODIS Aqua MYD08_M3 v6.1", "detail": "Deep Blue aerosol optical depth at 550 nm. Satellite measurement on a 1° grid.", "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3" },
-      { "name": "NASA Earthdata", "detail": "Access portal and documentation for GLDAS and MODIS.", "url": "https://www.earthdata.nasa.gov/" },
-      { "name": "geoBoundaries gbOpen CMR ADM3", "detail": "Outline of Yaoundé (union of districts I to VII), CC BY 4.0. Used for drawing only.", "url": "https://www.geoboundaries.org/" }
+      {
+        "name": "NASA Giovanni",
+        "detail": "Area-averaged monthly time series exported as CSV.",
+        "url": "https://giovanni.gsfc.nasa.gov/giovanni/"
+      },
+      {
+        "name": "GLDAS Noah 0.25° monthly, v2.0",
+        "detail": "GLDAS_NOAH025_M_2.0 — soil moisture 0–10 and 10–40 cm, soil temperature 0–10 cm. Model estimates; version 2.0 ends in 2014.",
+        "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.0/summary"
+      },
+      {
+        "name": "GLDAS Noah 0.25° monthly, v2.1",
+        "detail": "GLDAS_NOAH025_M_2.1 — evaporation, surface runoff, soil temperature 10–40 cm.",
+        "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.1/summary"
+      },
+      {
+        "name": "MODIS Aqua MYD08_M3 v6.1",
+        "detail": "Deep Blue aerosol optical depth at 550 nm. Satellite measurement on a 1° grid.",
+        "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3"
+      },
+      {
+        "name": "NASA Earthdata",
+        "detail": "Access portal and documentation for GLDAS and MODIS.",
+        "url": "https://www.earthdata.nasa.gov/"
+      },
+      {
+        "name": "geoBoundaries gbOpen CMR ADM3",
+        "detail": "Outline of Yaoundé (union of districts I to VII), CC BY 4.0. Used for drawing only.",
+        "url": "https://www.geoboundaries.org/"
+      }
     ],
     "methodLabel": "03 / Methods",
     "methodTitle": "Methodology",
@@ -163,7 +187,7 @@
     "updatedTitle": "Data freshness",
     "updatedText": "The catalog does not provide an update date. Latest published observation: {end}.",
     "kindsTitle": "Observation, model, statistics",
-    "kindsText": "MODIS is a satellite measurement. GLDAS is a model estimate. Trends, slopes, and p-values are derived results computed by the platform. Photographs on this page are illustrations from Pexels, not data.",
+    "kindsText": "MODIS is a satellite measurement. GLDAS is a model estimate. Trends, slopes, and p-values are derived results computed by the platform. Photographs on this page are illustrations, not data.",
     "disclaimer": "Terra Sense is an independent project developed for the NASA Space Apps Challenge. Attributing data to NASA does not imply that NASA endorses the platform."
   },
   "footer": {
@@ -175,7 +199,6 @@
     "visualization": "Visualization",
     "assistant": "Assistant",
     "dataPolicy": "Data & transparency",
-    "photoCredits": "Photo credits",
     "copyright": "NASA data openly available; see each source's terms.",
     "signature": "EARTH OBSERVATION"
   },
@@ -204,10 +227,6 @@
     "sourceRules": "From the platform's statistical engine",
     "openInWorkspace": "See it in the visualization",
     "disclaimer": "Answers can be incomplete. Check the figures in the visualization before drawing scientific conclusions."
-  },
-  "photos": {
-    "credit": "Photo: {name} / Pexels",
-    "illustration": "Illustrative photo, not project data"
   },
   "common": {
     "fr": "FR",
