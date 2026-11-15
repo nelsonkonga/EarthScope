@@ -101,6 +101,91 @@ export type MapLayer = {
 
 export type PanelId = "variables" | "zones" | "assistant";
 
+export type AnalyticsView = "single" | "superposition" | "normalized";
+
+export type TheilSen = {
+  method: string;
+  slopePerYear: number | null;
+  changePerDecade: number | null;
+  intercept: number | null;
+  sampleCount: number;
+  periodStart: string | null;
+  periodEnd: string | null;
+  startValue: number | null;
+  endValue: number | null;
+};
+
+export type MannKendall = {
+  method: string;
+  s: number | null;
+  variance: number | null;
+  z: number | null;
+  pValue: number | null;
+  alpha: number;
+  significant: boolean;
+  trend: Trend["direction"];
+  sampleCount: number;
+};
+
+export type ClimatologyMonth = {
+  month: number;
+  count: number;
+  mean: number | null;
+  std: number | null;
+  min: number | null;
+  q1: number | null;
+  median: number | null;
+  q3: number | null;
+  max: number | null;
+};
+
+export type UnivariateAnalytics = {
+  zoneId: string;
+  variableId: string;
+  resolution: Resolution;
+  unit: string;
+  period: { start: string | null; end: string | null };
+  sampleCount: number;
+  missingCount: number;
+  theilSen: TheilSen;
+  mannKendall: MannKendall;
+  climatology: ClimatologyMonth[];
+};
+
+export type CorrelationLag = {
+  steps: number;
+  unit: string;
+  pearsonR: number;
+  pValue: number;
+  sampleCount: number;
+};
+
+export type CorrelationPair = {
+  variableIds: string[];
+  pearsonR: number | null;
+  pValue: number | null;
+  sampleCount: number;
+  relationship: string;
+  interpretation: string;
+  bestLag: CorrelationLag | null;
+};
+
+export type AlignedObservation = {
+  date: string;
+  values: Record<string, number | null>;
+  normalized: Record<string, number | null>;
+  anomalies: Record<string, number | null>;
+};
+
+export type MultivariableReport = {
+  zoneId: string;
+  period: { start: string | null; end: string | null };
+  variables: string[];
+  correlation: CorrelationPair | null;
+  pairs: CorrelationPair[];
+  alignedObservations: AlignedObservation[];
+};
+
 export type Comparison = {
   variableId: string;
   zoneIds: string[];
@@ -118,7 +203,8 @@ export type AssistantAction =
   | { type: "SET_DATE"; date: string }
   | { type: "OPEN_PANEL"; panel: PanelId | "zoneCard" }
   | { type: "SHOW_RANKING"; variableId: string; metric: "changePerDecade" | "changeOverPeriod" }
-  | { type: "SHOW_COMPARISON"; variableId: string; zoneIds: string[] };
+  | { type: "SHOW_COMPARISON"; variableId: string; zoneIds: string[] }
+  | { type: "SET_VIEW_MODE"; mode: AnalyticsView };
 
 export type ActionResult = {
   action: AssistantAction;

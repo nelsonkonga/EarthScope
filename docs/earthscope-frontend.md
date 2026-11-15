@@ -329,6 +329,22 @@ Sous une réponse, « J'ai sélectionné : {noms}. » est construit depuis les a
 
 L’identifiant de session est gardé dans `sessionStorage` (`earthscope.assistantSession`). Le contexte envoyé est la zone, les variables actives, la primaire et la date.
 
+Une action `SET_VIEW_MODE` (`single`, `superposition` ou `normalized`) change le mode d’analyse de la fiche. Elle est validée comme les autres. Le résumé ajoute « Affichage : … ».
+
+## 11.1 Analyse dans la fiche
+
+Quand une zone est ouverte et qu’au moins une variable disponible est active, la fiche montre un bloc Analyse.
+
+- **Variable unique** : onglets, pente de Theil-Sen, test de Mann-Kendall, boîtes à moustaches du cycle mensuel quand la série est mensuelle, courbe dans l’unité physique.
+- **Double axe** : exactement deux variables, un axe coloré de chaque côté.
+- **Indice normalisé** : deux variables ou plus, en écart-type par rapport à la fenêtre affichée.
+
+Le graphique est en SVG. Un trou de donnée coupe le trait. Un clic déplace `selectedDate`. Un glisser horizontal restreint la fenêtre : les statistiques sont alors redemandées pour cette fenêtre. « Réinitialiser le zoom » revient à la série entière.
+
+La carte de corrélation affiche le texte renvoyé par `GET /api/v1/analytics/multivariable`. Le coefficient de Pearson est celui des valeurs observées. Un décalage n’est affiché que s’il ressort des anomalies saisonnières, pas du cycle annuel lui-même.
+
+Le serveur de développement proxifie `/api` vers le backend Python sur le port 8000.
+
 ---
 
 ## 12. Clavier

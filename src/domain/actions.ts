@@ -1,5 +1,5 @@
 import { dateInRange, isDate, snapToResolution } from "./time";
-import type { ActionResult, AssistantAction, Comparison, PanelId, Variable, Zone } from "./types";
+import type { ActionResult, AnalyticsView, AssistantAction, Comparison, PanelId, Variable, Zone } from "./types";
 
 export type SessionSlice = {
   selectedZoneId: string | null;
@@ -10,6 +10,7 @@ export type SessionSlice = {
   activePanel: PanelId | null;
   zoneCardOpen: boolean;
   comparison: Comparison | null;
+  analyticsView: AnalyticsView;
 };
 
 export type CatalogIndex = {
@@ -28,6 +29,7 @@ const KNOWN = new Set<AssistantAction["type"]>([
   "OPEN_PANEL",
   "SHOW_RANKING",
   "SHOW_COMPARISON",
+  "SET_VIEW_MODE",
 ]);
 
 function isAction(value: unknown): value is AssistantAction {
@@ -161,6 +163,12 @@ export function reduceAssistantActions(
       draft.comparison = { variableId: action.variableId, zoneIds: [], mode: "rank", metric: action.metric };
       return accept(action, index);
     }
+    if (action.type === "SET_VIEW_MODE") {
+      const modes: AnalyticsView[] = ["single", "superposition", "normalized"];
+      if (!modes.includes(action.mode)) return reject(action, "invalid", index);
+      draft.analyticsView = action.mode;
+      return accept(action, index);
+    }
     if (action.type === "SHOW_COMPARISON") {
       const unique = [...new Set(action.zoneIds)];
       if (unique.length < 2 || unique.length > 6) return reject(action, "comparison_size", index);
@@ -183,9 +191,16 @@ export function selectionSummary(
   catalog: CatalogIndex,
 ): string | null {
   const names: string[] = [];
+  let view: string | null = null;
+  const viewLabel: Record<string, string> = {
+    single: "variable unique",
+    superposition: "superposition",
+    normalized: "indice normalisé",
+  };
   for (const result of results) {
     if (result.status !== "applied") continue;
     const action = result.action;
+    if (action.type === "SET_VIEW_MODE") view = viewLabel[action.mode] ?? null;
     if (action.type === "ACTIVATE_VARIABLES") {
       for (const id of action.variableIds) {
         const name = catalog.variables.find((variable) => variable.id === id)?.name;
@@ -197,8 +212,10 @@ export function selectionSummary(
       if (name && !names.includes(name)) names.push(name);
     }
   }
-  if (names.length === 0) return null;
-  return `J'ai sélectionné : ${names.join(", ")}.`;
+  const selection = names.length ? `J'ai sélectionné : ${names.join(", ")}.` : null;
+  const display = view ? `Affichage : ${view}.` : null;
+  const line = [selection, display].filter(Boolean).join(" ");
+  return line || null;
 }
 
 export const rejectionLabel: Record<string, string> = {
