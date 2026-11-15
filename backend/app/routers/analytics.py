@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
+from app.models.schemas import MultivariableReport, UnivariateReport
 from app.services.catalog import get_catalog, multivariable, univariate
 
 router = APIRouter()
@@ -10,7 +11,7 @@ def _check_window(start: str | None, end: str | None) -> None:
         raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "La date de début est après la date de fin."})
 
 
-@router.get("/analytics")
+@router.get("/analytics", response_model=UnivariateReport)
 def analytics(zoneId: str, variableId: str, startDate: str | None = None, endDate: str | None = None):
     _check_window(startDate, endDate)
     catalog = get_catalog()
@@ -23,7 +24,7 @@ def analytics(zoneId: str, variableId: str, startDate: str | None = None, endDat
     return univariate(series, variable["unit"], startDate, endDate)
 
 
-@router.get("/analytics/multivariable")
+@router.get("/analytics/multivariable", response_model=MultivariableReport)
 def analytics_multi(zoneId: str, variableIds: str, startDate: str | None = None, endDate: str | None = None):
     _check_window(startDate, endDate)
     catalog = get_catalog()
