@@ -11,6 +11,8 @@ export type MarkerSpec = {
   selected: boolean;
 };
 
+import type { GlobeField } from "../../domain/fieldView";
+
 export type GlobeStatus =
   | { phase: "loading" }
   | { phase: "ready" }
@@ -25,21 +27,31 @@ export type GlobeController = {
   pan: (direction: "left" | "right" | "up" | "down") => void;
   orbit: (direction: "left" | "right") => void;
   setMarkers: (markers: MarkerSpec[]) => void;
+  setField: (field: GlobeField | null) => void;
   resize: () => void;
   reload: () => void;
 };
 
 let current: GlobeController | null = null;
 let pendingMarkers: MarkerSpec[] = [];
+let pendingField: GlobeField | null = null;
 
 export function registerGlobe(controller: GlobeController | null) {
   current = controller;
-  if (controller) controller.setMarkers(pendingMarkers);
+  if (controller) {
+    controller.setMarkers(pendingMarkers);
+    controller.setField(pendingField);
+  }
 }
 
 export function showMarkers(markers: MarkerSpec[]) {
   pendingMarkers = markers;
   current?.setMarkers(markers);
+}
+
+export function showField(field: GlobeField | null) {
+  pendingField = field;
+  current?.setField(field);
 }
 
 export function globe() {

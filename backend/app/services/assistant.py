@@ -11,9 +11,9 @@ from app.services.catalog import VARIABLES, Catalog, get_catalog
 PROMPTS = [
     "Compare l'évolution de la température et de l'humidité du sol à Yaoundé",
     "Montre l'épaisseur optique des aérosols à Yaoundé",
-    "Comment évolue la température de l'air au Sahel ?",
+    "Comment évolue la température du sol à Yaoundé ?",
     "Superpose l'humidité du sol et l'évaporation à Yaoundé",
-    "Montre la glace de mer en mer de Ross",
+    "Montre le ruissellement à Yaoundé",
 ]
 
 _sessions: dict[str, dict] = {}
@@ -58,6 +58,10 @@ def _zones_in(text: str, catalog: Catalog) -> list[dict]:
         if any(name and name in folded for name in names):
             found.append(zone)
     return found
+
+
+def _published(catalog: Catalog, variable_id: str) -> bool:
+    return any(variable == variable_id for _zone, variable in catalog.series)
 
 
 def _variables_in(text: str, zone_id: str | None, catalog: Catalog) -> list[str]:
@@ -106,11 +110,11 @@ def _variables_in(text: str, zone_id: str | None, catalog: Catalog) -> list[str]
     elif "evapor" in folded:
         add("var_evaporation" if zone_id == "zone_yaounde" or soil else "var_evland")
     if soil and ("temp" in folded or "rechauff" in folded):
-        add("var_soil_temp")
+        add("var_soil_temp_deep" if "profond" in folded else "var_soil_temp")
     elif "temperature de l'air" in folded or "temperature de lair" in folded or "air" in folded and "temp" in folded:
-        add("var_t2m")
+        add("var_soil_temp" if not _published(catalog, "var_t2m") else "var_t2m")
     elif ("temp" in folded or "rechauff" in folded) and not soil:
-        add("var_t2m")
+        add("var_soil_temp" if not _published(catalog, "var_t2m") else "var_t2m")
     if "surface" in folded and "temp" in folded and not soil:
         add("var_ts")
     if zone_id:

@@ -19,6 +19,8 @@ export type Zone = {
   longitude: number;
   description?: string;
   aliases?: string[];
+  /** West, south, east, north. The measured cell, not a navigation pin. */
+  footprint?: [number, number, number, number];
   availableVariableIds: string[];
   coverage?: DataCoverage[];
 };

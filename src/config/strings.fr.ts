@@ -52,8 +52,8 @@ export const fr = {
   help: "Raccourcis clavier",
   expired: "Conversation expirée.",
   newChat: "Nouvelle conversation",
-  legendPoint: "Le disque localise la zone. Il ne représente pas l'étendue du phénomène.",
-  legendValue: "Couleur = valeur au point de la zone, pas un champ continu.",
+  legendFootprint: "Emprise Giovanni, 11,4–11,65 °E et 3,75–3,98 °N. Une seule couleur : la moyenne de la maille à la date choisie.",
+  legendGap: "Pas de mesure à cette date. L'emprise reste visible, sans couleur inventée.",
   unsupportedLayer: "Couche non prise en charge.",
   updating: "Mise à jour…",
   updateFailed: "Mise à jour impossible.",
@@ -87,9 +87,9 @@ export const fr = {
   fallbackPrompts: [
     "Compare l'évolution de la température et de l'humidité du sol à Yaoundé",
     "Montre l'épaisseur optique des aérosols à Yaoundé",
-    "Comment évolue la température de l'air au Sahel ?",
+    "Comment évolue la température du sol à Yaoundé ?",
     "Superpose l'humidité du sol et l'évaporation à Yaoundé",
-    "Montre la glace de mer en mer de Ross",
+    "Montre le ruissellement à Yaoundé",
   ],
 };
 

@@ -41,6 +41,29 @@ export function useLayerQuery(variable: Variable | null) {
   });
 }
 
+export function useLayerQueries(variables: Variable[]) {
+  const date = useWorkspace((state) => state.selectedDate);
+  const playback = useWorkspace((state) => state.playback);
+  const [debounced, setDebounced] = useState(date);
+  useEffect(() => {
+    if (playback === "playing") {
+      setDebounced(date);
+      return;
+    }
+    const timer = window.setTimeout(() => setDebounced(date), 150);
+    return () => window.clearTimeout(timer);
+  }, [date, playback]);
+  return useQueries({
+    queries: variables.map((variable) => ({
+      queryKey: ["layer", variable.id, debounced, variable.datasetVersion],
+      enabled: Boolean(debounced),
+      queryFn: ({ signal }: { signal: AbortSignal }) => fetchLayer(variable.id, debounced as string, signal),
+      staleTime: Infinity,
+      placeholderData: keepPreviousData,
+    })),
+  });
+}
+
 export function useSeriesQueries(zoneId: string | null, variables: Variable[]) {
   return useQueries({
     queries: variables.map((variable) => ({
