@@ -2,7 +2,7 @@ import { derivedStops } from "../../domain/colorScale";
 import { kindForRole } from "../../domain/fieldView";
 import { strategyForKind } from "../../domain/visualStrategies";
 import type { Variable } from "../../domain/types";
-import { fr } from "../../config/strings.fr";
+import { ui } from "../../config/strings";
 
 export function VariableItem({
   variable,
@@ -29,7 +29,7 @@ export function VariableItem({
         <span className="unit">{variable.unit}</span>
       </label>
       <span className="mini-ramp" style={{ background: gradient }} />
-      {unavailable && <p className="hint">{fr.noDataHere}</p>}
+      {unavailable && <p className="hint">{ui.noDataHere}</p>}
       <p className="desc">{variable.description}</p>
     </div>
   );

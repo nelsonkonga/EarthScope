@@ -16,15 +16,15 @@ export type Footprint = {
 export const GIOVANNI_FOOTPRINT: Footprint = { west: 11.4, south: 3.75, east: 11.65, north: 3.98 };
 
 export const FIELD_CAPTION: Record<FieldKind, string> = {
-  thermal: "Couleur unique de la maille, du froid au très chaud.",
-  "thermal-deep": "Même rampe, plus sourde : le sol profond change moins vite.",
-  moisture: "Du sol sec au sol saturé. Une seule couleur pour toute la maille.",
-  "moisture-deep": "Humidité profonde, dans des bleus plus denses, sur la même emprise.",
-  vapor: "Vapeur au-dessus de la maille. La densité suit la mesure, pas un vent.",
-  runoff: "Intensité du ruissellement. Aucune direction n'est mesurée.",
-  haze: "Voile d'aérosols sur la maille, du ciel clair à la poussière dense.",
-  precipitation: "Précipitation sur la maille, seulement si le catalogue la publie.",
-  generic: "Moyenne de la maille pour une variable sans représentation dédiée.",
+  thermal: "One color for the cell, from cold to very hot.",
+  "thermal-deep": "Same ramp, more muted: deep soil changes more slowly.",
+  moisture: "From dry to saturated soil. One color for the whole cell.",
+  "moisture-deep": "Deep moisture, in denser blues, over the same footprint.",
+  vapor: "Vapor above the cell. Density follows the measurement, not a wind.",
+  runoff: "Runoff intensity. No direction is measured.",
+  haze: "Aerosol haze over the cell, from clear sky to dense dust.",
+  precipitation: "Precipitation over the cell, only if the catalog publishes it.",
+  generic: "Cell mean for a variable without a dedicated rendering.",
 };
 
 export type FieldLayer = {

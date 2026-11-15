@@ -193,9 +193,9 @@ export function selectionSummary(
   const names: string[] = [];
   let view: string | null = null;
   const viewLabel: Record<string, string> = {
-    single: "variable unique",
-    superposition: "superposition",
-    normalized: "indice normalisé",
+    single: "single variable",
+    superposition: "dual axis",
+    normalized: "normalized index",
   };
   for (const result of results) {
     if (result.status !== "applied") continue;
@@ -212,20 +212,20 @@ export function selectionSummary(
       if (name && !names.includes(name)) names.push(name);
     }
   }
-  const selection = names.length ? `J'ai sélectionné : ${names.join(", ")}.` : null;
-  const display = view ? `Affichage : ${view}.` : null;
+  const selection = names.length ? `Selected: ${names.join(", ")}.` : null;
+  const display = view ? `View: ${view}.` : null;
   const line = [selection, display].filter(Boolean).join(" ");
   return line || null;
 }
 
 export const rejectionLabel: Record<string, string> = {
-  unknown_action: "action inconnue",
-  too_many: "trop d'actions",
-  unknown_zone: "zone inconnue",
-  unknown_variable: "variable inconnue",
-  date_out_of_range: "date hors couverture",
-  no_primary: "aucune variable active",
-  primary_not_active: "variable non active",
-  comparison_size: "comparaison de 2 à 6 zones",
-  invalid: "action invalide",
+  unknown_action: "unknown action",
+  too_many: "too many actions",
+  unknown_zone: "unknown zone",
+  unknown_variable: "unknown variable",
+  date_out_of_range: "date outside coverage",
+  no_primary: "no active variable",
+  primary_not_active: "variable not active",
+  comparison_size: "a comparison of 2 to 6 zones",
+  invalid: "invalid action",
 };

@@ -1,4 +1,4 @@
-import { fr } from "../../config/strings.fr";
+import { ui } from "../../config/strings";
 import { Icon } from "../../ui/icons";
 import { IconButton } from "../../ui/IconButton";
 import { globe } from "./globeApi";
@@ -6,16 +6,16 @@ import { globe } from "./globeApi";
 export function GlobeControls({ fullscreen, onFullscreen }: { fullscreen: boolean; onFullscreen: () => void }) {
   return (
     <div className="globe-controls">
-      <IconButton label={fr.zoomIn} onClick={() => globe()?.zoomIn()}>
+      <IconButton label={ui.zoomIn} onClick={() => globe()?.zoomIn()}>
         <Icon name="plus" />
       </IconButton>
-      <IconButton label={fr.zoomOut} onClick={() => globe()?.zoomOut()}>
+      <IconButton label={ui.zoomOut} onClick={() => globe()?.zoomOut()}>
         <Icon name="minus" />
       </IconButton>
-      <IconButton label={fr.home} onClick={() => globe()?.home()}>
+      <IconButton label={ui.home} onClick={() => globe()?.home()}>
         <Icon name="compass" />
       </IconButton>
-      <IconButton label={fullscreen ? fr.exitFullscreen : fr.fullscreen} onClick={onFullscreen}>
+      <IconButton label={fullscreen ? ui.exitFullscreen : ui.fullscreen} onClick={onFullscreen}>
         <Icon name="expand" />
       </IconButton>
     </div>

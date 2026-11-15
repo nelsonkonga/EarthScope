@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { fr } from "../config/strings.fr";
+import { ui } from "../config/strings";
 import { Icon } from "./icons";
 import { Modal } from "./Modal";
 
@@ -32,15 +32,15 @@ export function ExpandableFigure({
       {interactive ? (
         <div className="expandable-body">{children}</div>
       ) : (
-        <button type="button" className="expandable-body" onClick={expand} aria-label={`${fr.expandChart} : ${title}`}>
+        <button type="button" className="expandable-body" onClick={expand} aria-label={`${ui.expandChart}: ${title}`}>
           {children}
         </button>
       )}
       <figcaption className="expandable-hint">
-        <span>{interactive ? fr.expandHintInteractive : fr.expandHint}</span>
-        <button type="button" className="expand-btn" onClick={expand} aria-label={`${fr.expandChart} : ${title}`}>
+        <span>{interactive ? ui.expandHintInteractive : ui.expandHint}</span>
+        <button type="button" className="expand-btn" onClick={expand} aria-label={`${ui.expandChart}: ${title}`}>
           <Icon name="expand" />
-          <span>{fr.expand}</span>
+          <span>{ui.expand}</span>
         </button>
       </figcaption>
       {open && (

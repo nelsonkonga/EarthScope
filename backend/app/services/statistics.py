@@ -81,7 +81,7 @@ def seasonal_theil_sen(dates: list[str], values: list[float | None]) -> dict:
     points = [(decimal_year(date), value) for date, value in finite_pairs(dates, values)]
     intercept = float(median(y - slope * x for x, y in points))
     return {
-        "method": "Theil-Sen saisonnier (médiane des pentes mensuelles)",
+        "method": "Seasonal Theil-Sen (median of monthly slopes)",
         "slopePerYear": slope,
         "intercept": intercept,
         "sampleCount": len(points),
@@ -165,7 +165,7 @@ def seasonal_mann_kendall(dates: list[str], values: list[float | None], alpha: f
         count += len(samples)
     if count < MIN_SAMPLES or var_total <= 0:
         return {
-            "method": "Mann-Kendall saisonnier",
+            "method": "Seasonal Mann-Kendall",
             "s": s_total,
             "variance": var_total,
             "z": None,
@@ -187,7 +187,7 @@ def seasonal_mann_kendall(dates: list[str], values: list[float | None], alpha: f
         else:
             trend = "flat"
     return {
-        "method": "Mann-Kendall saisonnier (somme des S mensuels)",
+        "method": "Seasonal Mann-Kendall (sum of monthly S)",
         "s": s_total,
         "variance": var_total,
         "z": z_value,
@@ -255,32 +255,33 @@ def relationship_of(coefficient: float | None, p_value: float | None, alpha: flo
     return f"{sense}_{level}"
 
 
-def format_fr(value: float, digits: int = 2) -> str:
-    return f"{value:.{digits}f}".replace(".", ",").replace("-", "−")
+def format_number(value: float, digits: int = 2) -> str:
+    """US number format: decimal point, typographic minus."""
+    return f"{value:.{digits}f}".replace("-", "−")
 
 
 def format_p(p_value: float | None) -> str:
     if p_value is None:
-        return "p non calculée"
+        return "p not computed"
     if p_value < 0.001:
-        return "p < 0,001"
-    return f"p = {format_fr(p_value, 3)}"
+        return "p < 0.001"
+    return f"p = {format_number(p_value, 3)}"
 
 
 def describe_correlation(name_a: str, name_b: str, coefficient: float | None, p_value: float | None, relationship: str) -> str:
     if relationship == "insufficient" or coefficient is None:
-        return f"Pas assez de dates communes pour estimer la corrélation entre {name_a} et {name_b}."
-    r_text = format_fr(coefficient)
+        return f"Not enough shared dates to estimate the correlation between {name_a} and {name_b}."
+    r_text = format_number(coefficient)
     if relationship == "not_significant":
-        return f"Corrélation r = {r_text} entre {name_a} et {name_b}, non significative ({format_p(p_value)})."
+        return f"Correlation r = {r_text} between {name_a} and {name_b}, not significant ({format_p(p_value)})."
     strength = {
-        "strong": "Forte corrélation",
-        "moderate": "Corrélation modérée",
-        "weak": "Corrélation faible",
-        "negligible": "Corrélation négligeable",
+        "strong": "Strong",
+        "moderate": "Moderate",
+        "weak": "Weak",
+        "negligible": "Negligible",
     }[relationship.split("_", 1)[1]]
-    sense = "en sens inverse" if coefficient < 0 else "dans le même sens"
-    return f"{strength} {sense} : {name_a} et {name_b} (r = {r_text}, {format_p(p_value)})."
+    sense = "negative" if coefficient < 0 else "positive"
+    return f"{strength} {sense} correlation: {name_a} and {name_b} (r = {r_text}, {format_p(p_value)})."
 
 
 def z_scores(values: list[float | None]) -> list[float | None]:

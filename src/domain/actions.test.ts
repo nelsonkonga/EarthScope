@@ -59,7 +59,7 @@ describe("reduceAssistantActions", () => {
     expect(result.session.selectedDate).toBe("2010-01-01");
     expect(result.session.playback).toBe("paused");
     expect(result.results.every((entry) => entry.status === "applied")).toBe(true);
-    expect(selectionSummary(result.results, catalog)).toBe("J'ai sélectionné : temp, Alpha.");
+    expect(selectionSummary(result.results, catalog)).toBe("Selected: temp, Alpha.");
   });
 
   it("keeps valid actions when one zone is unknown", () => {
@@ -93,7 +93,7 @@ describe("reduceAssistantActions", () => {
       catalog,
     );
     expect(result.session.analyticsView).toBe("superposition");
-    expect(selectionSummary(result.results, catalog)).toBe("Affichage : superposition.");
+    expect(selectionSummary(result.results, catalog)).toBe("View: dual axis.");
   });
 
   it("rejects a comparison that is not between 2 and 6 known zones", () => {

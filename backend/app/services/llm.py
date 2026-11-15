@@ -39,7 +39,7 @@ Strict rules:
 3. Explain Mann-Kendall (is the trend real or due to chance?), the p-value and the Theil-Sen slope simply when they appear.
 4. When asked about consequences, relate them to agriculture (yields, irrigation), livestock (watering) and groundwater, saying it is a general interpretation.
 5. If the information is not in the result, say so plainly and point to the "About" section. When useful, recall that GLDAS is a land-surface model (modelled values), MODIS a satellite measurement, and that a trend does not establish a cause. Mention SHAP only as future work: no SHAP model is published.
-6. Answer in 2 to 5 short sentences, in English. The analysis result may be in French: translate it.""",
+6. Answer in 2 to 5 short sentences, in American English.""",
 }
 
 
@@ -51,23 +51,28 @@ def enabled() -> bool:
     return _api_key() is not None
 
 
-def rewrite(question: str, analysis: str, context: dict, locale: str = "fr", history: list[dict] | None = None) -> str | None:
+def rewrite(question: str, analysis: str, context: dict, locale: str = "en", history: list[dict] | None = None) -> str | None:
     """Return Gemini's wording of `analysis`, or None to keep the rule-based text."""
     key = _api_key()
     if not key:
         return None
-    language = "en" if locale == "en" else "fr"
+    language = "fr" if locale == "fr" else "en"
     model = os.environ.get("GEMINI_MODEL", DEFAULT_MODEL)
-    facts = [f"Résultat de l'analyse (moteur statistique de la plateforme) :\n{analysis}"]
+    labels = (
+        ("Analysis result (platform statistical engine)", "Selected zone", "Date shown", "Question")
+        if language == "en"
+        else ("Résultat de l'analyse (moteur statistique de la plateforme)", "Zone sélectionnée", "Date affichée", "Question")
+    )
+    facts = [f"{labels[0]}:\n{analysis}"]
     if context.get("selectedZoneId"):
-        facts.append(f"Zone sélectionnée : {context['selectedZoneId']}")
+        facts.append(f"{labels[1]}: {context['selectedZoneId']}")
     if context.get("selectedDate"):
-        facts.append(f"Date affichée : {context['selectedDate']}")
+        facts.append(f"{labels[2]}: {context['selectedDate']}")
     turns = []
     for message in (history or [])[-6:]:
         role = "user" if message.get("role") == "user" else "model"
         turns.append({"role": role, "parts": [{"text": str(message.get("text", ""))[:1500]}]})
-    turns.append({"role": "user", "parts": [{"text": "\n\n".join(facts) + f"\n\nQuestion : {question}"}]})
+    turns.append({"role": "user", "parts": [{"text": "\n\n".join(facts) + f"\n\n{labels[3]}: {question}"}]})
     body = {
         "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT[language]}]},
         "contents": turns,

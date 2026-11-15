@@ -29,6 +29,6 @@ def list_zones(q: str | None = None):
 def get_zone(zone_id: str):
     catalog = get_catalog()
     if not catalog.known_zone(zone_id):
-        raise HTTPException(status_code=404, detail={"code": "ZONE_NOT_FOUND", "message": "Aucune zone pour cet identifiant."})
+        raise HTTPException(status_code=404, detail={"code": "ZONE_NOT_FOUND", "message": "No zone matches this identifier."})
     zone = next(zone for zone in catalog.zones() if zone["id"] == zone_id)
     return zone

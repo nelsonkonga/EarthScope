@@ -1,68 +1,49 @@
-import { format, monthYear, useI18n } from "../../../i18n";
-import { useCatalogFacts } from "../hooks/useCatalogFacts";
-import { Icon } from "./Icon";
-import { ScientificVisual } from "./ScientificVisual";
+import type { LandingCatalog } from '../api/landingData';
+import { useLandingLanguage } from '../context/LandingContext';
+import { ArrowRight, ArrowUpRight } from './Icons';
+import { HeroArtwork } from './BrandMark';
+import { Photo, hasPhoto } from './Photo';
 
-export function HeroSection({ onEnter, onApproach }: { onEnter: () => void; onApproach: () => void }) {
-  const { t, locale } = useI18n();
-  const facts = useCatalogFacts();
-  const h = t.hero;
-  const items = [
-    { value: format(h.facts.coverage, { start: monthYear(facts.start, locale, "short"), end: monthYear(facts.end, locale, "short") }), label: h.facts.coverageLabel },
-    { value: h.facts.cadence, label: h.facts.cadenceLabel },
-    { value: h.facts.resolution, label: h.facts.resolutionLabel },
-    { value: h.facts.methods, label: h.facts.methodsLabel },
-  ];
+function year(value: string | undefined) {
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value.slice(0, 4) : String(date.getUTCFullYear());
+}
+
+export function HeroSection({ onNavigate, catalog }: { onNavigate: () => void; catalog: LandingCatalog }) {
+  const { t, locale } = useLandingLanguage();
+  const period = catalog.periodStart && catalog.periodEnd ? `${year(catalog.periodStart)} – ${year(catalog.periodEnd)}` : undefined;
+  const count = (value: number) => (catalog.isCatalogLoading ? '···' : catalog.isCatalogError ? '—' : value.toLocaleString(locale));
+  const withPhoto = hasPhoto('hero');
+
   return (
-    <section className="ts-hero" aria-labelledby="ts-hero-title" id="top">
-      <div className="ts-hero-atmosphere" aria-hidden="true">
-        <div className="ts-hero-grid" />
-        <div className="ts-field ts-field-sage" />
-        <div className="ts-field ts-field-amber" />
-        <div className="ts-field ts-field-water" />
-      </div>
-      <div className="ts-shell ts-hero-layout">
-        <div className="ts-hero-copy">
-          <p className="ts-badge">
-            <span className="ts-badge-dot" aria-hidden="true" />
-            {h.badge}
-          </p>
-          <h1 id="ts-hero-title" className="ts-display">
-            <span className="ts-line">
-              {h.titleStart} <mark className="ts-mark-amber">{h.titleMark}</mark>
-            </span>{" "}
-            <span className="ts-line ts-line-quiet">{h.titleEnd}</span>
-          </h1>
-          <p className="ts-hero-lead">{h.lead}</p>
-          <div className="ts-hero-actions">
-            <button type="button" className="ts-primary ts-primary-lg" onClick={onEnter} aria-describedby="ts-cta-hint">
-              {h.cta}
-              <Icon name="arrow" size={18} />
-            </button>
-            <button type="button" className="ts-link-action" onClick={onApproach}>
-              {h.secondary}
-              <Icon name="arrowDown" size={16} />
-            </button>
+    <section className={`ts-hero ${withPhoto ? 'ts-hero--photo' : ''}`} id="top" aria-labelledby="ts-hero-title">
+      <div className="ts-hero__ambient ts-hero__ambient--one" aria-hidden="true" />
+      <div className="ts-hero__ambient ts-hero__ambient--two" aria-hidden="true" />
+      <div className="ts-container ts-hero__grid">
+        <div className="ts-hero__copy">
+          <div className="ts-challenge-badge"><span className="ts-live-dot" aria-hidden="true" />{t.hero.eyebrow}</div>
+          <h1 id="ts-hero-title"><span>{t.hero.titleA}</span><span className="ts-hero__headline-middle">{t.hero.titleB}</span><em>{t.hero.titleC}</em></h1>
+          <p className="ts-hero__description">{t.hero.description}</p>
+          <div className="ts-hero__actions">
+            <button className="ts-button ts-button--hero" type="button" onClick={onNavigate} aria-describedby="ts-hero-cta-hint">{t.hero.primaryCta}<ArrowUpRight size={17} /></button>
+            <a className="ts-text-link" href="#mission">{t.hero.secondaryCta}<ArrowRight size={15} /></a>
           </div>
-          <p id="ts-cta-hint" className="ts-cta-hint">
-            {h.ctaHint}
-          </p>
-        </div>
-        <div className="ts-hero-visual">
-          <ScientificVisual />
-        </div>
-        <div className="ts-facts">
-          <dl aria-label={h.factsLabel}>
-            {items.map((item) => (
-              <div key={item.label}>
-                <dt>{item.label}</dt>
-                <dd>{item.value}</dd>
-              </div>
-            ))}
+          <p id="ts-hero-cta-hint" className="ts-hero__cta-hint">{t.hero.primaryCtaHint}</p>
+          <dl className="ts-hero__metrics" aria-live="polite">
+            <div className="ts-metric"><dt>{t.hero.zones}</dt><dd>{count(catalog.zones.length)}</dd></div>
+            <div className="ts-metric"><dt>{t.hero.variables}</dt><dd>{count(catalog.variables.length)}</dd></div>
+            <div className="ts-metric"><dt>{t.hero.period}</dt><dd className="ts-metric__period">{catalog.isCatalogLoading ? '···' : catalog.isCatalogError ? '—' : period ?? t.hero.periodUnavailable}</dd></div>
           </dl>
-          <p className="ts-facts-source">{h.factsSource}</p>
+          <p className="ts-hero__data-note">{catalog.isCatalogError ? t.hero.catalogUnavailable : catalog.isCatalogLoading ? t.hero.catalogLoading : t.hero.dataNote}</p>
+        </div>
+        <div className="ts-hero__visual">
+          {withPhoto && <Photo slot="hero" priority className="ts-hero__photo" sizes="(max-width: 900px) 100vw, 52vw" />}
+          <HeroArtwork />
+          <div className="ts-hero__visual-note"><span className="ts-hero__visual-note-dot" aria-hidden="true" /><div><strong>{t.hero.visualLabel}</strong><span>{t.hero.visualCaption}</span></div></div>
         </div>
       </div>
+      <div className="ts-hero__footline"><span>01 — 04</span><span>{t.hero.sequence}</span><a href="#problem"><span aria-hidden="true" />{t.hero.scrollNext}</a></div>
     </section>
   );
 }

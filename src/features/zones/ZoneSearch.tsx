@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useZoneCatalog } from "../../api/queries";
-import { fr } from "../../config/strings.fr";
+import { ui } from "../../config/strings";
 import { foldText } from "../../domain/format";
 import type { Zone } from "../../domain/types";
 import { useWorkspace } from "../../state/workspaceStore";
@@ -16,22 +16,22 @@ export function ZoneSearch({ zones, complete }: { zones: Zone[]; complete: boole
     const filtered = folded
       ? source.filter((zone) => foldText([zone.name, zone.country, ...(zone.aliases ?? [])].join(" ")).includes(folded))
       : source;
-    return [...filtered].sort((a, b) => a.name.localeCompare(b.name, "fr"));
+    return [...filtered].sort((a, b) => a.name.localeCompare(b.name, "en-US"));
   }, [complete, query, remote.data?.zones, zones]);
 
   return (
     <div className="panel-body">
-      <h2>{fr.zones}</h2>
+      <h2>{ui.zones}</h2>
       <input
         id="zone-search"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder={fr.searchPlaceholder}
-        aria-label={fr.searchPlaceholder}
+        placeholder={ui.searchPlaceholder}
+        aria-label={ui.searchPlaceholder}
         autoComplete="off"
       />
-      {zones.length === 0 && <p className="hint">{fr.noZones}</p>}
-      {query.trim() && results.length === 0 && <p className="hint">{fr.noZoneMatch}</p>}
+      {zones.length === 0 && <p className="hint">{ui.noZones}</p>}
+      {query.trim() && results.length === 0 && <p className="hint">{ui.noZoneMatch}</p>}
       <ul className="zone-list">
         {results.map((zone) => (
           <li key={zone.id}>

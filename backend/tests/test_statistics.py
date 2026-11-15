@@ -51,9 +51,9 @@ def test_correlation_of_a_series_and_its_opposite():
     assert abs(stats["pearsonR"] + 1) < 1e-9
     assert stats["relationship"] == "inverse_strong"
     assert relationship_of(0.1, 0.4) == "not_significant"
-    text = describe_correlation("Température du sol (0–10 cm)", "Humidité du sol (0–10 cm)", stats["pearsonR"], stats["pValue"], stats["relationship"])
-    assert "−1,00" in text
-    assert "sens inverse" in text
+    text = describe_correlation("Soil temperature (0–10 cm)", "Soil moisture (0–10 cm)", stats["pearsonR"], stats["pValue"], stats["relationship"])
+    assert "−1.00" in text
+    assert text.startswith("Strong negative correlation")
 
 
 def test_seasonal_opposition_is_not_reported_as_an_eighteen_month_lag():

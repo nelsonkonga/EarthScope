@@ -1,6 +1,6 @@
 import { createPortal } from "react-dom";
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from "react";
-import { fr } from "../config/strings.fr";
+import { ui } from "../config/strings";
 
 export function Modal({
   title,
@@ -26,7 +26,7 @@ export function Modal({
         <div className="panel-head">
           <h2>{title}</h2>
           <button type="button" className="text-btn" onClick={onClose}>
-            {fr.close}
+            {ui.close}
           </button>
         </div>
         {children}

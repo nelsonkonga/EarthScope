@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { fr } from "../../config/strings.fr";
+import { ui } from "../../config/strings";
 import { useWorkspace } from "../../state/workspaceStore";
 import { createGlobe } from "./globeRenderer";
 import type { GlobeStatus } from "./globeApi";
@@ -19,9 +19,9 @@ export function GlobeViewport() {
     const controller = createGlobe(container, credits, {
       onZone: (id) => selectZone(id),
       onEmpty: () => {
-        setNotice(fr.uncovered);
+        setNotice(ui.uncovered);
         window.setTimeout(() => {
-          if (useWorkspace.getState().notice === fr.uncovered) setNotice(null);
+          if (useWorkspace.getState().notice === ui.uncovered) setNotice(null);
         }, 4000);
       },
       onStatus: setStatus,
@@ -37,25 +37,25 @@ export function GlobeViewport() {
   const message =
     status.phase === "error"
       ? status.message === "webgl"
-        ? fr.webgl
+        ? ui.webgl
         : status.message === "key"
-          ? fr.globeKeyMissing
+          ? ui.globeKeyMissing
           : status.message === "ion"
-            ? fr.ionFailed
-            : fr.globeFailed
+            ? ui.ionFailed
+            : ui.globeFailed
       : null;
 
   return (
     <div className="globe-viewport">
-      <div ref={containerRef} className="globe-canvas" tabIndex={0} aria-label={fr.globeLabel} />
+      <div ref={containerRef} className="globe-canvas" tabIndex={0} aria-label={ui.globeLabel} />
       <div ref={creditsRef} className="cesium-credits" />
-      {status.phase === "loading" && <p className="globe-banner">{fr.loadingGlobe}</p>}
+      {status.phase === "loading" && <p className="globe-banner">{ui.loadingGlobe}</p>}
       {message && (
         <div className="globe-error" role="alert">
           <p>{message}</p>
           {status.phase === "error" && status.message !== "webgl" && (
             <button type="button" onClick={() => setAttempt((value) => value + 1)}>
-              {fr.retry}
+              {ui.retry}
             </button>
           )}
         </div>

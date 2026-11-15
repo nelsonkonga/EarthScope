@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useLayerQueries, useRankingQuery, useVariableCatalog, useZoneCatalog } from "../api/queries";
-import { fr } from "../config/strings.fr";
+import { ui } from "../config/strings";
 import { composeField } from "../domain/fieldView";
 import { markerAppearance } from "../domain/markers";
 import { maxEnd } from "../domain/time";
@@ -113,7 +113,7 @@ export function MainWorkspace() {
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("ask")) setPanel("assistant");
-    document.title = `Visualisation · ${fr.appName}`;
+    document.title = `Visualisation · ${ui.appName}`;
   }, [setPanel]);
 
   useEffect(() => {
@@ -212,26 +212,26 @@ export function MainWorkspace() {
       data-field={field?.theme ?? "neutral"}
       style={field ? ({ "--accent": field.accent } as CSSProperties) : undefined}
     >
-      <h1 className="sr-only">{fr.appName}</h1>
+      <h1 className="sr-only">{ui.appName}</h1>
       {(zonesQuery.isLoading || variablesQuery.isLoading) && <div className="load-line" />}
       <GlobeViewport />
       <ActiveVariableList variables={variables} />
       <LeftToolbar active={activePanel} onSelect={togglePanel} />
       {activePanel && (
-        <section className="side-panel" aria-label={activePanel === "variables" ? fr.variables : activePanel === "zones" ? fr.zones : fr.assistant}>
+        <section className="side-panel" aria-label={activePanel === "variables" ? ui.variables : activePanel === "zones" ? ui.zones : ui.assistant}>
           {zonesQuery.isError && activePanel === "zones" && (
             <p className="panel-body">
-              {fr.zonesFailed}{" "}
+              {ui.zonesFailed}{" "}
               <button type="button" className="text-btn" onClick={() => zonesQuery.refetch()}>
-                {fr.retry}
+                {ui.retry}
               </button>
             </p>
           )}
           {variablesQuery.isError && activePanel === "variables" && (
             <p className="panel-body">
-              {fr.variablesFailed}{" "}
+              {ui.variablesFailed}{" "}
               <button type="button" className="text-btn" onClick={() => variablesQuery.refetch()}>
-                {fr.retry}
+                {ui.retry}
               </button>
             </p>
           )}
@@ -273,9 +273,9 @@ export function MainWorkspace() {
       <Timeline variables={variables} />
       <StatusBar fixture={fixture} notice={notice} loadingZones={zonesQuery.isLoading} />
       {helpOpen && (
-        <Modal title={fr.help} onClose={() => setHelpOpen(false)}>
+        <Modal title={ui.help} onClose={() => setHelpOpen(false)}>
           <ul className="shortcuts">
-            {fr.shortcuts.map(([keys, description]) => (
+            {ui.shortcuts.map(([keys, description]) => (
               <li key={keys}>
                 <kbd>{keys}</kbd>
                 <span>{description}</span>

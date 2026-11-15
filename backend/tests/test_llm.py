@@ -65,3 +65,16 @@ def test_method_question_naming_a_variable_keeps_the_data_illustration():
     result = assistant.answer("Comment interpréter une tendance d'humidité du sol ?", {"locale": "fr"})
     assert result["actions"]
     assert "Mann-Kendall" in result["text"]
+
+
+def test_answers_default_to_american_english():
+    result = assistant.answer("How is soil temperature changing in Yaoundé?", {})
+    assert result["text"].startswith("Opening Yaoundé")
+    assert "significant increase" in result["text"]
+    assert "p = 0.002" in result["text"]
+
+
+def test_french_answers_on_request():
+    result = assistant.answer("Comment évolue la température du sol à Yaoundé ?", {"locale": "fr"})
+    assert result["text"].startswith("J'ouvre Yaoundé")
+    assert "p = 0,002" in result["text"]

@@ -1,5 +1,5 @@
 import { rejectionLabel, selectionSummary, type CatalogIndex } from "../../domain/actions";
-import { fr } from "../../config/strings.fr";
+import { ui } from "../../config/strings";
 import type { ChatMessage as Message } from "../../domain/types";
 
 export function ChatMessageView({ message, catalog }: { message: Message; catalog: CatalogIndex }) {
@@ -10,11 +10,11 @@ export function ChatMessageView({ message, catalog }: { message: Message; catalo
       {message.text.split(/\n{2,}/).map((paragraph, index) => (
         <p key={index}>{paragraph}</p>
       ))}
-      {message.role === "assistant" && message.source === "gemini" && <p className="hint source-line">{fr.writtenByGemini}</p>}
+      {message.role === "assistant" && message.source === "gemini" && <p className="hint source-line">{ui.writtenByGemini}</p>}
       {summary && <p className="selection-line">{summary}</p>}
       {rejected.map((result, index) => (
         <p key={`${result.reason}-${index}`} className="hint">
-          {fr.ignored(rejectionLabel[result.reason ?? "invalid"] ?? result.reason ?? "action invalide")}
+          {ui.ignored(rejectionLabel[result.reason ?? "invalid"] ?? result.reason ?? "invalid action")}
         </p>
       ))}
     </article>

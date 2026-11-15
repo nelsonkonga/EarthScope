@@ -1,4 +1,4 @@
-import { ZONE_COLORS, fr } from "../../config/strings.fr";
+import { ZONE_COLORS, ui } from "../../config/strings";
 import { kindForRole } from "../../domain/fieldView";
 import { strategyForKind } from "../../domain/visualStrategies";
 import { formatLatLon, formatNumber, formatTrend, statusWord } from "../../domain/format";
@@ -37,12 +37,12 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
               <p className="unit">{zone.country}</p>
               <p className="coords">{formatLatLon(zone.latitude, zone.longitude)}</p>
             </div>
-            <button type="button" className="icon-btn" aria-label={fr.close} onClick={closeCard}>
+            <button type="button" className="icon-btn" aria-label={ui.close} onClick={closeCard}>
               <Icon name="close" />
             </button>
           </div>
-          {variables.some((variable) => variable.datasetVersion.startsWith("fixture")) && <p className="hint">{fr.fixtureValues}</p>}
-          {active.length === 0 && <p>{fr.chooseVariable}</p>}
+          {variables.some((variable) => variable.datasetVersion.startsWith("fixture")) && <p className="hint">{ui.fixtureValues}</p>}
+          {active.length === 0 && <p>{ui.chooseVariable}</p>}
           {active.map((variable) => {
             const kind = kindForRole(variable.role);
             const allowed = zone.availableVariableIds.includes(variable.id);
@@ -54,15 +54,15 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
                 <h3>
                   <span className="swatch" style={{ background: variable.color }} />
                   {variable.name}
-                  {variable.id === primaryId && <span className="chip-tag">{fr.primary}</span>}
+                  {variable.id === primaryId && <span className="chip-tag">{ui.primary}</span>}
                 </h3>
                 {kind && <p className="hint">{strategyForKind(kind).legend}</p>}
-                {!allowed && <p>{fr.noDataFor(variable.name, zone.name)}</p>}
+                {!allowed && <p>{ui.noDataFor(variable.name, zone.name)}</p>}
                 {allowed && query?.isError && (
                   <p>
-                    {fr.seriesFailed}{" "}
+                    {ui.seriesFailed}{" "}
                     <button type="button" className="text-btn" onClick={() => query.refetch()}>
-                      {fr.retry}
+                      {ui.retry}
                     </button>
                   </p>
                 )}
@@ -70,7 +70,7 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
                   <>
                     <p className="value">
                       {observation?.value == null ? (
-                        "Indisponible"
+                        "Unavailable"
                       ) : (
                         <>
                           {formatNumber(observation.value)} {variable.unit}
@@ -80,7 +80,7 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
                     </p>
                     <p>{formatTrend(series.trend, variable.unit)}</p>
                     {!series.observations.some((item) => item.status !== "missing" && item.value != null) && (
-                      <p>{fr.noDataFor(variable.name, zone.name)}</p>
+                      <p>{ui.noDataFor(variable.name, zone.name)}</p>
                     )}
                   </>
                 )}
@@ -93,14 +93,14 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
       {comparison && (
         <section className="zone-section">
           <div className="panel-head">
-            <h2>{comparison.mode === "rank" ? fr.ranking : fr.comparison}</h2>
+            <h2>{comparison.mode === "rank" ? ui.ranking : ui.comparison}</h2>
             <button type="button" className="text-btn" onClick={() => clearComparison(null)}>
-              {fr.clearComparison}
+              {ui.clearComparison}
             </button>
           </div>
           {comparison.mode === "rank" && (
             <>
-              <p className="hint">{fr.rankingOrder}</p>
+              <p className="hint">{ui.rankingOrder}</p>
               <ol className="rank-list">
                 {(ranking.data?.entries ?? []).map((entry) => {
                   const name = zones.find((item) => item.id === entry.zoneId)?.name ?? entry.zoneId;
@@ -129,7 +129,7 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
                 ))}
               </ul>
               <ExpandableFigure
-                title={fr.comparison}
+                title={ui.comparison}
                 large={() => (
                   <ComparisonChart
                     large

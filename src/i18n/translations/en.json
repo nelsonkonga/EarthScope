@@ -1,0 +1,228 @@
+{
+  "meta": {
+    "title": "Terra Sense — Observe the Earth, understand its changes",
+    "description": "Terra Sense turns NASA Earth observation data into soil trends anyone can explore and check."
+  },
+  "nav": {
+    "about": "About",
+    "assistant": "Assistant",
+    "visualization": "Visualization",
+    "menu": "Open menu",
+    "language": "Language",
+    "theme": "Appearance",
+    "homeLabel": "Terra Sense — back to top",
+    "navigationLabel": "Main navigation",
+    "skip": "Skip to main content"
+  },
+  "hero": {
+    "eyebrow": "NASA Space Apps Challenge · Soil Trend Detective",
+    "titleA": "What happens",
+    "titleB": "beneath our feet",
+    "titleC": "should no longer remain invisible.",
+    "description": "Soil moisture shapes crops, vegetation, and the water available to us. NASA Earth observation data tracks it month after month. Terra Sense helps you read these changes and check whether they are real.",
+    "primaryCta": "Enter the lab",
+    "primaryCtaHint": "Opens the interactive visualization workspace",
+    "secondaryCta": "Discover our approach",
+    "visualLabel": "Look beneath the surface",
+    "visualCaption": "An educational illustration of soil layers. It is not a map or a measurement.",
+    "liveCatalog": "Live catalog",
+    "catalogLoading": "Reading the platform catalog…",
+    "catalogUnavailable": "The data catalog is unavailable right now. No figures are shown in its place.",
+    "zones": "published zones",
+    "variables": "listed variables",
+    "period": "monthly coverage",
+    "periodUnavailable": "to be confirmed",
+    "dataNote": "Figures read live from the platform catalog.",
+    "artTop": "FIELD NOTE / 001",
+    "artSystem": "SOIL SYSTEMS",
+    "artSurface": "SURFACE / ROOT ZONE",
+    "artProfile": "SOIL PROFILE",
+    "artObserve": "OBSERVE",
+    "artInterpret": "INTERPRET",
+    "artCaption": "Conceptual cross-section of a living soil",
+    "visualAria": "Conceptual illustration of soil layers and water movement",
+    "scrollNext": "Scroll to explore",
+    "sequence": "OBSERVE / UNDERSTAND / EXPLORE"
+  },
+  "problem": {
+    "eyebrow": "The problem",
+    "title": "What happens when the soil loses its balance?",
+    "intro": "Soil moisture is not an isolated measurement. It links rainfall, vegetation, crops, and the water that seeps deeper. When it changes over time, these systems change with it.",
+    "cards": [
+      {
+        "number": "01",
+        "tag": "Agriculture",
+        "title": "Weakened farmland",
+        "text": "Less water in the top few inches of soil means earlier stress for seedlings and higher irrigation needs. Crop growth depends directly on this reserve.",
+        "note": ""
+      },
+      {
+        "number": "02",
+        "tag": "Ecosystems",
+        "title": "Ecosystems under pressure",
+        "text": "Vegetation, wetlands, and livestock depend on the water available. A harsher dry season reduces plant cover and watering points.",
+        "note": ""
+      },
+      {
+        "number": "03",
+        "tag": "Water cycle",
+        "title": "Invisible but essential water",
+        "text": "Part of the water in the soil seeps down and recharges aquifers. Soil that stays drier for longer can reduce that recharge.",
+        "note": "Soil moisture describes the upper soil layers. It is not a measurement of groundwater, and Terra Sense shows no groundwater data."
+      }
+    ]
+  },
+  "mission": {
+    "eyebrow": "Our approach",
+    "titleA": "NASA provides the data.",
+    "titleB": "Terra Sense makes it",
+    "titleC": "understandable.",
+    "description": "Turning observation into understanding: every result shown can be traced back to the dataset it comes from.",
+    "capabilities": [
+      {
+        "label": "Earth observation data",
+        "title": "Observe the Earth",
+        "text": "The series come from NASA Giovanni, which averages GLDAS Noah (soil) and MODIS (aerosol) products over the area. Years of monthly values make it possible to tell a season from a lasting change."
+      },
+      {
+        "label": "Statistical analysis",
+        "title": "Identify trends",
+        "text": "The Mann-Kendall test tells whether a steady change is statistically supported or compatible with chance. The Theil-Sen slope estimates its size. Neither one establishes a cause."
+      },
+      {
+        "label": "Assisted exploration",
+        "title": "Understand the results",
+        "text": "The assistant explains a trend, a p-value, or a method from the platform's own calculations. It is an interpretation tool: it names its sources and says what it does not know. SHAP explanations are future work and are not active today."
+      }
+    ]
+  },
+  "science": {
+    "eyebrow": "Methodology",
+    "title": "Read a trend, not just a value",
+    "description": "A single month says little. A series of months, tested with robust statistics, tells you whether a change is real.",
+    "methods": [
+      {
+        "label": "Trend test",
+        "title": "Mann-Kendall",
+        "text": "Compares every measurement with every later one to tell whether a series rises or falls consistently. Monthly series use the seasonal version. A trend is called significant when p < 0.05. It does not prove a cause."
+      },
+      {
+        "label": "Slope estimate",
+        "title": "Theil-Sen",
+        "text": "The median of the slopes between all pairs of measurements. It estimates the speed of change per year or per decade and resists extreme values."
+      },
+      {
+        "label": "Transparency",
+        "title": "Data traceability",
+        "text": "Sources, periods, units, and missing months stay visible, so every result can be read with the right amount of caution."
+      }
+    ],
+    "trendLoading": "Loading the series…",
+    "trendEmpty": "A series will appear here once the API publishes a compatible zone and variable.",
+    "trendError": "The series could not be loaded: the data service is unavailable. No curve is drawn in its place.",
+    "footnote": "Real platform data: monthly means returned by the API ({start} – {end}). Gaps are missing months. Dashed line: Theil-Sen slope.",
+    "verdict": "{method}: {direction} ({p}). Theil-Sen slope: {slope} {unit} per decade.",
+    "seasonalMethod": "Seasonal Mann-Kendall",
+    "plainMethod": "Mann-Kendall",
+    "directions": {
+      "up": "significant increase",
+      "down": "significant decrease",
+      "flat": "no significant trend",
+      "insufficient": "not enough data"
+    },
+    "variableFallback": "Environmental variable",
+    "seriesLabel": "Monthly mean",
+    "trendLabel": "Theil-Sen trend",
+    "sources": "Data & documentation"
+  },
+  "about": {
+    "title": "About Terra Sense",
+    "intro": "Terra Sense is a platform for exploring soil trends, developed for the NASA Space Apps Challenge around the Soil Trend Detective concept. Earth observation series exist, but they are hard to read and harder to interpret: Terra Sense shows them on a globe, plots them over time, and tests whether their changes are statistically supported.",
+    "scopeLabel": "01 / Scope",
+    "scopeTitle": "Scope and limits",
+    "scopeText": "One area today: Yaoundé, drawn with its seven districts. Values are Giovanni monthly means over the 11.4–11.65°E, 3.75–3.98°N box, from {start} to {end}. GLDAS cells (0.25°) and MODIS cells (1°) are larger than the city, so they describe a regional mean. Missing months stay empty; nothing is interpolated or replaced with zero.",
+    "sourcesLabel": "02 / Sources",
+    "sourcesTitle": "Data sources",
+    "sourcesText": "Not every variable comes from the same product. Each series is tied to its original dataset.",
+    "sources": [
+      { "name": "NASA Giovanni", "detail": "Area-averaged monthly time series exported as CSV.", "url": "https://giovanni.gsfc.nasa.gov/giovanni/" },
+      { "name": "GLDAS Noah 0.25° monthly, v2.0", "detail": "GLDAS_NOAH025_M_2.0 — soil moisture 0–10 and 10–40 cm, soil temperature 0–10 cm. Model estimates; version 2.0 ends in 2014.", "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.0/summary" },
+      { "name": "GLDAS Noah 0.25° monthly, v2.1", "detail": "GLDAS_NOAH025_M_2.1 — evaporation, surface runoff, soil temperature 10–40 cm.", "url": "https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH025_M_2.1/summary" },
+      { "name": "MODIS Aqua MYD08_M3 v6.1", "detail": "Deep Blue aerosol optical depth at 550 nm. Satellite measurement on a 1° grid.", "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3" },
+      { "name": "NASA Earthdata", "detail": "Access portal and documentation for GLDAS and MODIS.", "url": "https://www.earthdata.nasa.gov/" },
+      { "name": "geoBoundaries gbOpen CMR ADM3", "detail": "Outline of Yaoundé (union of districts I to VII), CC BY 4.0. Used for drawing only.", "url": "https://www.geoboundaries.org/" }
+    ],
+    "methodLabel": "03 / Methods",
+    "methodTitle": "Methodology",
+    "mkTitle": "Mann-Kendall",
+    "mkText": "A non-parametric test of whether a series has a statistically detectable monotonic trend. Monthly series use the seasonal version or the Hamed and Rao correction for autocorrelation. It does not demonstrate causation.",
+    "tsTitle": "Theil-Sen",
+    "tsText": "A robust estimator of the trend slope, built from the slopes between all pairs of observations.",
+    "shapTitle": "SHAP",
+    "shapText": "Future work. No predictive model or SHAP explanation is published today.",
+    "updatedTitle": "Data freshness",
+    "updatedText": "The catalog does not provide an update date. Latest published observation: {end}.",
+    "kindsTitle": "Observation, model, statistics",
+    "kindsText": "MODIS is a satellite measurement. GLDAS is a model estimate. Trends, slopes, and p-values are derived results computed by the platform. Photographs on this page are illustrations from Pexels, not data.",
+    "disclaimer": "Terra Sense is an independent project developed for the NASA Space Apps Challenge. Attributing data to NASA does not imply that NASA endorses the platform."
+  },
+  "footer": {
+    "tagline": "Explore the data. Understand the trends. Observe the Earth better.",
+    "project": "A project developed for the NASA Space Apps Challenge, around the Soil Trend Detective concept.",
+    "links": "Explore",
+    "resources": "Resources",
+    "about": "About",
+    "visualization": "Visualization",
+    "assistant": "Assistant",
+    "dataPolicy": "Data & transparency",
+    "photoCredits": "Photo credits",
+    "copyright": "NASA data openly available; see each source's terms.",
+    "signature": "EARTH OBSERVATION"
+  },
+  "assistant": {
+    "title": "Terra Sense Assistant",
+    "welcome": "Hello! I'm the Terra Sense assistant. I can help you explore environmental trends and understand the methods used.",
+    "status": "Answers from the platform's calculations",
+    "connecting": "Connecting…",
+    "empty": "Pick a question to get started.",
+    "suggestions": [
+      "How should I interpret a soil moisture trend?",
+      "Explain the Mann-Kendall test.",
+      "What is the difference between GLDAS and MERRA-2?",
+      "How should I interpret a Theil-Sen slope?"
+    ],
+    "inputLabel": "Your question",
+    "placeholder": "Ask about the data or the methods…",
+    "send": "Send",
+    "sending": "Analyzing…",
+    "unavailable": "The assistant is unavailable: the data service is not responding. Sources and methods remain available in About.",
+    "error": "The answer could not be retrieved.",
+    "retry": "Try again",
+    "you": "You",
+    "bot": "Terra Sense",
+    "sourceGemini": "Written by Gemini from the platform's calculations",
+    "sourceRules": "From the platform's statistical engine",
+    "openInWorkspace": "See it in the visualization",
+    "disclaimer": "Answers can be incomplete. Check the figures in the visualization before drawing scientific conclusions."
+  },
+  "photos": {
+    "credit": "Photo: {name} / Pexels",
+    "illustration": "Illustrative photo, not project data"
+  },
+  "common": {
+    "fr": "FR",
+    "en": "EN",
+    "frName": "Français",
+    "enName": "English",
+    "light": "Light",
+    "dark": "Dark",
+    "dusk": "Soft",
+    "close": "Close",
+    "externalLink": "Opens in a new tab"
+  },
+  "closing": {
+    "eyebrow": "Terra Sense · Soil Trend Detective",
+    "title": "The next discovery starts with a question.",
+    "cta": "Enter the lab"
+  }
+}

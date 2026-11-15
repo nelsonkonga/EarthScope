@@ -20,15 +20,15 @@ def open_session():
 def read_session(session_id: str):
     session = get_session(session_id)
     if session is None:
-        raise HTTPException(status_code=404, detail={"code": "SESSION_NOT_FOUND", "message": "Conversation introuvable."})
+        raise HTTPException(status_code=404, detail={"code": "SESSION_NOT_FOUND", "message": "Conversation not found."})
     return session
 
 
 @router.post("/assistant/sessions/{session_id}/messages")
 def write_message(session_id: str, body: MessageBody):
     if not body.text.strip():
-        raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "Le message est vide."})
+        raise HTTPException(status_code=400, detail={"code": "VALIDATION_ERROR", "message": "The message is empty."})
     message = post_message(session_id, body.text.strip(), body.clientContext or {})
     if message is None:
-        raise HTTPException(status_code=404, detail={"code": "SESSION_NOT_FOUND", "message": "Conversation introuvable."})
+        raise HTTPException(status_code=404, detail={"code": "SESSION_NOT_FOUND", "message": "Conversation not found."})
     return {"message": message}

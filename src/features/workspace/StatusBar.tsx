@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { selectBasemap } from "../../config/globe";
-import { fr } from "../../config/strings.fr";
+import { ui } from "../../config/strings";
 import { formatAltitude, formatLatLon } from "../../domain/format";
 import { getCameraSample, subscribeCamera } from "../globe/cameraBridge";
 
@@ -10,7 +10,7 @@ export function StatusBar({ fixture, notice, loadingZones }: { fixture: boolean;
     sample.latitude == null || sample.longitude == null ? "—" : formatLatLon(sample.latitude, sample.longitude);
   return (
     <footer className="status-bar">
-      <span>{loadingZones ? fr.loadingZones : position}</span>
+      <span>{loadingZones ? ui.loadingZones : position}</span>
       <span className="altitude">{sample.height == null ? "—" : formatAltitude(sample.height)}</span>
       <span className="scale" aria-label={sample.scale}>
         <i />
@@ -20,8 +20,8 @@ export function StatusBar({ fixture, notice, loadingZones }: { fixture: boolean;
         {notice}
       </span>
       <span className="sources">
-        {fixture ? `${fr.fixture} · ` : ""}
-        {selectBasemap(import.meta.env.VITE_GOOGLE_MAPS_API_KEY) === "google" ? fr.sourcesGoogle : fr.sourcesIon}
+        {fixture ? `${ui.fixture} · ` : ""}
+        {selectBasemap(import.meta.env.VITE_GOOGLE_MAPS_API_KEY) === "google" ? ui.sourcesGoogle : ui.sourcesIon}
       </span>
     </footer>
   );

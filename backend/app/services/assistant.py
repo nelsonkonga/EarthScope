@@ -14,12 +14,95 @@ from app.services import llm
 from app.services.variable_selector import analyser_requete
 
 PROMPTS = [
-    "Compare l'évolution de la température et de l'humidité du sol à Yaoundé",
-    "Montre l'épaisseur optique des aérosols à Yaoundé",
-    "Comment évolue la température du sol à Yaoundé ?",
-    "Superpose l'humidité du sol et l'évaporation à Yaoundé",
-    "Montre le ruissellement à Yaoundé",
+    "Compare soil temperature and soil moisture trends in Yaoundé",
+    "Show aerosol optical depth in Yaoundé",
+    "How is soil temperature changing in Yaoundé?",
+    "Overlay soil moisture and evaporation in Yaoundé",
+    "Show surface runoff in Yaoundé",
 ]
+
+# French names for the prose of French answers. The catalog itself is in American English.
+NAMES_FR = {
+    "var_soil_temp": "Température du sol (0–10 cm)",
+    "var_soil_moisture": "Humidité du sol (0–10 cm)",
+    "var_soil_temp_deep": "Température du sol (10–40 cm)",
+    "var_soil_moisture_deep": "Humidité du sol (10–40 cm)",
+    "var_evaporation": "Évaporation",
+    "var_runoff": "Ruissellement de surface",
+    "var_aod": "Épaisseur optique des aérosols",
+    "var_t2m": "Température de l'air",
+    "var_ts": "Température de surface",
+    "var_precip": "Précipitations",
+    "var_root_wetness": "Humidité racinaire",
+    "var_evland": "Évaporation des terres",
+    "var_rh": "Humidité relative",
+    "var_tqv": "Vapeur d'eau",
+    "var_slp": "Pression au niveau de la mer",
+    "var_sea_ice": "Glace de mer",
+    "var_snow": "Épaisseur de neige",
+    "var_sunlight": "Rayonnement solaire",
+    "var_cloud": "Couverture nuageuse",
+    "var_tropt": "Température de la tropopause",
+    "var_wind": "Vent à 10 m",
+}
+
+TEXT = {
+    "en": {
+        "no_series": "{name}: no series.",
+        "too_short": "{name}: series too short for a Mann-Kendall test.",
+        "insufficient": "{name}: not enough data to conclude{slope}.",
+        "slope": ", Sen slope {value}{unit}",
+        "per_year": "/yr",
+        "up": "significant increase",
+        "down": "significant decrease",
+        "flat": "no significant trend",
+        "trend": "{name}: {direction} ({p}, tau = {tau}{slope}).",
+        "p_small": "p < 0.001",
+        "no_city": "{city} has no published series. The current catalog covers the Yaoundé cell, so I am not selecting anything in its place.",
+        "unknown_place": "This place is not in the catalog. I did not select any zone.",
+        "nothing": "I did not recognize a zone or a variable from the catalog. The charts stay as they are.",
+        "open": "Opening {parts}.",
+        "dual": " The two series will be overlaid on a dual axis.",
+        "normalized": " The series will be shown as a normalized index.",
+        "single": " One variable at a time.",
+        "trends": " Trends on the observations (Mann-Kendall, Hamed and Rao correction): ",
+        "missing": " No series on this cell: {names}.",
+        "manual": " The globe and the charts treat this list as a manual selection.",
+        "bridge": " On the data: ",
+    },
+    "fr": {
+        "no_series": "{name} : pas de série.",
+        "too_short": "{name} : série trop courte pour un Mann-Kendall.",
+        "insufficient": "{name} : effectif insuffisant pour conclure{slope}.",
+        "slope": ", pente de Sen {value}{unit}",
+        "per_year": "/an",
+        "up": "hausse significative",
+        "down": "baisse significative",
+        "flat": "pas de tendance significative",
+        "trend": "{name} : {direction} ({p}, tau = {tau}{slope}).",
+        "p_small": "p < 0,001",
+        "no_city": "{city} n'a pas de série publiée. Le catalogue actuel est la maille de Yaoundé, donc je ne sélectionne rien à la place.",
+        "unknown_place": "Ce lieu n'est pas dans le catalogue. Je n'ai sélectionné aucune zone.",
+        "nothing": "Je n'ai reconnu ni une zone ni une variable du catalogue. Les graphiques restent inchangés.",
+        "open": "J'ouvre {parts}.",
+        "dual": " Les deux séries seront superposées sur un double axe.",
+        "normalized": " Les séries seront affichées en indice normalisé.",
+        "single": " Une variable à la fois.",
+        "trends": " Tendances sur les observations (Mann-Kendall, correction de Hamed et Rao) : ",
+        "missing": " Sans série sur cette maille : {names}.",
+        "manual": " Le globe et les graphiques utilisent cette liste comme une sélection manuelle.",
+        "bridge": " Illustration sur les données : ",
+    },
+}
+
+
+def _locale(context: dict) -> str:
+    """American English unless the client asks for French."""
+    return "fr" if context.get("locale") == "fr" else "en"
+
+
+def _name(variable_id: str, locale: str) -> str:
+    return NAMES_FR.get(variable_id, VARIABLES[variable_id][0]) if locale == "fr" else VARIABLES[variable_id][0]
 
 _sessions: dict[str, dict] = {}
 _PORTABLE = re.compile(r"^es1-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
@@ -79,43 +162,44 @@ def _variables_in(text: str, zone_id: str | None, catalog: Catalog) -> list[str]
         if variable_id not in chosen:
             chosen.append(variable_id)
 
-    soil = "sol" in folded
-    if any(token in folded for token in ("aerosol", "aerosols", "aerien", "optique", "aod")):
+    soil = "sol" in folded or "soil" in folded
+    words = set(re.findall(r"[a-z]+", folded))
+    if any(token in folded for token in ("aerosol", "aerosols", "aerien", "optique", "optical depth", "aod")):
         add("var_aod")
-    if "neige" in folded:
+    if "neige" in folded or "snow" in folded:
         add("var_snow")
-    if "glace" in folded or "banquise" in folded:
+    if "glace" in folded or "banquise" in folded or "sea ice" in folded:
         add("var_sea_ice")
-    if "ruissel" in folded:
+    if "ruissel" in folded or "runoff" in folded:
         add("var_runoff")
-    if "nuage" in folded:
+    if "nuage" in folded or "cloud" in folded:
         add("var_cloud")
-    if "soleil" in folded or "rayonnement" in folded or "ensoleil" in folded:
+    if any(token in folded for token in ("soleil", "rayonnement", "ensoleil", "sunlight", "solar", "radiation")):
         add("var_sunlight")
     if "tropopause" in folded:
         add("var_tropt")
-    if "pression" in folded:
+    if "pression" in folded or "pressure" in folded:
         add("var_slp")
-    if "vapeur" in folded:
+    if "vapeur" in folded or "vapor" in folded:
         add("var_tqv")
-    if "vent" in folded:
+    if "vent" in words or "wind" in words:
         add("var_wind")
-    if "precip" in folded or "pluie" in folded:
+    if "precip" in folded or "pluie" in folded or "rain" in words or "rainfall" in words:
         add("var_precip")
-    if "racin" in folded:
+    if "racin" in folded or "root" in words:
         add("var_root_wetness")
-    if "humidite relative" in folded:
+    if "humidite relative" in folded or "relative humidity" in folded:
         add("var_rh")
     if soil and ("humid" in folded or "moisture" in folded):
         add("var_soil_moisture")
     elif "humid" in folded and "sol" not in folded and "relative" in folded:
         add("var_rh")
-    if "evaporation des terres" in folded or "evland" in folded:
+    if "evaporation des terres" in folded or "land evaporation" in folded or "evland" in folded:
         add("var_evland")
     elif "evapor" in folded:
         add("var_evaporation" if zone_id == "zone_yaounde" or soil else "var_evland")
     if soil and ("temp" in folded or "rechauff" in folded):
-        add("var_soil_temp_deep" if "profond" in folded else "var_soil_temp")
+        add("var_soil_temp_deep" if "profond" in folded or "deep" in words else "var_soil_temp")
     elif "temperature de l'air" in folded or "temperature de lair" in folded or "air" in folded and "temp" in folded:
         add("var_soil_temp" if not _published(catalog, "var_t2m") else "var_t2m")
     elif ("temp" in folded or "rechauff" in folded) and not soil:
@@ -128,40 +212,40 @@ def _variables_in(text: str, zone_id: str | None, catalog: Catalog) -> list[str]
     return chosen
 
 
-def _number(value: float, digits: int = 3) -> str:
-    return f"{value:.{digits}f}".replace(".", ",")
+def _number(value: float, digits: int = 3, locale: str = "en") -> str:
+    text = f"{value:.{digits}f}"
+    return text.replace(".", ",") if locale == "fr" else text
 
 
-def _trend_sentence(catalog: Catalog, zone_id: str, variable_id: str) -> str:
-    name, _description, _category, unit, *_rest = VARIABLES[variable_id]
+def _trend_sentence(catalog: Catalog, zone_id: str, variable_id: str, locale: str = "en") -> str:
+    t = TEXT[locale]
+    _name_en, _description, _category, unit, *_rest = VARIABLES[variable_id]
+    name = _name(variable_id, locale)
     series = catalog.get(zone_id, variable_id)
     if series is None:
-        return f"{name} : pas de série."
+        return t["no_series"].format(name=name)
     pairs = [(decimal_year(date), float(value)) for date, value in zip(series.dates, series.values) if not is_missing(value)]
     if len(pairs) < 4:
-        return f"{name} : série trop courte pour un Mann-Kendall."
+        return t["too_short"].format(name=name)
     years = [year for year, _value in pairs]
     values = [value for _year, value in pairs]
     result = mann_kendall(values, autocorr=True, alpha=MANN_KENDALL_ALPHA)
     slope = sen_slope(years, values)
-    unit_text = f" {unit}/an" if unit else "/an"
-    slope_text = f", pente de Sen {_number(slope, 3)}{unit_text}" if slope == slope else ""
+    unit_text = f" {unit}{t['per_year']}" if unit else t["per_year"]
+    slope_text = t["slope"].format(value=_number(slope, 3, locale), unit=unit_text) if slope == slope else ""
     if len(pairs) < MIN_SAMPLES or result["p"] != result["p"]:
-        return f"{name} : effectif insuffisant pour conclure{slope_text}."
-    if result["p"] < 0.001:
-        p_text = "p < 0,001"
-    else:
-        p_text = f"p = {_number(result['p'], 3)}"
+        return t["insufficient"].format(name=name, slope=slope_text)
+    p_text = t["p_small"] if result["p"] < 0.001 else f"p = {_number(result['p'], 3, locale)}"
     if result["p"] < MANN_KENDALL_ALPHA and result["tau"] > 0:
-        direction = "hausse significative"
+        direction = t["up"]
     elif result["p"] < MANN_KENDALL_ALPHA and result["tau"] < 0:
-        direction = "baisse significative"
+        direction = t["down"]
     else:
-        direction = "pas de tendance significative"
-    return f"{name} : {direction} ({p_text}, tau = {_number(result['tau'], 2)}{slope_text})."
+        direction = t["flat"]
+    return t["trend"].format(name=name, direction=direction, p=p_text, tau=_number(result["tau"], 2, locale), slope=slope_text)
 
 
-def _retrieved_ids(text: str, zone_id: str, catalog: Catalog, ranked: list[dict]) -> tuple[list[str], list[str]]:
+def _retrieved_ids(text: str, zone_id: str, catalog: Catalog, ranked: list[dict], locale: str = "en") -> tuple[list[str], list[str]]:
     """Keep at most three published variables close to the best retrieval score."""
     if not ranked:
         return _variables_in(text, zone_id, catalog)[:3], []
@@ -174,8 +258,10 @@ def _retrieved_ids(text: str, zone_id: str, catalog: Catalog, ranked: list[dict]
         variable_id = item.get("earthscope_id")
         if variable_id and catalog.get(zone_id, variable_id) is not None and variable_id not in chosen and len(chosen) < 3:
             chosen.append(variable_id)
-        elif not variable_id and item["titre"] not in missing:
-            missing.append(item["titre"])
+        elif not variable_id:
+            title = item["titre"] if locale == "fr" else item.get("title_en", item["titre"])
+            if title not in missing:
+                missing.append(title)
     if not chosen:
         return _variables_in(text, zone_id, catalog)[:3], []
     return chosen, missing
@@ -183,9 +269,9 @@ def _retrieved_ids(text: str, zone_id: str, catalog: Catalog, ranked: list[dict]
 
 def _view_mode(text: str, count: int) -> str | None:
     folded = fold(text)
-    if any(token in folded for token in ("normalis", "z-score", "z score", "anomalie")):
+    if any(token in folded for token in ("normalis", "normaliz", "z-score", "z score", "anomal")):
         return "normalized"
-    if any(token in folded for token in ("superpos", "double axe", "ensemble")):
+    if any(token in folded for token in ("superpos", "double axe", "ensemble", "overlay", "dual axis", "together")):
         return "superposition" if count == 2 else "normalized" if count > 2 else "single"
     if "compare" in folded or "comparaison" in folded:
         if count >= 3:
@@ -220,7 +306,7 @@ METHODS = (
     (
         ("merra",),
         "GLDAS est un modèle de surface terrestre : il calcule l'humidité et la température du sol à partir d'observations (pluie, rayonnement). MERRA-2 est une réanalyse atmosphérique globale, à maille plus grossière (environ 0,5° × 0,625°). La visualisation publiée utilise GLDAS Noah 0,25° et MODIS, pas MERRA-2.",
-        "GLDAS is a land-surface model: it computes soil moisture and soil temperature from observations (rainfall, radiation). MERRA-2 is a global atmospheric reanalysis on a coarser grid (about 0.5° × 0.625°). The published visualisation uses GLDAS Noah 0.25° and MODIS, not MERRA-2.",
+        "GLDAS is a land-surface model: it computes soil moisture and soil temperature from observations (rainfall, radiation). MERRA-2 is a global atmospheric reanalysis on a coarser grid (about 0.5° × 0.625°). The published visualization uses GLDAS Noah 0.25° and MODIS, not MERRA-2.",
     ),
     (
         ("interpreter une tendance", "interpret a trend", "interpret a soil", "interpreter une evolution"),
@@ -230,7 +316,7 @@ METHODS = (
 )
 
 
-def _method_notes(folded: str, locale: str = "fr") -> list[str]:
+def _method_notes(folded: str, locale: str = "en") -> list[str]:
     index = 2 if locale == "en" else 1
     return [entry[index] for entry in METHODS if any(key in folded for key in entry[0])]
 
@@ -245,27 +331,28 @@ def _names_data(text: str, catalog: Catalog) -> bool:
 
 def answer(text: str, context: dict, catalog: Catalog | None = None) -> dict:
     catalog = catalog or get_catalog()
-    locale = "en" if context.get("locale") == "en" else "fr"
+    locale = _locale(context)
     notes = _method_notes(fold(text), locale)
     if notes and not _names_data(text, catalog):
         # A method question: explain it, without opening unrelated series on the globe.
         return {"text": " ".join(notes), "actions": [], "dataReferences": [], "suggestedFollowUps": []}
     result = _answer(text, context, catalog)
     if notes:
-        bridge = " Illustration on the data (computed in French by the statistical engine): " if locale == "en" else " Illustration sur les données : "
-        result["text"] = " ".join(notes) + bridge + result["text"]
+        result["text"] = " ".join(notes) + TEXT[locale]["bridge"] + result["text"]
     return result
 
 
 def _answer(text: str, context: dict, catalog: Catalog | None = None) -> dict:
     catalog = catalog or get_catalog()
+    locale = _locale(context)
+    t = TEXT[locale]
     zones = _zones_in(text, catalog)
     unknown = []
     folded = fold(text)
     if "paris" in folded and not zones:
         unknown.append("paris")
     zone = zones[0] if zones else None
-    if zone is None and context.get("selectedZoneId") and any(token in folded for token in ("cette zone", "ici", "la zone")):
+    if zone is None and context.get("selectedZoneId") and any(token in folded for token in ("cette zone", "ici", "la zone", "this zone", "here", "this area")):
         record = next((item for item in catalog.zones() if item["id"] == context["selectedZoneId"]), None)
         zone = record
     if zone is None and not unknown:
@@ -275,12 +362,12 @@ def _answer(text: str, context: dict, catalog: Catalog | None = None) -> dict:
     named_city = retrieval["localisation"]["ville"]
     if named_city not in {"Yaounde", "Yaounde (Par défaut)"} and not zones:
         return {
-            "text": f"{named_city} n'a pas de série publiée. Le catalogue actuel est la maille de Yaoundé, donc je ne sélectionne rien à la place.",
+            "text": t["no_city"].format(city=named_city),
             "actions": [],
             "dataReferences": [],
             "suggestedFollowUps": [],
         }
-    variable_ids, unavailable = _retrieved_ids(text, zone_id, catalog, retrieval["variables_retenues"]) if zone_id else ([], [])
+    variable_ids, unavailable = _retrieved_ids(text, zone_id, catalog, retrieval["variables_retenues"], locale) if zone_id else ([], [])
     actions: list[dict] = []
     if zone_id:
         actions.append({"type": "SELECT_ZONE", "zoneId": zone_id})
@@ -290,32 +377,30 @@ def _answer(text: str, context: dict, catalog: Catalog | None = None) -> dict:
     mode = _view_mode(text, len(variable_ids))
     if mode:
         actions.append({"type": "SET_VIEW_MODE", "mode": mode})
-    names = [VARIABLES[variable_id][0] for variable_id in variable_ids]
+    names = [_name(variable_id, locale) for variable_id in variable_ids]
     if unknown and not zone_id:
         actions = []
-        prose = "Ce lieu n'est pas dans le catalogue. Je n'ai sélectionné aucune zone."
+        prose = t["unknown_place"]
     elif not zone_id and not variable_ids:
-        prose = "Je n'ai reconnu ni une zone ni une variable du catalogue. Les graphiques restent inchangés."
+        prose = t["nothing"]
     else:
         parts = []
         if zone:
             parts.append(zone["name"])
         if names:
             parts.append(", ".join(names))
-        prose = "J'ouvre " + " — ".join(parts) + "."
+        prose = t["open"].format(parts=" — ".join(parts))
         if mode == "superposition":
-            prose += " Les deux séries seront superposées sur un double axe."
+            prose += t["dual"]
         elif mode == "normalized":
-            prose += " Les séries seront affichées en indice normalisé."
+            prose += t["normalized"]
         elif mode == "single":
-            prose += " Une variable à la fois."
+            prose += t["single"]
         if variable_ids and zone_id:
-            prose += " Tendances sur les observations (Mann-Kendall, correction de Hamed et Rao) : " + " ".join(
-                _trend_sentence(catalog, zone_id, variable_id) for variable_id in variable_ids
-            )
+            prose += t["trends"] + " ".join(_trend_sentence(catalog, zone_id, variable_id, locale) for variable_id in variable_ids)
         if unavailable:
-            prose += " Sans série sur cette maille : " + ", ".join(unavailable) + "."
-        prose += " Le globe et les graphiques utilisent cette liste comme une sélection manuelle."
+            prose += t["missing"].format(names=", ".join(unavailable))
+        prose += t["manual"]
     return {
         "text": prose,
         "actions": actions,
@@ -330,7 +415,7 @@ def post_message(session_id: str, text: str, context: dict) -> dict | None:
         return None
     user = {"id": f"user-{uuid.uuid4()}", "role": "user", "text": text, "createdAt": _now()}
     result = answer(text, context)
-    worded = llm.rewrite(text, result["text"], context, locale=str(context.get("locale") or "fr"), history=session["messages"])
+    worded = llm.rewrite(text, result["text"], context, locale=_locale(context), history=session["messages"])
     message = {
         "id": f"assistant-{uuid.uuid4()}",
         "role": "assistant",

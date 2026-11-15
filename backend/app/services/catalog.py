@@ -23,12 +23,12 @@ from app.services.statistics import (
 YAOUNDE = {
     "id": "zone_yaounde",
     "name": "Yaoundé",
-    "country": "Cameroun",
+    "country": "Cameroon",
     "countryCode": "CM",
     "latitude": 3.865,
     "longitude": 11.525,
     "aliases": ["yaounde", "yaoundé"],
-    "description": "Moyennes mensuelles GLDAS/MODIS sur l'emprise Giovanni 11,4–11,65 °E, 3,75–3,98 °N. Les coordonnées servent à la navigation.",
+    "description": "GLDAS/MODIS monthly means over the Giovanni box 11.4–11.65°E, 3.75–3.98°N. The coordinates are a navigation point.",
     "footprint": [11.4, 3.75, 11.65, 3.98],
 }
 
@@ -43,39 +43,39 @@ def yaounde_boundary() -> list[list[float]] | None:
         return None
 
 REGIONS = {
-    "zone_barents": ("Mer de Barents et Svalbard", "Arctique", None, 76.5, 30.0, ["barents", "svalbard"]),
-    "zone_france": ("Europe de l'Ouest", "France", "FR", 46.5, 2.5, ["france", "europe de l'ouest"]),
-    "zone_warm_pool": ("Pacifique ouest équatorial", "Pacifique", None, 0.0, 155.0, ["warm pool", "pacifique ouest"]),
-    "zone_sahel": ("Sahel central", "Sahel", None, 15.0, 0.0, ["sahel"]),
-    "zone_ross": ("Mer de Ross", "Antarctique", None, -75.0, 180.0, ["ross", "mer de ross"]),
-    "zone_amazon": ("Amazonie centrale", "Brésil", "BR", -3.5, -62.0, ["amazonie", "amazon"]),
-    "zone_bellingshausen": ("Mer de Bellingshausen", "Antarctique", None, -70.0, -85.0, ["bellingshausen"]),
-    "zone_cameroon": ("Cameroun central", "Cameroun", "CM", 5.5, 12.5, ["cameroun central"]),
-    "zone_delhi": ("Plaine indo-gangétique", "Inde", "IN", 28.6, 77.2, ["delhi", "indo-gangétique", "indo gangetique"]),
+    "zone_barents": ("Barents Sea and Svalbard", "Arctic", None, 76.5, 30.0, ["barents", "svalbard"]),
+    "zone_france": ("Western Europe", "France", "FR", 46.5, 2.5, ["france", "western europe", "europe de l'ouest"]),
+    "zone_warm_pool": ("Western equatorial Pacific", "Pacific", None, 0.0, 155.0, ["warm pool", "western pacific", "pacifique ouest"]),
+    "zone_sahel": ("Central Sahel", "Sahel", None, 15.0, 0.0, ["sahel"]),
+    "zone_ross": ("Ross Sea", "Antarctica", None, -75.0, 180.0, ["ross", "ross sea", "mer de ross"]),
+    "zone_amazon": ("Central Amazon", "Brazil", "BR", -3.5, -62.0, ["amazonie", "amazon"]),
+    "zone_bellingshausen": ("Bellingshausen Sea", "Antarctica", None, -70.0, -85.0, ["bellingshausen"]),
+    "zone_cameroon": ("Central Cameroon", "Cameroon", "CM", 5.5, 12.5, ["central cameroon", "cameroun central"]),
+    "zone_delhi": ("Indo-Gangetic Plain", "India", "IN", 28.6, 77.2, ["delhi", "indo-gangetic", "indo-gangétique", "indo gangetique"]),
 }
 
 VARIABLES = {
-    "var_soil_temp": ("Température du sol (0–10 cm)", "GLDAS NOAH SoilTMP0_10cm, kelvin converti en °C.", "cat_soil", "°C", "#E23B2F", "soil-temperature", "month"),
-    "var_soil_moisture": ("Humidité du sol (0–10 cm)", "GLDAS NOAH SoilMoi0_10cm, kg/m².", "cat_soil", "kg/m²", "#1F6F9A", "soil-moisture", "month"),
-    "var_soil_temp_deep": ("Température du sol (10–40 cm)", "GLDAS NOAH SoilTMP10_40cm, kelvin converti en °C.", "cat_soil", "°C", "#8C2F1B", "soil-temperature-deep", "month"),
-    "var_soil_moisture_deep": ("Humidité du sol (10–40 cm)", "GLDAS NOAH SoilMoi10_40cm, kg/m².", "cat_soil", "kg/m²", "#0E3A5C", "soil-moisture-deep", "month"),
-    "var_evaporation": ("Évaporation", "GLDAS NOAH Evap_tavg 2.1, kg m⁻² s⁻¹ converti en mm/j.", "cat_soil", "mm/j", "#1F6B62", "evaporation", "month"),
-    "var_runoff": ("Ruissellement de surface", "GLDAS NOAH Qs_acc, moyenne mensuelle dans l'unité du fichier (kg/m²).", "cat_soil", "kg/m²", "#1D6E93", "runoff", "month"),
-    "var_aod": ("Épaisseur optique des aérosols", "MODIS Deep Blue AOD à 550 nm. La sentinelle −9999 reste un trou.", "cat_atmosphere", "", "#C48A3A", "aerosol-optical-depth", "month"),
-    "var_t2m": ("Température de l'air", "Moyenne annuelle régionale T2M, °C.", "cat_climate", "°C", "#D4764E", "air-temperature", "year"),
-    "var_ts": ("Température de surface", "Moyenne annuelle régionale TS, °C.", "cat_climate", "°C", "#E09F6D", "surface-temperature", "year"),
-    "var_precip": ("Précipitations", "Moyenne annuelle régionale PRECTOTCORR, mm/j.", "cat_climate", "mm/j", "#3E7CB1", "precipitation", "year"),
-    "var_root_wetness": ("Humidité racinaire", "Moyenne annuelle régionale GWETROOT, %.", "cat_climate", "%", "#2E8B6A", "root-wetness", "year"),
-    "var_evland": ("Évaporation des terres", "Moyenne annuelle régionale EVLAND, mm/j.", "cat_climate", "mm/j", "#5E9BB3", "land-evaporation", "year"),
-    "var_rh": ("Humidité relative", "Moyenne annuelle régionale RH2M, %.", "cat_climate", "%", "#7DCEA0", "relative-humidity", "year"),
-    "var_tqv": ("Vapeur d'eau", "Moyenne annuelle régionale TQV, kg/m².", "cat_climate", "kg/m²", "#6EA8FE", "water-vapor", "year"),
-    "var_slp": ("Pression au niveau de la mer", "Moyenne annuelle régionale SLP, hPa.", "cat_climate", "hPa", "#B8A1E3", "sea-level-pressure", "year"),
-    "var_sea_ice": ("Glace de mer", "Moyenne annuelle régionale FRSEAICE, %.", "cat_climate", "%", "#D4E4F2", "sea-ice", "year"),
-    "var_snow": ("Épaisseur de neige", "Moyenne annuelle régionale SNODP, cm.", "cat_climate", "cm", "#E5F0F4", "snow-depth", "year"),
-    "var_sunlight": ("Rayonnement solaire", "Moyenne annuelle régionale ALLSKY_SFC_SW_DWN, MJ/m²/j.", "cat_atmosphere", "MJ/m²/j", "#E0B15A", "sunlight", "year"),
-    "var_cloud": ("Couverture nuageuse", "Moyenne annuelle régionale CLOUD_AMT, %.", "cat_atmosphere", "%", "#A7B0B8", "cloud-cover", "year"),
-    "var_tropt": ("Température de la tropopause", "Moyenne annuelle régionale TROPT, °C.", "cat_atmosphere", "°C", "#D98CB3", "tropopause-temperature", "year"),
-    "var_wind": ("Vent à 10 m", "Moyenne annuelle régionale WS10M, m/s.", "cat_atmosphere", "m/s", "#8EABC4", "wind", "year"),
+    "var_soil_temp": ("Soil temperature (0–10 cm)", "GLDAS Noah SoilTMP0_10cm, converted from kelvin to °C.", "cat_soil", "°C", "#E23B2F", "soil-temperature", "month"),
+    "var_soil_moisture": ("Soil moisture (0–10 cm)", "GLDAS Noah SoilMoi0_10cm, kg/m².", "cat_soil", "kg/m²", "#1F6F9A", "soil-moisture", "month"),
+    "var_soil_temp_deep": ("Soil temperature (10–40 cm)", "GLDAS Noah SoilTMP10_40cm, converted from kelvin to °C.", "cat_soil", "°C", "#8C2F1B", "soil-temperature-deep", "month"),
+    "var_soil_moisture_deep": ("Soil moisture (10–40 cm)", "GLDAS Noah SoilMoi10_40cm, kg/m².", "cat_soil", "kg/m²", "#0E3A5C", "soil-moisture-deep", "month"),
+    "var_evaporation": ("Evaporation", "GLDAS Noah Evap_tavg 2.1, converted from kg m⁻² s⁻¹ to mm/day.", "cat_soil", "mm/day", "#1F6B62", "evaporation", "month"),
+    "var_runoff": ("Surface runoff", "GLDAS Noah Qs_acc, monthly mean in the file unit (kg/m²).", "cat_soil", "kg/m²", "#1D6E93", "runoff", "month"),
+    "var_aod": ("Aerosol optical depth", "MODIS Deep Blue AOD at 550 nm. The −9999 fill value stays a gap.", "cat_atmosphere", "", "#C48A3A", "aerosol-optical-depth", "month"),
+    "var_t2m": ("Air temperature", "Regional annual mean T2M, °C.", "cat_climate", "°C", "#D4764E", "air-temperature", "year"),
+    "var_ts": ("Surface temperature", "Regional annual mean TS, °C.", "cat_climate", "°C", "#E09F6D", "surface-temperature", "year"),
+    "var_precip": ("Precipitation", "Regional annual mean PRECTOTCORR, mm/day.", "cat_climate", "mm/day", "#3E7CB1", "precipitation", "year"),
+    "var_root_wetness": ("Root-zone wetness", "Regional annual mean GWETROOT, %.", "cat_climate", "%", "#2E8B6A", "root-wetness", "year"),
+    "var_evland": ("Land evaporation", "Regional annual mean EVLAND, mm/day.", "cat_climate", "mm/day", "#5E9BB3", "land-evaporation", "year"),
+    "var_rh": ("Relative humidity", "Regional annual mean RH2M, %.", "cat_climate", "%", "#7DCEA0", "relative-humidity", "year"),
+    "var_tqv": ("Water vapor", "Regional annual mean TQV, kg/m².", "cat_climate", "kg/m²", "#6EA8FE", "water-vapor", "year"),
+    "var_slp": ("Sea-level pressure", "Regional annual mean SLP, hPa.", "cat_climate", "hPa", "#B8A1E3", "sea-level-pressure", "year"),
+    "var_sea_ice": ("Sea ice", "Regional annual mean FRSEAICE, %.", "cat_climate", "%", "#D4E4F2", "sea-ice", "year"),
+    "var_snow": ("Snow depth", "Regional annual mean SNODP, cm.", "cat_climate", "cm", "#E5F0F4", "snow-depth", "year"),
+    "var_sunlight": ("Solar radiation", "Regional annual mean ALLSKY_SFC_SW_DWN, MJ/m²/day.", "cat_atmosphere", "MJ/m²/day", "#E0B15A", "sunlight", "year"),
+    "var_cloud": ("Cloud cover", "Regional annual mean CLOUD_AMT, %.", "cat_atmosphere", "%", "#A7B0B8", "cloud-cover", "year"),
+    "var_tropt": ("Tropopause temperature", "Regional annual mean TROPT, °C.", "cat_atmosphere", "°C", "#D98CB3", "tropopause-temperature", "year"),
+    "var_wind": ("Wind at 10 m", "Regional annual mean WS10M, m/s.", "cat_atmosphere", "m/s", "#8EABC4", "wind", "year"),
 }
 
 # Positions 0–1. The measured cell uses one color from the ramp; the ramp is not a spatial map.
@@ -120,7 +120,7 @@ class Catalog:
             "latitude": latitude,
             "longitude": longitude,
             "aliases": aliases,
-            "description": "Moyennes annuelles régionales. Les coordonnées sont un point de navigation, pas une station.",
+            "description": "Regional annual means. The coordinates are a navigation point, not a station.",
         }
         if code:
             record["countryCode"] = code
@@ -129,9 +129,9 @@ class Catalog:
     def variables(self) -> tuple[list[dict], list[dict]]:
         present = {variable_id for _, variable_id in self.series}
         categories = [
-            {"id": "cat_soil", "name": "Sol", "order": 1},
-            {"id": "cat_atmosphere", "name": "Atmosphère", "order": 2},
-            {"id": "cat_climate", "name": "Climat régional", "order": 3},
+            {"id": "cat_soil", "name": "Soil", "order": 1},
+            {"id": "cat_atmosphere", "name": "Atmosphere", "order": 2},
+            {"id": "cat_climate", "name": "Regional climate", "order": 3},
         ]
         rows = []
         for variable_id in present:
@@ -152,7 +152,7 @@ class Catalog:
                     "supportedTemporalResolutions": [resolution],
                     "defaultResolution": resolution,
                     "availableDateRange": {"start": start, "end": end},
-                    "aggregationMethod": "moyenne mensuelle" if resolution == "month" else "moyenne annuelle régionale",
+                    "aggregationMethod": "monthly mean" if resolution == "month" else "regional annual mean",
                     "role": role,
                     "datasetVersion": DATASET_VERSION,
                 }
