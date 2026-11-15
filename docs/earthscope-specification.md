@@ -2,6 +2,8 @@
 
 Document de référence partagé entre produit, frontend, backend, visualisation géospatiale et intégration IA. Il opérationnalise la description frontend v3. Il ne contient pas de code applicatif.
 
+L’interface livrée est spécifiée dans [earthscope-frontend.md](earthscope-frontend.md). Ce document prévaut pour le frontend, en particulier le fond de globe : Cesium ion lorsque la clé Map Tiles API est absente, tuiles Google lorsqu’elle est renseignée.
+
 Légende utilisée dans tout le document :
 
 - **[Brief]** exigence explicite de la description v3 ou des règles produit.
