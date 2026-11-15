@@ -2,7 +2,7 @@
 
 Poste de travail d’observation de la Terre : globe Google plein écran, zones et variables fournies par le backend, temps, assistant.
 
-Le blueprint d’implémentation est dans [docs/earthscope-specification.md](docs/earthscope-specification.md).
+Le blueprint d’implémentation est dans [docs/earthscope-specification.md](docs/earthscope-specification.md). La spécification de l’interface livrée est dans [docs/earthscope-frontend.md](docs/earthscope-frontend.md).
 
 ## Lancer l’interface
 
