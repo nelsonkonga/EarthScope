@@ -2,7 +2,7 @@ import {
   Cartesian3,
   Color,
   ColorMaterialProperty,
-  ConstantProperty,
+  CallbackProperty,
   PointPrimitiveCollection,
   PolygonHierarchy,
   Rectangle,
@@ -19,7 +19,8 @@ import type { FieldLayer, Footprint, GlobeField } from "../../domain/fieldView";
  */
 type Swatch = {
   key: string;
-  property: ConstantProperty;
+  /** Color read by Cesium on every frame. Mutated in place, so the geometry is never rebuilt. */
+  value: Color;
   from: Color;
   to: Color;
   shown: Color;
@@ -27,7 +28,7 @@ type Swatch = {
   toAlpha: number;
   shownAlpha: number;
   pulse: boolean;
-  width?: { property: ConstantProperty; from: number; to: number };
+  width?: { value: { current: number }; from: number; to: number };
 };
 
 type Mote = {
@@ -59,7 +60,6 @@ type Cohort = {
   clouds: Cloud[];
 };
 
-const scratch = new Color();
 
 function qualityScale() {
   const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
@@ -77,12 +77,16 @@ function lerp(a: number, b: number, t: number) {
 
 function swatch(key: string, color: string, alpha: number, pulse: boolean): { material: ColorMaterialProperty; item: Swatch } {
   const target = Color.fromCssColorString(color);
-  const property = new ConstantProperty(target.withAlpha(0));
+  const value = target.withAlpha(0);
+  // A CallbackProperty (isConstant = false) lets Cesium read a new color each frame through its
+  // per-instance color attribute. A ConstantProperty.setValue() would instead mark the definition
+  // as changed and rebuild the polygon geometry asynchronously, so during playback the fill never
+  // finished building and only appeared on pause.
   return {
-    material: new ColorMaterialProperty(property),
+    material: new ColorMaterialProperty(new CallbackProperty(() => value, false)),
     item: {
       key,
-      property,
+      value,
       from: target.clone(),
       to: target.clone(),
       shown: target.clone(),
@@ -98,8 +102,9 @@ function paint(item: Swatch, t: number, wave: number) {
   Color.lerp(item.from, item.to, t, item.shown);
   item.shownAlpha = lerp(item.fromAlpha, item.toAlpha, t);
   const alpha = Math.max(0, Math.min(1, item.shownAlpha * (item.pulse && t >= 1 ? wave : 1)));
-  item.property.setValue(Color.clone(item.shown, scratch).withAlpha(alpha));
-  if (item.width) item.width.property.setValue(lerp(item.width.from, item.width.to, t));
+  Color.clone(item.shown, item.value);
+  item.value.alpha = alpha;
+  if (item.width) item.width.value.current = lerp(item.width.from, item.width.to, t);
 }
 
 function outline(footprint: Footprint, height: number) {
@@ -239,7 +244,7 @@ export function createFieldPainter(viewer: Viewer) {
         if (!item) continue;
         Color.fromCssColorString(target.color, item.to);
         item.toAlpha = target.alpha;
-        if (item.width && target.width != null) item.width = { ...item.width, from: item.width.property.getValue() as number, to: target.width };
+        if (item.width && target.width != null) item.width = { ...item.width, from: item.width.value.current, to: target.width };
       }
       const cloud = cohort.clouds.find((entry) => entry.key === `${index}:cloud`);
       if (cloud) Color.fromCssColorString(layer.color, cloud.to);
@@ -403,8 +408,9 @@ function addLayer(viewer: Viewer, cohort: Cohort, field: GlobeField, layer: Fiel
       cohort.entities.push(viewer.entities.add({ name: field.zoneId, ...shape }));
       continue;
     }
-    const width = new ConstantProperty(target.role === "inner" ? 6 : (target.width ?? 2.5));
-    if (target.role === "boundary") made.item.width = { property: width, from: target.width ?? 2.5, to: target.width ?? 2.5 };
+    const widthValue = { current: target.role === "inner" ? 6 : (target.width ?? 2.5) };
+    const width = new CallbackProperty(() => widthValue.current, false);
+    if (target.role === "boundary") made.item.width = { value: widthValue, from: widthValue.current, to: widthValue.current };
     cohort.entities.push(
       viewer.entities.add({
         name: field.zoneId,

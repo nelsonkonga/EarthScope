@@ -50,16 +50,23 @@ export function Timeline({ variables }: { variables: Variable[] }) {
     return () => window.clearInterval(timer);
   }, [playback, speed, steps]);
 
+  // During playback every active variable is fetched two steps ahead, so the globe and the
+  // legend always have the next reading ready when the step changes.
+  const activeIds = useWorkspace((state) => state.activeVariableIds);
   useEffect(() => {
-    if (playback !== "playing" || !primary || !date) return;
-    const next = shiftStep(steps, date, 1);
-    if (!next) return;
-    void queryClient.prefetchQuery({
-      queryKey: ["layer", primary.id, next, primary.datasetVersion],
-      queryFn: ({ signal }) => fetchLayer(primary.id, next, signal),
-      staleTime: Infinity,
-    });
-  }, [date, playback, primary, queryClient, steps]);
+    if (playback !== "playing" || !date) return;
+    const active = variables.filter((variable) => activeIds.includes(variable.id));
+    const ahead = [shiftStep(steps, date, 1), shiftStep(steps, date, 2)].filter((step): step is string => Boolean(step));
+    for (const step of ahead) {
+      for (const variable of active) {
+        void queryClient.prefetchQuery({
+          queryKey: ["layer", variable.id, step, variable.datasetVersion],
+          queryFn: ({ signal }) => fetchLayer(variable.id, step, signal),
+          staleTime: Infinity,
+        });
+      }
+    }
+  }, [activeIds, date, playback, queryClient, steps, variables]);
 
   const disabled = steps.length === 0;
   return (
