@@ -1,4 +1,6 @@
 import { ZONE_COLORS, fr } from "../../config/strings.fr";
+import { kindForRole } from "../../domain/fieldView";
+import { strategyForKind } from "../../domain/visualStrategies";
 import { formatLatLon, formatNumber, formatTrend, statusWord } from "../../domain/format";
 import type { Variable, Zone } from "../../domain/types";
 import { useComparisonQuery, useRankingQuery, useSeriesQueries } from "../../api/queries";
@@ -12,6 +14,7 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
   const cardOpen = useWorkspace((state) => state.zoneCardOpen);
   const closeCard = useWorkspace((state) => state.closeCard);
   const activeIds = useWorkspace((state) => state.activeVariableIds);
+  const primaryId = useWorkspace((state) => state.primaryVariableId);
   const date = useWorkspace((state) => state.selectedDate);
   const comparison = useWorkspace((state) => state.comparison);
   const clearComparison = useWorkspace((state) => state.setComparison);
@@ -40,16 +43,19 @@ export function SelectedZonePanel({ zones, variables }: { zones: Zone[]; variabl
           {variables.some((variable) => variable.datasetVersion.startsWith("fixture")) && <p className="hint">{fr.fixtureValues}</p>}
           {active.length === 0 && <p>{fr.chooseVariable}</p>}
           {active.map((variable) => {
+            const kind = kindForRole(variable.role);
             const allowed = zone.availableVariableIds.includes(variable.id);
             const query = seriesQueries[available.indexOf(variable)];
             const series = query?.data;
             const observation = series?.observations.find((item) => item.date === date);
             return (
-              <section key={variable.id} className="zone-section">
+              <section key={variable.id} className={variable.id === primaryId ? "zone-section is-primary" : "zone-section"}>
                 <h3>
                   <span className="swatch" style={{ background: variable.color }} />
                   {variable.name}
+                  {variable.id === primaryId && <span className="chip-tag">{fr.primary}</span>}
                 </h3>
+                {kind && <p className="hint">{strategyForKind(kind).legend}</p>}
                 {!allowed && <p>{fr.noDataFor(variable.name, zone.name)}</p>}
                 {allowed && query?.isError && (
                   <p>

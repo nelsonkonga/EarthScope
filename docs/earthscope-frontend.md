@@ -103,6 +103,7 @@ src/
   api/queries.ts
   features/globe/GlobeViewport.tsx
   features/globe/globeRenderer.ts
+  features/globe/fieldPainter.ts
   features/globe/globeApi.ts
   features/globe/cameraBridge.ts
   features/globe/GlobeControls.tsx
@@ -261,7 +262,7 @@ Vue initiale : longitude 11,52°, latitude 3,86°, hauteur 1 400 km, nadir, nord
 | Zoom maximum | 40 000 km |
 | Vol vers une zone, ou vers la primaire | 90 km, nadir (−90°), 0,8 s |
 | Noms visibles | hauteur caméra &lt; 2 500 km, ou zone sélectionnée |
-| Maille colorée | ellipse à 2 400 m au-dessus de l’ellipsoïde, rayon de l’emprise Giovanni |
+| Maille colorée | rectangle de l’emprise, à 2 400 m au-dessus de l’ellipsoïde |
 
 Gestes : glisser gauche pour tourner, glisser droit ou Ctrl+glisser pour incliner, molette et pincement pour zoomer vers le curseur. Double-clic : zoom d’environ 35 % de la hauteur, sans sélectionner. Clic sur un marqueur : sélection. Clic ailleurs : la sélection ne change pas, et la barre d’état montre quatre secondes « Cet endroit n’est pas une zone du prototype. »
 
@@ -291,17 +292,17 @@ La couleur est la moyenne de cette maille à `selectedDate`. Ce n’est pas un c
 
 | `role` | Famille | Phrase de légende | Altitude |
 |---|---|---|---|
-| `soil-temperature` | thermique | « Dégradé thermique de la maille, du froid au très chaud. » | 2 400 m |
-| `soil-temperature-deep` | thermique sourd | « Même dégradé, plus sourd : le sol profond change moins vite. » | 2 400 m |
-| `soil-moisture` | humidité | « Du sol sec au sol saturé. » | 2 400 m |
-| `soil-moisture-deep` | humidité profonde | « Humidité profonde, dans des bleus plus denses. » | 2 400 m |
-| `evaporation` | vapeur | « Nappe de vapeur au-dessus de l'emprise. » | 3 100 m |
-| `runoff` | ruissellement | « Filets d'eau : l'intensité suit le ruissellement mesuré. » | 2 400 m |
-| `aerosol-optical-depth` | voile | « Voile d'aérosols, du ciel clair à la poussière dense. » | 4 200 m, rayon × 1,35 |
+| `soil-temperature` | surface thermique | « Couleur unique de la maille, du froid au très chaud. » | 2 400 m |
+| `soil-temperature-deep` | surface plus sourde, double contour | « Même rampe, plus sourde : le sol profond change moins vite. » | 2 480 m |
+| `soil-moisture` | surface d’humidité | « Du sol sec au sol saturé. Une seule couleur pour toute la maille. » | 2 400 m |
+| `soil-moisture-deep` | surface plus dense, double contour | « Humidité profonde, dans des bleus plus denses, sur la même emprise. » | 2 480 m |
+| `evaporation` | voile léger et particules ascendantes | « Vapeur au-dessus de la maille. La densité suit la mesure, pas un vent. » | 2 400 m |
+| `runoff` | surface et halo d’intensité, sans direction | « Intensité du ruissellement. Aucune direction n'est mesurée. » | 2 400 m |
+| `aerosol-optical-depth` | voile sur la même emprise, particules lentes | « Voile d'aérosols sur la maille, du ciel clair à la poussière dense. » | 4 200 m |
 
 L’échelle vient de `colorScale.stops`. À défaut, cinq tons sont dérivés de `color`. La position sur la rampe est `(valeur − min) / (max − min)`, bornée à 0–1. Sans mesure, la couleur est `#c5ccd1` et la légende dit « Pas de mesure à cette date. L'emprise reste visible, sans couleur inventée. »
 
-La géométrie est une ellipse Cesium, en hauteur absolue au-dessus de l’ellipsoïde, pour rester visible au-dessus du plateau de Yaoundé sur Cesium ion comme sur les tuiles Google. La primaire au sol peint le disque. Une autre variable au sol trace un liseré, 0,012° à l’extérieur de l’emprise. L’évaporation et les aérosols se superposent au sol s’ils sont aussi actifs.
+La géométrie est le rectangle de l’emprise, en hauteur absolue, pour rester au-dessus du plateau de Yaoundé. Le registre `src/domain/visualStrategies.ts` choisit le canal : surface uniforme, liseré sur le même contour, vapeur, voile, ou pluie si le rôle `precipitation` arrive plus tard. Une seconde variable au sol ne repeint pas la maille : elle trace le contour. Deux systèmes de particules au plus ; le suivant redevient un liseré. Sans mesure, aucune particule n’est émise. La vapeur, le voile et la pluie éventuelle ajoutent des points au-dessus de la maille. Ils grandissent et s’effacent. Vus du nadir, la montée se lit ainsi, sans inventer un vent. Le changement de variable ou de date fond l’opacité en 480 ms, 140 ms pendant la lecture, immédiatement si `prefers-reduced-motion` est demandé. Le fondu ne calcule aucune valeur intermédiaire. Les points ne sont pas émis dans ce mode.
 
 L’atmosphère Cesium prend une teinte selon la famille (chaud, bleu, vert, poussière). `--accent` devient la couleur échantillonnée. Le fond des panneaux change avec `data-field` sur `.workspace` : brun pour le thermique, bleu pour l’eau, vert pour la vapeur, ocre pour le voile.
 
@@ -340,9 +341,11 @@ Une ligne de 2 px en haut signale le chargement des catalogues.
 
 **Zones.** Champ « Rechercher une zone ». Liste nom et pays. La zone courante a `aria-current`. Vide : « Aucune zone du prototype ne correspond. » Catalogue vide : « Aucune zone n'est publiée pour le moment. » La recherche ne propose jamais un lieu hors catalogue. `/` ouvre ce panneau et focalise le champ.
 
-**Pastilles.** Une par variable active, dans l’ordre d’activation. Clic : la rendre primaire. Croix : la retirer. La dernière retirée rend le globe neutre.
+**Pastilles.** Une par variable active, dans l’ordre d’activation. Chacune porte le canal (thermique, vapeur, aérosols…). Clic : la rendre primaire. Croix : la retirer. La dernière retirée rend le globe neutre. Le passage d’une primaire à l’autre fond le rectangle précédent.
 
-**Légende.** Visible seulement avec une primaire. Valeur courante, rampe, curseur, minimum, maximum, unité, phrase de famille, phrase d’emprise. Les secondaires sont rappelés par leur pastille et leur nom. « Mise à jour… » pendant un refetch. « Mise à jour impossible. » si la date est hors couverture. Sous 1024 px elle se replie sur le nom et la pastille.
+**Légende.** Visible seulement avec une primaire. Valeur courante, rampe, curseur, minimum, maximum, unité, date, phrase de famille, phrase d’emprise, phrase du canal. Chaque secondaire montre son canal et sa valeur, sans seconde grande rampe. « Mise à jour… » pendant un refetch. « Mise à jour impossible. » si la date est hors couverture. Sous 1024 px elle se replie sur le nom et la pastille.
+
+**Graphique agrandi.** Le bouton Agrandir de l’analyse ouvre la même série dans une fenêtre d’environ 88 % de la largeur. Un clic sur un point fixe `selectedDate`. Les flèches gauche et droite déplacent cette date. Le zoom par balayage et sa réinitialisation sont ceux du graphique compact. Les mois sans mesure restent des trous.
 
 **Fiche.** Nom, pays, coordonnées `3,867° N, 11,517° E` (hémisphères N/S/E/O, six décimales au plus, virgule, zéros inutiles retirés). Mention « Valeurs du jeu d'essai, pas des mesures. » quand le catalogue est un jeu d’essai. Sans variable : « Choisissez une variable pour voir son évolution. » Sans couverture : « Pas de données de {variable} pour {zone}. » Sans série : phrase et Réessayer, pas de graphique vide.
 

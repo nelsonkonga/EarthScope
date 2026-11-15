@@ -43,12 +43,21 @@ export function MainWorkspace() {
   const comparison = useWorkspace((state) => state.comparison);
   const activePanel = useWorkspace((state) => state.activePanel);
   const notice = useWorkspace((state) => state.notice);
+  const selectedDate = useWorkspace((state) => state.selectedDate);
+  const playback = useWorkspace((state) => state.playback);
   const cardOpen = useWorkspace((state) => state.zoneCardOpen);
   const togglePanel = useWorkspace((state) => state.togglePanel);
   const setPanel = useWorkspace((state) => state.setPanel);
   const closeCard = useWorkspace((state) => state.closeCard);
   const ensureDate = useWorkspace((state) => state.ensureDate);
   const narrow = useNarrow();
+  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => setReducedMotion(media.matches);
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
+  }, []);
   const [fullscreen, setFullscreen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const primary = variables.find((variable) => variable.id === primaryId) ?? null;
@@ -141,8 +150,8 @@ export function MainWorkspace() {
   }, [highlighted, primary, primaryLayer, secondaries, selectedZoneId, zones]);
 
   useEffect(() => {
-    showField(field);
-  }, [field]);
+    showField(field ? { ...field, transitionMs: reducedMotion ? 0 : playback === "playing" ? 140 : 480, animate: !reducedMotion } : null);
+  }, [field, playback, reducedMotion]);
 
   useEffect(() => {
     const onChange = () => setFullscreen(Boolean(document.fullscreenElement));
@@ -235,9 +244,20 @@ export function MainWorkspace() {
       />
       <VariableLegend
         primary={primary}
-        secondaries={secondaries}
         layer={primaryLayer}
         caption={field?.caption ?? ""}
+        date={selectedDate}
+        entries={(primary ? [primary, ...secondaries] : []).map((variable) => {
+          const row = layerQueries.find((query) => query.data?.variableId === variable.id)?.data?.zoneValues.find((value) => value.zoneId === studyZone?.id);
+          const drawn = field?.layers.find((layer) => layer.variableId === variable.id);
+          return {
+            variable,
+            value: !row || row.status === "missing" ? null : row.value,
+            chip: drawn?.chip ?? "",
+            legend: drawn?.legend ?? "",
+            primary: variable.id === primary?.id,
+          };
+        })}
         reading={reading?.status === "missing" ? null : (reading?.value ?? null)}
         updating={layerQueries.some((query) => query.isFetching && !query.isLoading)}
         failed={Boolean(layerQueries[0]?.isError)}

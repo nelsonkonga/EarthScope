@@ -1,42 +1,41 @@
 import { clamp, derivedStops, sampleScale } from "./colorScale";
 import type { ColorStop, Variable } from "./types";
+import { PARTICLE_BUDGET, strategyForKind, type FieldChannel, type FieldKind, type FieldMotion } from "./visualStrategies";
 
-/** How a variable is drawn on the Yaoundé cell. The color is the cell mean, not a spatial interpolation. */
-export type FieldKind = "thermal" | "thermal-deep" | "moisture" | "moisture-deep" | "vapor" | "runoff" | "haze";
+export type { FieldKind } from "./visualStrategies";
 
 export type Footprint = { west: number; south: number; east: number; north: number };
 
 export const GIOVANNI_FOOTPRINT: Footprint = { west: 11.4, south: 3.75, east: 11.65, north: 3.98 };
 
 export const FIELD_CAPTION: Record<FieldKind, string> = {
-  thermal: "Dégradé thermique de la maille, du froid au très chaud.",
-  "thermal-deep": "Même dégradé, plus sourd : le sol profond change moins vite.",
-  moisture: "Du sol sec au sol saturé.",
-  "moisture-deep": "Humidité profonde, dans des bleus plus denses.",
-  vapor: "Nappe de vapeur au-dessus de l'emprise.",
-  runoff: "Filets d'eau : l'intensité suit le ruissellement mesuré.",
-  haze: "Voile d'aérosols, du ciel clair à la poussière dense.",
+  thermal: "Couleur unique de la maille, du froid au très chaud.",
+  "thermal-deep": "Même rampe, plus sourde : le sol profond change moins vite.",
+  moisture: "Du sol sec au sol saturé. Une seule couleur pour toute la maille.",
+  "moisture-deep": "Humidité profonde, dans des bleus plus denses, sur la même emprise.",
+  vapor: "Vapeur au-dessus de la maille. La densité suit la mesure, pas un vent.",
+  runoff: "Intensité du ruissellement. Aucune direction n'est mesurée.",
+  haze: "Voile d'aérosols sur la maille, du ciel clair à la poussière dense.",
+  precipitation: "Précipitation sur la maille, seulement si le catalogue la publie.",
+  generic: "Moyenne de la maille pour une variable sans représentation dédiée.",
 };
-
-const ALTITUDE: Record<FieldKind, "ground" | "mist" | "haze"> = {
-  thermal: "ground",
-  "thermal-deep": "ground",
-  moisture: "ground",
-  "moisture-deep": "ground",
-  runoff: "ground",
-  vapor: "mist",
-  haze: "haze",
-};
-
-export type FieldRole = "fill" | "rim" | "mist" | "haze";
 
 export type FieldLayer = {
   variableId: string;
   kind: FieldKind;
-  role: FieldRole;
+  channel: FieldChannel;
   t: number | null;
   stops: ColorStop[];
   color: string;
+  altitude: number;
+  alpha: number;
+  outline: "solid" | "double" | "none";
+  motion: FieldMotion;
+  legend: string;
+  chip: string;
+  /** Particles are omitted when the month has no measurement, so a gap never becomes a plume. */
+  emit: boolean;
+  directional: false;
 };
 
 export type GlobeField = {
@@ -46,6 +45,10 @@ export type GlobeField = {
   caption: string;
   footprint: Footprint;
   layers: FieldLayer[];
+  /** Crossfade length. 0 skips the fade. The renderer does not invent intermediate measurements. */
+  transitionMs?: number;
+  /** False when the user prefers reduced motion. Pulse and particles stay off. */
+  animate?: boolean;
 };
 
 export function kindForRole(role: string | undefined): FieldKind | null {
@@ -64,8 +67,11 @@ export function kindForRole(role: string | undefined): FieldKind | null {
       return "runoff";
     case "aerosol-optical-depth":
       return "haze";
+    case "precipitation":
+    case "rain":
+      return "precipitation";
     default:
-      return null;
+      return role ? "generic" : null;
   }
 }
 
@@ -106,28 +112,40 @@ export function composeField(input: {
     return [{ variable, kind, stops, t, color: t == null ? GAP : sampleScale(stops, t) }];
   });
   if (prepared.length === 0) return null;
-  const ground = prepared.filter((item) => ALTITUDE[item.kind] === "ground");
-  const primaryGround = ground.find((item) => item.variable.id === input.primary?.id) ?? ground[0];
-  const layers: FieldLayer[] = [];
-  if (primaryGround) {
-    layers.push({ variableId: primaryGround.variable.id, kind: primaryGround.kind, role: "fill", t: primaryGround.t, stops: primaryGround.stops, color: primaryGround.color });
-  }
-  for (const item of ground) {
-    if (item === primaryGround) continue;
-    layers.push({ variableId: item.variable.id, kind: item.kind, role: "rim", t: item.t, stops: item.stops, color: item.color });
-  }
-  for (const item of prepared) {
-    const altitude = ALTITUDE[item.kind];
-    if (altitude === "ground") continue;
-    layers.push({
+  const primaryId = input.primary.id;
+  const ordered = [...prepared].sort((a, b) => Number(b.variable.id === primaryId) - Number(a.variable.id === primaryId));
+  let particleSlots = 0;
+  const layers: FieldLayer[] = ordered.map((item) => {
+    const strategy = strategyForKind(item.kind);
+    const isPrimary = item.variable.id === primaryId;
+    const surfaceSecondary = strategy.channel === "surface" && !isPrimary;
+    let channel = surfaceSecondary ? "halo" : strategy.channel;
+    const wantsEmit = strategy.particles && item.t != null && channel !== "halo";
+    let emit = false;
+    if (wantsEmit) {
+      if (particleSlots < PARTICLE_BUDGET) {
+        particleSlots += 1;
+        emit = true;
+      } else channel = "halo";
+    }
+    const alpha = item.t == null ? (channel === "halo" ? 0.35 : 0.16) : channel === "halo" ? 0.55 + item.t * 0.4 : strategy.fillAlpha * (0.62 + 0.38 * item.t);
+    return {
       variableId: item.variable.id,
       kind: item.kind,
-      role: altitude,
+      channel,
       t: item.t,
       stops: item.stops,
       color: item.color,
-    });
-  }
+      altitude: strategy.altitude,
+      alpha,
+      outline: channel === "halo" ? "solid" : strategy.outline,
+      motion: channel === "halo" ? "still" : strategy.motion,
+      legend: strategy.legend,
+      chip: strategy.chip,
+      emit,
+      directional: false as const,
+    };
+  });
   const theme = kindForRole(input.primary.role) ?? "neutral";
   const lead = prepared.find((item) => item.variable.id === input.primary?.id);
   return {

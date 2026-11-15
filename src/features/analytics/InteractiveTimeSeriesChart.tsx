@@ -18,12 +18,10 @@ type Props = {
   mode: "single" | "dual" | "normalized";
   selectedDate: string | null;
   trend?: TrendOverlay | null;
+  layout?: "compact" | "stage";
   onSelectDate: (date: string) => void;
   onBrush: (start: string, end: string) => void;
 };
-
-const WIDTH = 340;
-const HEIGHT = 200;
 
 function extent(values: number[]) {
   const min = Math.min(...values);
@@ -48,12 +46,15 @@ function pathFor(points: ChartPoint[], xOf: (date: string) => number, yOf: (valu
   return segments;
 }
 
-export function InteractiveTimeSeriesChart({ lines, mode, selectedDate, trend, onSelectDate, onBrush }: Props) {
+export function InteractiveTimeSeriesChart({ lines, mode, selectedDate, trend, layout = "compact", onSelectDate, onBrush }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ x: number; date: string } | null>(null);
   const [hover, setHover] = useState<{ date: string; x: number } | null>(null);
   const [brush, setBrush] = useState<{ x0: number; x1: number } | null>(null);
-  const pad = { l: 34, r: mode === "dual" ? 34 : 8, t: 12, b: 22 };
+  const stage = layout === "stage";
+  const WIDTH = stage ? 960 : 340;
+  const HEIGHT = stage ? 480 : 200;
+  const pad = { l: stage ? 64 : 34, r: mode === "dual" ? (stage ? 64 : 34) : stage ? 16 : 8, t: stage ? 24 : 12, b: stage ? 36 : 22 };
   const innerW = WIDTH - pad.l - pad.r;
   const innerH = HEIGHT - pad.t - pad.b;
   const dates = lines.flatMap((line) => line.points.map((point) => point.date));
@@ -84,7 +85,7 @@ export function InteractiveTimeSeriesChart({ lines, mode, selectedDate, trend, o
   };
 
   return (
-    <div className="chart">
+    <div className={stage ? "chart stage" : "chart"}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -142,7 +143,7 @@ export function InteractiveTimeSeriesChart({ lines, mode, selectedDate, trend, o
         {brush && <rect x={Math.min(brush.x0, brush.x1)} y={pad.t} width={Math.abs(brush.x1 - brush.x0)} height={innerH} className="brush" />}
         {lines.map((line, index) =>
           pathFor(line.points, xOf, (value) => yOf(index, value)).map((segment) => (
-            <path key={`${line.id}-${segment.slice(0, 24)}`} d={segment} fill="none" stroke={line.color} strokeWidth={1.5} />
+            <path key={`${line.id}-${segment.slice(0, 24)}`} d={segment} fill="none" stroke={line.color} strokeWidth={stage ? 2.4 : 1.5} />
           )),
         )}
         {trend && mode !== "dual" && (

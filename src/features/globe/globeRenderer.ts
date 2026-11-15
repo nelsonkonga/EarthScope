@@ -7,7 +7,6 @@ import {
   Cesium3DTileset,
   Color,
   Ellipsoid,
-  Entity,
   ImageryLayer,
   Ion,
   KeyboardEventModifier,
@@ -28,6 +27,7 @@ import { FLY_HEIGHT_METERS, FLY_PITCH_DEGREES, FLY_SECONDS, HOME_CAMERA, LABEL_H
 import type { GlobeField } from "../../domain/fieldView";
 import { niceDistance } from "../../domain/format";
 import { publishCamera } from "./cameraBridge";
+import { createFieldPainter } from "./fieldPainter";
 import { registerGlobe, type GlobeController, type GlobeStatus, type MarkerSpec } from "./globeApi";
 
 type Hooks = {
@@ -156,7 +156,7 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
   let pointer: Cartesian2 | null = null;
   let lastPublish = 0;
   let clickTimer = 0;
-  let fieldEntities: Entity[] = [];
+  const fieldPainter = createFieldPainter(viewer);
 
   const homeView = () => {
     viewer.camera.setView({
@@ -205,11 +205,6 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
     viewer.scene.requestRender();
   };
 
-  const clearField = () => {
-    for (const entity of fieldEntities) viewer.entities.remove(entity);
-    fieldEntities = [];
-  };
-
   const themeHue: Record<string, number> = {
     neutral: 0,
     thermal: -0.12,
@@ -219,6 +214,8 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
     vapor: 0.36,
     runoff: 0.42,
     haze: 0.06,
+    precipitation: 0.5,
+    generic: 0,
   };
 
   const applyTheme = (theme: string) => {
@@ -238,61 +235,8 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
   };
 
   const paintScene = (field: GlobeField | null) => {
-    clearField();
     applyTheme(field?.theme ?? "neutral");
-    if (!field) {
-      viewer.scene.requestRender();
-      return;
-    }
-    const scene = field;
-    const { west, south, east, north } = scene.footprint;
-    const lon = (west + east) / 2;
-    const lat = (south + north) / 2;
-    const latRad = CesiumMath.toRadians(lat);
-    const minor = Math.max(((north - south) / 2) * 111_320, 400);
-    const major = Math.max(((east - west) / 2) * 111_320 * Math.cos(latRad), 400);
-    // Absolute height clears the Yaoundé plateau (~750 m) on both the ion terrain and Google tiles.
-    const deck = 2400;
-    for (const layer of scene.layers) {
-      if (layer.role === "fill" || layer.role === "haze" || layer.role === "mist") {
-        const height = layer.role === "haze" ? deck + 1800 : layer.role === "mist" ? deck + 700 : deck;
-        const alpha = layer.t == null ? 0.18 : layer.role === "haze" ? 0.45 : layer.role === "mist" ? 0.5 : 0.62;
-        fieldEntities.push(
-          viewer.entities.add({
-            name: scene.zoneId,
-            position: Cartesian3.fromDegrees(lon, lat, height),
-            ellipse: {
-              semiMajorAxis: major * (layer.role === "haze" ? 1.35 : 1),
-              semiMinorAxis: minor * (layer.role === "haze" ? 1.35 : 1),
-              material: Color.fromCssColorString(layer.color).withAlpha(alpha),
-              height,
-            },
-          }),
-        );
-      }
-      if (layer.role === "rim") {
-        const pad = 0.012;
-        const corners: [number, number][] = [
-          [west - pad, south - pad],
-          [east + pad, south - pad],
-          [east + pad, north + pad],
-          [west - pad, north + pad],
-          [west - pad, south - pad],
-        ];
-        fieldEntities.push(
-          viewer.entities.add({
-            name: scene.zoneId,
-            polyline: {
-              positions: Cartesian3.fromDegreesArrayHeights(corners.flatMap(([cornerLon, cornerLat]) => [cornerLon, cornerLat, deck + 40])),
-              width: 3,
-              material: Color.fromCssColorString(layer.color).withAlpha(layer.t == null ? 0.4 : 0.85),
-            },
-          }),
-        );
-      }
-    }
-    viewer.scene.requestRender();
-    window.requestAnimationFrame(() => viewer.scene.requestRender());
+    fieldPainter.show(field);
   };
 
   const publish = (force = false) => {
@@ -399,6 +343,7 @@ export function createGlobe(container: HTMLElement, credits: HTMLElement, hooks:
   const api: GlobeController = {
     destroy: () => {
       window.clearTimeout(clickTimer);
+      fieldPainter.destroy();
       moveHandler.destroy();
       registerGlobe(null);
       viewer.destroy();

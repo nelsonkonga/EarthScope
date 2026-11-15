@@ -39,6 +39,8 @@ export const fr = {
   fullscreen: "Plein écran",
   exitFullscreen: "Quitter le plein écran",
   expand: "Agrandir",
+  expandChart: "Agrandir le graphique",
+  chartStage: "Analyse détaillée",
   clearComparison: "Effacer la comparaison",
   ranking: "Classement",
   comparison: "Comparaison",
