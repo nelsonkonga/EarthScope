@@ -71,6 +71,32 @@ def test_seasonal_opposition_is_not_reported_as_an_eighteen_month_lag():
     assert stats["bestLag"] is None
 
 
+def test_hamed_rao_mann_kendall_and_the_three_variable_selector():
+    from app.services.mann_kendall import mann_kendall, sen_slope
+    from app.services.variable_selector import analyser_requete
+
+    years = list(range(2001, 2021))
+    rising = [0.05 * (year - 2001) for year in years]
+    result = mann_kendall(rising)
+    assert result["n"] == 20
+    assert result["tau"] > 0
+    assert result["p"] < 0.05
+    assert sen_slope(years, rising) > 0
+    assert mann_kendall([1, 2, 3])["p"] != mann_kendall([1, 2, 3])["p"]
+
+    retrieval = analyser_requete(
+        "Autour de Yaoundé, l'eau stagne en surface et la température du sol monte, mais pas les aérosols.",
+        top_k=3,
+    )
+    kept = [item["id"] for item in retrieval["variables_retenues"]]
+    banned = [item["id"] for item in retrieval["variables_bannies"]]
+    assert "Humidite_Sol_Surface" in kept
+    assert "Temp_Sol_Celsius" in kept
+    assert "MYD08_AOD" in banned or "MYD08_AOD" not in kept
+    assert len(kept) <= 3
+    assert retrieval["localisation"]["ville"] == "Yaounde"
+
+
 def test_correlation_needs_shared_dates():
     left = [(f"{2000 + index:04d}-01-01", float(index)) for index in range(4)]
     right = [(f"{2010 + index:04d}-01-01", float(index)) for index in range(4)]
