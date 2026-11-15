@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useAnalyticsQuery, useMultivariableQuery, useSeriesQueries } from "../../api/queries";
 import { fr } from "../../config/strings.fr";
-import { formatNumber } from "../../domain/format";
+import { formatDate, formatNumber } from "../../domain/format";
 import type { AnalyticsView, Variable, Zone } from "../../domain/types";
 import { useWorkspace } from "../../state/workspaceStore";
+import { Modal } from "../../ui/Modal";
+import { Icon } from "../../ui/icons";
 import { InteractiveTimeSeriesChart, type ChartLine } from "./InteractiveTimeSeriesChart";
 import { MultivariableInsightCard } from "./MultivariableInsightCard";
 
@@ -30,6 +32,8 @@ export function AnalyticsPanel({ zone, variables }: { zone: Zone; variables: Var
   const setView = useWorkspace((state) => state.setAnalyticsView);
   const setPrimary = useWorkspace((state) => state.setPrimary);
   const setDate = useWorkspace((state) => state.setDate);
+  const expandedId = useWorkspace((state) => state.expandedChartVariableId);
+  const setExpanded = useWorkspace((state) => state.setExpandedChart);
   const active = activeIds.map((id) => variables.find((variable) => variable.id === id)).filter((item): item is Variable => Boolean(item));
   const available = active.filter((variable) => zone.availableVariableIds.includes(variable.id));
   const [windowed, setWindowed] = useState<{ start: string; end: string } | null>(null);
@@ -168,20 +172,85 @@ export function AnalyticsPanel({ zone, variables }: { zone: Zone; variables: Var
       )}
       {effective !== "single" && multi.data && <MultivariableInsightCard pairs={multi.data.pairs} />}
       {lines.length > 0 && lines.some((line) => line.points.some((point) => point.value != null)) && (
-        <InteractiveTimeSeriesChart
-          lines={lines}
-          mode={effective}
-          selectedDate={date}
-          trend={
-            effective === "single" && sen?.startValue != null && sen.endValue != null && sen.periodStart && sen.periodEnd
-              ? { start: sen.periodStart, end: sen.periodEnd, startValue: sen.startValue, endValue: sen.endValue }
-              : null
-          }
-          onSelectDate={setDate}
-          onBrush={(start, end) => setWindowed({ start, end })}
-        />
+        <>
+          <div className="chart-head">
+            <p className="hint">{fr.gapHint}</p>
+            <button type="button" className="icon-btn" aria-label={fr.expandChart} onClick={() => primary && setExpanded(primary.id)}>
+              <Icon name="expand" />
+            </button>
+          </div>
+          <InteractiveTimeSeriesChart
+            lines={lines}
+            mode={effective}
+            selectedDate={date}
+            trend={
+              effective === "single" && sen?.startValue != null && sen.endValue != null && sen.periodStart && sen.periodEnd
+                ? { start: sen.periodStart, end: sen.periodEnd, startValue: sen.startValue, endValue: sen.endValue }
+                : null
+            }
+            onSelectDate={setDate}
+            onBrush={(start, end) => setWindowed({ start, end })}
+          />
+        </>
       )}
-      <p className="hint">{fr.gapHint}</p>
+      {expandedId && lines.length > 0 && (
+        <Modal
+          wide
+          title={lines.find((line) => line.id === expandedId)?.name ?? primary?.name ?? fr.chartStage}
+          onClose={() => setExpanded(null)}
+          onKeyDown={(event) => {
+            if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+            const dates = [...new Set(lines.flatMap((line) => line.points.map((point) => point.date)))].sort();
+            const index = date ? dates.indexOf(date) : -1;
+            const next = dates[index + (event.key === "ArrowRight" ? 1 : -1)];
+            if (!next) return;
+            setDate(next);
+            event.preventDefault();
+          }}
+        >
+          <p className="unit">
+            {zone.name} · {zone.country}
+            {primary ? ` · ${primary.unit} · ${primary.datasetVersion}` : ""}
+            {date ? ` · ${formatDate(date)}` : ""}
+          </p>
+          <div className="stage-readout">
+            {lines.map((line) => {
+              const point = line.points.find((item) => item.date === date);
+              return (
+                <p key={line.id}>
+                  <span className="swatch" style={{ background: line.color }} />
+                  {line.name} : {point?.value == null ? "—" : `${formatNumber(point.value)} ${line.unit}`}
+                </p>
+              );
+            })}
+          </div>
+          {effective === "single" && sen && kendall && (
+            <p className="hint">
+              {sen.changePerDecade == null ? "Pente non calculée." : `Pente de Sen : ${formatNumber(sen.changePerDecade)} ${primary?.unit ?? ""} par décennie.`}{" "}
+              {kendall.method} : {trendWord(kendall.trend)}
+              {kendall.pValue != null ? ` (${pText(kendall.pValue)})` : ""}. {primary?.availableDateRange.start} – {primary?.availableDateRange.end}.
+            </p>
+          )}
+          <InteractiveTimeSeriesChart
+            lines={lines}
+            mode={effective}
+            layout="stage"
+            selectedDate={date}
+            trend={
+              effective === "single" && sen?.startValue != null && sen.endValue != null && sen.periodStart && sen.periodEnd
+                ? { start: sen.periodStart, end: sen.periodEnd, startValue: sen.startValue, endValue: sen.endValue }
+                : null
+            }
+            onSelectDate={setDate}
+            onBrush={(start, end) => setWindowed({ start, end })}
+          />
+          {windowed && (
+            <button type="button" className="text-btn" onClick={() => setWindowed(null)}>
+              {fr.resetZoom}
+            </button>
+          )}
+        </Modal>
+      )}
       {windowed && (
         <button type="button" className="text-btn" onClick={() => setWindowed(null)}>
           {fr.resetZoom}

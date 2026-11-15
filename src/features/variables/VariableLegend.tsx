@@ -1,14 +1,23 @@
 import { useState } from "react";
 import { derivedStops } from "../../domain/colorScale";
 import type { MapLayer, Variable } from "../../domain/types";
-import { formatNumber } from "../../domain/format";
+import { formatDate, formatNumber } from "../../domain/format";
 import { fr } from "../../config/strings.fr";
+
+export type LegendEntry = {
+  variable: Variable;
+  value: number | null;
+  chip: string;
+  legend: string;
+  primary: boolean;
+};
 
 export function VariableLegend({
   primary,
-  secondaries,
   layer,
   caption,
+  entries,
+  date,
   reading,
   updating,
   failed,
@@ -16,9 +25,10 @@ export function VariableLegend({
   narrow,
 }: {
   primary: Variable | null;
-  secondaries: Variable[];
   layer: MapLayer | undefined;
   caption: string;
+  entries: LegendEntry[];
+  date: string | null;
   reading: number | null;
   updating: boolean;
   failed: boolean;
@@ -64,17 +74,25 @@ export function VariableLegend({
         <span>{min == null ? "—" : formatNumber(min)}</span>
         <span>{max == null ? "—" : formatNumber(max)}</span>
       </div>
+      {date && <p className="hint">{formatDate(date)}</p>}
       {caption && <p className="hint">{caption}</p>}
       <p className="hint">{fr.legendFootprint}</p>
+      {entries.find((entry) => entry.primary)?.legend && <p className="hint">{entries.find((entry) => entry.primary)?.legend}</p>}
       {layer && reading == null && <p className="hint">{fr.legendGap}</p>}
-      {secondaries.length > 0 && (
+      {entries.some((entry) => !entry.primary) && (
         <ul className="legend-rings">
-          {secondaries.map((variable) => (
-            <li key={variable.id}>
-              <span className="swatch ring" style={{ borderColor: variable.color }} />
-              {variable.name}
-            </li>
-          ))}
+          {entries
+            .filter((entry) => !entry.primary)
+            .map((entry) => (
+              <li key={entry.variable.id}>
+                <span>
+                  <span className="swatch ring" style={{ borderColor: entry.variable.color }} />
+                  {entry.variable.name}
+                  <span className="unit"> {entry.chip}</span>
+                </span>
+                <span>{entry.value == null ? "—" : `${formatNumber(entry.value)} ${entry.variable.unit}`}</span>
+              </li>
+            ))}
         </ul>
       )}
       {unsupported && <p className="hint">{fr.unsupportedLayer}</p>}

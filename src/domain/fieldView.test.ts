@@ -37,8 +37,12 @@ describe("composeField", () => {
     });
     expect(field?.theme).toBe("thermal");
     expect(field?.footprint).toEqual({ west: 11.4, south: 3.75, east: 11.65, north: 3.98 });
-    expect(field?.layers.map((layer) => layer.role)).toEqual(["fill"]);
+    expect(field?.layers.map((layer) => layer.channel)).toEqual(["surface"]);
     expect(field?.layers[0].t).toBeCloseTo(0.4);
+    expect(field?.layers[0].altitude).toBe(2400);
+    expect(field?.layers[0].motion).toBe("pulse");
+    expect(field?.layers[0].directional).toBe(false);
+    expect(field?.layers[0].emit).toBe(false);
   });
 
   it("keeps a second ground variable as a rim and lifts aerosols above the soil", () => {
@@ -53,11 +57,14 @@ describe("composeField", () => {
       valueOf: () => 1,
       scaleOf: () => ({ min: 0, max: 2 }),
     });
-    expect(field?.layers.map((layer) => `${layer.role}:${layer.kind}`)).toEqual([
-      "fill:moisture",
-      "rim:thermal",
-      "haze:haze",
+    expect(field?.layers.map((layer) => `${layer.channel}:${layer.kind}`)).toEqual([
+      "surface:moisture",
+      "halo:thermal",
+      "veil:haze",
     ]);
+    expect(field?.layers.every((layer) => layer.directional === false)).toBe(true);
+    expect(field?.layers.find((layer) => layer.kind === "haze")?.emit).toBe(true);
+    expect(field?.layers.find((layer) => layer.kind === "thermal")?.altitude).toBe(2400);
   });
 
   it("draws evaporation as mist and leaves a gap when the month is missing", () => {
@@ -70,10 +77,33 @@ describe("composeField", () => {
       scaleOf: () => ({ min: 0, max: 5 }),
     });
     expect(field?.layers).toEqual([
-      expect.objectContaining({ role: "mist", kind: "vapor", t: null, color: "#c5ccd1" }),
+      expect.objectContaining({ channel: "vapor", kind: "vapor", t: null, color: "#c5ccd1", emit: false }),
     ]);
     expect(normalizeValue(null, { min: 0, max: 1 })).toBeNull();
     expect(kindForRole("runoff")).toBe("runoff");
-    expect(kindForRole("precipitation")).toBeNull();
+    expect(kindForRole("precipitation")).toBe("precipitation");
+    expect(kindForRole(undefined)).toBeNull();
+    expect(kindForRole("custom-index")).toBe("generic");
+  });
+
+  it("does not invent a flow direction and keeps a third plume as an outline", () => {
+    const field = composeField({
+      zone,
+      primary: variable({ id: "var_evaporation", role: "evaporation", color: "#1F6B62" }),
+      secondaries: [
+        variable({ id: "var_aod", role: "aerosol-optical-depth", color: "#C48A3A" }),
+        variable({ id: "var_rain", role: "precipitation", color: "#6EA4C4" }),
+        variable({ id: "var_runoff", role: "runoff", color: "#1D6E93" }),
+      ],
+      valueOf: () => 1,
+      scaleOf: () => ({ min: 0, max: 2 }),
+    });
+    const rain = field?.layers.find((layer) => layer.kind === "precipitation");
+    const runoff = field?.layers.find((layer) => layer.kind === "runoff");
+    expect(field?.layers.filter((layer) => layer.emit).map((layer) => layer.kind).sort()).toEqual(["haze", "vapor"]);
+    expect(rain?.channel).toBe("halo");
+    expect(rain?.emit).toBe(false);
+    expect(runoff?.channel).toBe("halo");
+    expect(runoff?.directional).toBe(false);
   });
 });
