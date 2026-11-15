@@ -39,7 +39,7 @@ function useDocumentMeta() {
 }
 
 export default function TerraSenseLanding({ onNavigateToApp, assistantController }: TerraSenseLandingProps) {
-  const [about, setAbout] = useState<{ open: boolean; section?: 'credits' }>({ open: false });
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const catalog = useLandingCatalog();
   const { theme } = useLandingTheme();
@@ -49,12 +49,12 @@ export default function TerraSenseLanding({ onNavigateToApp, assistantController
     window.history.pushState({}, '', '/app');
     window.dispatchEvent(new PopStateEvent('popstate'));
   });
-  const openAbout = (section?: 'credits') => setAbout({ open: true, section });
+  const openAbout = () => setAboutOpen(true);
 
   return (
     <div className="terra-sense-site" data-theme={theme}>
       <a className="ts-skip-link" href="#ts-main">{t.nav.skip}</a>
-      <SiteHeader onAbout={() => openAbout()} onAssistant={() => setAssistantOpen(true)} onNavigate={navigate} />
+      <SiteHeader onAbout={openAbout} onAssistant={() => setAssistantOpen(true)} onNavigate={navigate} />
       <main id="ts-main" tabIndex={-1}>
         <HeroSection onNavigate={navigate} catalog={catalog} />
         <ProblemSection />
@@ -69,8 +69,8 @@ export default function TerraSenseLanding({ onNavigateToApp, assistantController
           </div>
         </section>
       </main>
-      <SiteFooter onAbout={() => openAbout()} onCredits={() => openAbout('credits')} onAssistant={() => setAssistantOpen(true)} onNavigate={navigate} />
-      <AboutDialog open={about.open} section={about.section} catalog={catalog} onClose={() => setAbout({ open: false })} />
+      <SiteFooter onAbout={openAbout} onAssistant={() => setAssistantOpen(true)} onNavigate={navigate} />
+      <AboutDialog open={aboutOpen} catalog={catalog} onClose={() => setAboutOpen(false)} />
       {assistantOpen && (assistantController
         ? <AssistantDialog open onClose={() => setAssistantOpen(false)} controller={assistantController} />
         : <LiveAssistantDialog onClose={() => setAssistantOpen(false)} />)}

@@ -1,9 +1,10 @@
 /**
- * Pexels photographs used on the landing page. Files live in public/images/ and are served
- * locally (no hotlinking). Every entry must match a row of public/images/PEXELS-SOURCES.md:
+ * Photographs used on the landing page (Pexels License). Files live in public/images/ and are
+ * served locally (no hotlinking). Provenance is kept in public/images/PEXELS-SOURCES.md, not shown
+ * in the interface. Every entry must match a row of that register:
  * a slot without a verified download stays absent, and the page renders without it.
  */
-export type PhotoSlot = 'hero' | 'agriculture' | 'ecosystem' | 'water' | 'satellite' | 'fieldwork';
+export type PhotoSlot = 'hero' | 'agriculture' | 'ecosystem' | 'water' | 'satellite' | 'trends' | 'results' | 'fieldwork';
 
 export type Photo = {
   /** Path under public/, e.g. /images/hero-soil-landscape.webp */
@@ -85,6 +86,30 @@ export const PHOTOS: Partial<Record<PhotoSlot, Photo>> = {
     photographer: 'Zelch Csaba',
     pexelsUrl: 'https://www.pexels.com/photo/earth-view-with-satellite-from-space-30596312/',
     position: { desktop: '72% 55%', mobile: '74% 55%' },
+  },
+  trends: {
+    src: '/images/trend-analysis.webp',
+    width: 1400,
+    height: 788,
+    alt: {
+      en: 'Over-the-shoulder view of a laptop showing a time-series curve, with a tablet and printed charts nearby.',
+      fr: 'Vue par-dessus l’épaule d’un ordinateur portable affichant une courbe temporelle, avec une tablette et des graphiques imprimés.',
+    },
+    photographer: 'Mikhail Nilov',
+    pexelsUrl: 'https://www.pexels.com/photo/a-person-using-a-laptop-6930431/',
+    position: { desktop: '50% 45%', mobile: '50% 45%' },
+  },
+  results: {
+    src: '/images/results-reading.webp',
+    width: 1400,
+    height: 788,
+    alt: {
+      en: 'A person reads a chart on a laptop at a wooden table.',
+      fr: 'Une personne lit un graphique sur un ordinateur portable posé sur une table en bois.',
+    },
+    photographer: 'Artem Podrez',
+    pexelsUrl: 'https://www.pexels.com/photo/a-person-using-laptop-8518665/',
+    position: { desktop: '50% 50%', mobile: '50% 50%' },
   },
   fieldwork: {
     src: '/images/soil-research-fieldwork.webp',
