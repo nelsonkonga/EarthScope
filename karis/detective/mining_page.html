@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mines et terres</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f4f3ef; --surface: #fcfcfb; --ink: #1a1915; --ink2: #3a362e; --muted: #6a655b;
+  --line: rgba(26, 25, 21, .12); --grid: #e7e3d8; --chip: rgba(26, 25, 21, .07);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+  --ramp-blue: #0d366b; --ramp-orange: #a8360c; --ramp-violet: #3b2c9e;
+  --accent: #0f6e6a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0b0d10; --surface: #1a1a19; --ink: #e9e7e2; --ink2: #c9c5bc; --muted: #9a968d;
+    --line: rgba(255, 255, 255, .1); --grid: #2a2d31; --chip: rgba(255, 255, 255, .08);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+    --ramp-blue: #9ec5f4; --ramp-orange: #ffb38a; --ramp-violet: #c3bbf5;
+    --accent: #4cc3b5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b0d10; --surface: #1a1a19; --ink: #e9e7e2; --ink2: #c9c5bc; --muted: #9a968d;
+  --line: rgba(255, 255, 255, .1); --grid: #2a2d31; --chip: rgba(255, 255, 255, .08);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+  --ramp-blue: #9ec5f4; --ramp-orange: #ffb38a; --ramp-violet: #c3bbf5;
+  --accent: #4cc3b5;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.55 "Atkinson Hyperlegible", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; }
+.num { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+header { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.bar { max-width: 1120px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+.bar b { font-size: 15px; }
+.bar .sp { flex: 1; }
+.tog { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 13px; }
+main { max-width: 1120px; margin: 0 auto; padding: 0 16px 64px; }
+h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.15; margin: 28px 0 10px; max-width: 22ch; }
+h2 { font-size: 22px; margin: 44px 0 8px; }
+.lede { color: var(--ink2); max-width: 70ch; font-size: 17px; }
+.three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0 8px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.tile .k { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.tile .v { font-size: 30px; font-weight: 700; margin: 2px 0; }
+.tile .s { color: var(--ink2); font-size: 14px; }
+.mapwrap { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; margin-top: 16px; }
+.mapbox { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+canvas#map { width: 100%; height: auto; display: block; image-rendering: pixelated; cursor: crosshair; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.chip { border: 1px solid var(--line); background: none; border-radius: 999px; padding: 4px 12px; cursor: pointer; font-size: 14px; }
+.chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.side { display: flex; flex-direction: column; gap: 12px; }
+.legend { font-size: 13px; color: var(--ink2); }
+.ramp { height: 10px; border-radius: 3px; margin: 6px 0 2px; }
+.ramp-lab { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.checks label { display: flex; gap: 8px; align-items: center; font-size: 14px; cursor: pointer; }
+#tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,.15); display: none; min-width: 190px; z-index: 3; }
+#tip .r { display: flex; justify-content: space-between; gap: 12px; }
+#tip .r span:first-child { color: var(--muted); }
+.chart { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; position: relative; margin-top: 12px; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart h3 { font-size: 15px; margin: 0 0 4px; }
+.chart .sub { font-size: 13px; color: var(--muted); margin: 0 0 6px; }
+svg text { font: 11px "IBM Plex Mono", monospace; fill: var(--muted); }
+svg .lab { font: 12px "Atkinson Hyperlegible", sans-serif; fill: var(--ink2); }
+.lg { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--ink2); margin: 4px 0; }
+.lg i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+.ctip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; font-size: 13px; display: none; box-shadow: 0 4px 16px rgba(0,0,0,.15); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+p { max-width: 72ch; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+td.n { text-align: right; font-family: "IBM Plex Mono", monospace; }
+details { margin-top: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+summary { cursor: pointer; font-weight: 700; }
+.cand { cursor: pointer; }
+.cand:hover td { background: var(--chip); }
+@media (max-width: 860px) {
+  .mapwrap, .two { grid-template-columns: 1fr; }
+  .three { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<header><div class="bar"><b data-t="brand"></b><span class="sp"></span>
+  <button class="tog" id="lang">English</button><button class="tog" id="theme" aria-label="theme">◐</button></div></header>
+<main>
+  <h1 data-t="title"></h1>
+  <p class="lede" data-t="lede"></p>
+  <div class="three" id="tiles"></div>
+
+  <div class="mapwrap">
+    <div class="mapbox">
+      <div class="chips" id="layers"></div>
+      <canvas id="map"></canvas>
+      <div id="tip"></div>
+    </div>
+    <div class="side">
+      <div class="tile legend"><div id="layerText"></div><div class="ramp" id="ramp"></div><div class="ramp-lab" id="rampLab"></div></div>
+      <div class="tile checks">
+        <label><input type="checkbox" id="showMines" checked> <span data-t="showMines"></span></label>
+        <label><input type="checkbox" id="showCand" checked> <span data-t="showCand"></span></label>
+        <label><input type="checkbox" id="showSites" checked> <span data-t="showSites"></span></label>
+      </div>
+      <div class="tile legend" data-t="mapNote"></div>
+    </div>
+  </div>
+
+  <h2 data-t="h_where"></h2>
+  <p data-t="where1"></p>
+  <div class="chart"><h3 data-t="whereTitle"></h3><p class="sub" data-t="whereSub"></p><div id="whereChart"></div></div>
+
+  <h2 data-t="h_speed"></h2>
+  <p data-t="speed1"></p>
+  <div class="two">
+    <div class="chart"><h3 data-t="speedTitle"></h3><p class="sub" data-t="speedSub"></p><div class="lg" id="speedLg"></div><div id="speedChart"></div><div class="ctip"></div></div>
+    <div class="chart"><h3 data-t="waterTitle"></h3><p class="sub" data-t="waterSub"></p><div class="lg" id="waterLg"></div><div id="waterChart"></div><div class="ctip"></div></div>
+  </div>
+  <p data-t="speed2"></p>
+
+  <h2 data-t="h_spread"></h2>
+  <p data-t="spread1"></p>
+  <p data-t="spread2"></p>
+
+  <h2 data-t="h_eva"></h2>
+  <p data-t="eva1"></p>
+  <div class="two">
+    <div class="chart"><h3 data-t="evaScoreTitle"></h3><p class="sub" data-t="evaScoreSub"></p><div id="evaTable"></div></div>
+    <div class="chart"><h3 data-t="evaVarTitle"></h3><p class="sub" data-t="evaVarSub"></p><div id="evaVars"></div></div>
+  </div>
+  <p data-t="eva2"></p>
+  <div class="chart"><h3 data-t="candTitle"></h3><p class="sub" data-t="candSub"></p><div id="candTable"></div></div>
+
+  <details><summary data-t="h_limits"></summary><div data-t="limits"></div></details>
+  <details><summary data-t="h_method"></summary><div data-t="method"></div></details>
+</main>
+<script>
+const D = /*DATA*/null;
+let LANG = 'fr';
+const G = D.grid;
+const Z = Object.keys(D.zones);
+const pc = (x, d = 0) => x == null ? '–' : (100 * x).toLocaleString(LANG, {maximumFractionDigits: d, minimumFractionDigits: d}) + ' %';
+const nf = (x, d = 0) => x == null ? '–' : Number(x).toLocaleString(LANG, {maximumFractionDigits: d, minimumFractionDigits: d});
+const css = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const near = D.zones[Z[0]], mid = D.zones[Z[1]], far = D.zones[Z[2]];
+const sat = D.eva.satellite, all = D.eva.all, shuf = D.eva.satellite_shuffled, ter = D.eva.terre, tshuf = D.eva.terre_shuffled;
+const acc = r => r.folds.reduce((a, f) => a + f.accuracy_at_0, 0) / r.folds.length;
+const hl = D.spread.loss.hindcast, hw = D.spread.loss_near_water.hindcast;
+const VAR_EN = {"perte de forêt": "forest loss", "perte de forêt autour": "forest loss around", "perte près de l'eau": "loss near water",
+  "perte près de l'eau autour": "loss near water, around", "habitants": "people", "couvert d'arbres 2000": "tree cover 2000",
+  "eau présente (1984-2021)": "water present (1984-2021)", "terre près de l'eau": "land near water", "eau saisonnière nouvelle": "new seasonal water",
+  "eau permanente nouvelle": "new permanent water", "eau saisonnière éphémère": "ephemeral seasonal water", "altitude": "elevation", "pente": "slope",
+  "distance au ruisseau": "distance to a stream", "distance à la rivière": "distance to a river", "distance à la piste": "distance to a track",
+  "distance à la route": "distance to a road", "distance au village": "distance to a village", "distance à la ville": "distance to a town"};
+const WHERE_NAMES = {fr: {dist_town: "distance à une ville", dist_road: "distance à une piste", dist_village: "distance à un village", dist_river: "distance à une rivière",
+  treecover2000: "couvert d'arbres en 2000", dist_stream: "distance à un ruisseau", forest2000: "part en forêt en 2000", slope: "pente", dist_main_road: "distance à une route",
+  loss_2001_2025: "forêt perdue 2001-2025", loss_2016_2025_vs_2001_2015: "perte récente moins ancienne", elevation: "altitude", near_water: "terre près de l'eau",
+  loss_near_water_2001_2025: "forêt perdue près de l'eau", near_water_share_of_loss: "part de la perte près de l'eau", population_2020: "habitants 2020",
+  water_occurrence: "eau présente", new_seasonal_water: "eau saisonnière nouvelle", ephemeral_seasonal_water: "eau éphémère", population_growth_2000_2020: "croissance des habitants",
+  new_permanent_water: "eau permanente nouvelle", lost_seasonal_water: "eau saisonnière perdue", lost_permanent_water: "eau permanente perdue"},
+  en: {dist_town: "distance to a town", dist_road: "distance to a track", dist_village: "distance to a village", dist_river: "distance to a river",
+  treecover2000: "tree cover in 2000", dist_stream: "distance to a stream", forest2000: "forest share in 2000", slope: "slope", dist_main_road: "distance to a road",
+  loss_2001_2025: "forest lost 2001-2025", loss_2016_2025_vs_2001_2015: "recent minus earlier loss", elevation: "elevation", near_water: "land near water",
+  loss_near_water_2001_2025: "forest lost near water", near_water_share_of_loss: "share of loss near water", population_2020: "people 2020",
+  water_occurrence: "water present", new_seasonal_water: "new seasonal water", ephemeral_seasonal_water: "ephemeral water", population_growth_2000_2020: "growth of people",
+  new_permanent_water: "new permanent water", lost_seasonal_water: "lost seasonal water", lost_permanent_water: "lost permanent water"}};
+const vname = v => LANG === 'fr' ? v : (VAR_EN[v] || v);
+const topVars = ter.by_variable.filter(v => v.separation > 0 && v.variable !== "('W',)").slice(0, 4).map(v => v.variable);
+
+const T = {
+  fr: {
+    brand: "Eva · mines et terres de l'Est du Cameroun",
+    title: "Où l'exploitation minière transforme-t-elle les terres, à quelle vitesse, et où va-t-elle s'étendre ?",
+    lede: () => `La ceinture d'or du Lom et de la Kadéï, de Bertoua à Garoua-Boulaï et Kentzou : ${nf(G.rows * G.cols)} carrés d'environ 1 km, suivis de 2001 à 2025 par satellite (forêt, eau, relief, habitants). OpenStreetMap y cartographie ${nf(D.mines.length)} carrés touchés par une mine ou une carrière. Le lac du barrage de Lom Pangar est mis à part : l'eau y a noyé la forêt sans aucune mine.`,
+    tile1k: "Près des mines", tile1: () => `${pc(near.cleared_share, 1)}`, tile1s: () => `de la terre à moins de 1 km d'une mine cartographiée a perdu ses arbres depuis 2001 (${pc(far.cleared_share, 1)} loin des mines).`,
+    tile2k: "Vitesse", tile2: () => `+${pc(near.growth_per_year, 0)} / an`, tile2s: () => `de défrichement en plus chaque année près des mines : il double en ${nf(near.doubling_years, 1)} ans. Ailleurs aussi, +${pc(far.growth_per_year, 0)} par an.`,
+    tile3k: "Eva sur des lieux jamais vus", tile3: () => `${pc(acc(ter), 0)}`, tile3s: () => `de bonnes réponses « mine à côté » ou non, en ne lisant que la terre, sur des blocs de carte qu'elle n'avait jamais vus (avec les noms mélangés : ${pc(acc(tshuf), 0)}, le hasard).`,
+    layers: {loss: "Forêt perdue 2001-2025", year: "Année de la perte", risk: "Défrichement prévu 2026-2030", eva: "Ce qu'Eva soupçonne"},
+    layerText: {loss: "Part de chaque carré dont les arbres ont disparu entre 2001 et 2025 (Hansen, satellites Landsat).",
+      year: "Année moyenne de la perte : clair = tôt (2001), foncé = récent (2025).",
+      risk: "Probabilité qu'au moins 2 % du carré perde ses arbres entre 2026 et 2030 (modèle vérifié sur 2021-2025).",
+      eva: "Rang du score d'Eva « mine à côté », en ne lisant que la terre : foncé = les carrés qui changent le plus comme les lieux miniers. Chaque carré est noté par une Eva qui n'a jamais vu son bloc."},
+    showMines: "Mines cartographiées (OpenStreetMap)", showCand: "Lieux qu'Eva soupçonne (loin des mines connues)", showSites: "Villes et sites",
+    mapNote: "Survolez un carré pour lire ses chiffres. Le rectangle hachuré est le lac de Lom Pangar, laissé de côté.",
+    h_where: "Où : ce qui distingue les lieux miniers",
+    where1: () => `On compare ${nf(D.where.cells_near)} carrés à moins de 1 km d'une mine cartographiée avec ${nf(D.where.cells_far)} carrés à plus de 10 km de toute mine. Les mines sont au bord des rivières et des ruisseaux, près des pistes et des villages, là où la forêt était un peu moins dense en 2000. Elles ont perdu plus de forêt (médiane ${pc(D.where.variables.find(v => v.variable === 'loss_2001_2025').near_mines_median, 1)} du carré contre ${pc(D.where.variables.find(v => v.variable === 'loss_2001_2025').far_median, 1)}) et ont perdu plus de forêt récemment.`,
+    whereTitle: "Ce qui différencie les carrés proches des mines", whereSub: "0,5 = aucune différence. À droite : plus élevé près des mines ; à gauche : plus bas. Le trait couvre 95 % des tirages par blocs de 20 km.",
+    h_speed: "À quelle vitesse",
+    speed1: () => `Près des mines, ${nf(near.cleared_2001_2025_km2)} km² ont perdu leurs arbres depuis 2001, soit ${pc(near.cleared_share, 1)} de cette terre. Le défrichement y augmente de ${pc(near.growth_per_year, 0)} par an (entre ${pc(near.growth_lo, 0)} et ${pc(near.growth_hi, 0)}) et a fait un saut vers ${near.break_year}. Mais il accélère partout : de 1 à 10 km des mines (+${pc(mid.growth_per_year, 0)}/an) et au-delà de 10 km (+${pc(far.growth_per_year, 0)}/an), où se trouve l'essentiel de la forêt perdue (${nf(far.cleared_2001_2025_km2)} km², surtout l'agriculture).`,
+    speedTitle: "Part de la terre défrichée chaque année", speedSub: "% de la surface de chaque zone",
+    waterTitle: "Part du défrichement à moins de 300 m de l'eau", waterSub: "La marque de l'orpaillage : il creuse les lits des cours d'eau.",
+    speed2: () => `La marque propre aux mines est ailleurs : près des mines, la part du défrichement au bord de l'eau monte de quelques % au début des années 2000 à ${pc(Math.max(...near.near_water_share.slice(10, 16)), 0)} vers 2013-2015, puis redescend à ${pc(near.near_water_share[near.near_water_share.length - 1], 0)} en 2025 : le défrichement près des mines s'étend désormais loin de l'eau. Ces données ne disent pas pourquoi (chantiers sur les collines, ou champs autour des campements). Attention : les satellites Landsat 8 détectent mieux la perte de forêt depuis 2013 ; une part du saut de 2013 vient de là (la part au bord de l'eau, elle, n'en dépend pas).`,
+    h_spread: "Où ça va s'étendre",
+    spread1: () => `Pour prévoir, on regarde chaque carré en fin d'année T (à quelle distance est la forêt déjà perdue, ce qui a été défriché autour, pistes, villages, rivières, relief, habitants) et ce qui lui arrive dans les 5 ans. Le modèle apprend sur 2010 et 2015, puis il est jugé sur 2021-2025 sans les avoir vus. Il range bien les carrés : AUC ${nf(hl.auc, 2)} (${nf(hl.auc_baseline_distance_only, 2)} avec la seule distance à la forêt déjà perdue). Les 10 % de carrés qu'il juge les plus menacés ont reçu ${pc(hl.area_lost_in_top10pc, 0)} de la forêt perdue en 2021-2025 ; les 20 % premiers, ${pc(hl.area_lost_in_top20pc, 0)}. Il prévoit ${pc(hl.calibration_ratio - 1, 0)} de carrés touchés de plus que la réalité. Pour le défrichement au bord de l'eau seul, savoir où coule l'eau suffit presque (AUC ${nf(hw.auc_baseline_distance_and_water, 2)}) : le modèle complet n'y ajoute rien.`,
+    spread2: () => `La couche « Défrichement prévu 2026-2030 » applique ce modèle à l'état de 2025. Il pèse surtout la proximité de la forêt déjà perdue, des pistes et des villages : le défrichement avance de proche en proche, le long des pistes. Les mines cartographiées ne servent pas à prévoir (elles ont été cartographiées après coup : ce serait tricher).`,
+    h_eva: "Ce qu'Eva a appris des lieux miniers",
+    eva1: () => `Eva lit chaque carré période par période (2001-2005, …, 2021-2025). Chaque capteur montre une variable : forêt perdue ici et autour, perte au bord de l'eau, habitants, histoire de l'eau, relief, couvert d'arbres. Trois jeux de capteurs : « satellite » (tout cela), « terre » (sans les habitants), et « satellite + distances » aux pistes, villages et rivières d'OpenStreetMap. Puis elle répond « mine » ou « sans mine ». On ne lui dit pas quelle variable compte. Elle apprend sur la moitié des blocs de 20 km et répond sur l'autre moitié, puis on inverse : chaque carré est noté par une Eva qui n'a jamais vu son bloc.`,
+    evaScoreTitle: "Sur des blocs jamais vus", evaScoreSub: "AUC : probabilité qu'un lieu minier soit noté plus haut qu'un lieu sans mine (0,5 = hasard).",
+    evaVarTitle: "Les variables qui la font répondre « mine »", evaVarSub: "Poussée vers « mine » sur les lieux miniers, moins la même poussée ailleurs (capteurs « terre »).",
+    eva2: () => `Avec les capteurs satellite, habitants compris, Eva range bien les lieux (AUC ${nf(sat.auc, 2)}, contre ${nf(sat.auc_logistic, 2)} pour une régression logistique sur les mêmes variables). Mais ce qui la décide le plus, c'est le nombre d'habitants : ses lieux les mieux notés comptent en médiane ${nf(sat.towns.top_people_median)} habitants par carré, contre ${nf(sat.towns.mines_people_median)} près des mines cartographiées, et sa première tache est la ville de Batouri. Les mines sont cartographiées là où l'on vit et circule ; elle avait appris « ville entourée de défrichement ». En ne lisant que la terre, elle descend à ${nf(ter.auc, 2)} (régression ${nf(ter.auc_logistic, 2)}), mais ce qu'elle lit est bien un changement : ${topVars.map(vname).join(', ')}. Ses lieux les mieux notés ressemblent alors aux lieux miniers (${nf(ter.towns.top_people_median)} habitants en médiane, ${pc(ter.towns.top_within_3km_of_town, 0)} à moins de 3 km d'une ville, contre ${pc(ter.towns.mines_within_3km_of_town, 0)} pour les mines cartographiées). Avec les noms mélangés au hasard, elle tombe à ${nf(tshuf.auc, 2)} et ${nf(shuf.auc, 2)} : ce qu'elle a appris vient bien des lieux. C'est cette Eva « terre » que montrent la carte et la liste ci-dessous.`,
+    candTitle: "Les lieux qu'Eva soupçonne", candSub: "Les 2 % de carrés les mieux notés par Eva (capteurs « terre ») à plus de 5 km de toute mine cartographiée, réunis en taches. Cliquez une ligne pour la voir sur la carte.",
+    h_limits: "Ce que ces résultats ne disent pas",
+    limits: () => `<p>Les « lieux miniers » sont ceux qu'OpenStreetMap cartographie : 482 sont des « carrières » (landuse=quarry), dont des carrières de pierre près des villes. Beaucoup de chantiers d'orpaillage ne sont pas cartographiés, et ceux qui le sont sont près des pistes. Un lieu qu'Eva soupçonne n'est donc pas une mine prouvée : c'est un lieu qui change comme les lieux miniers, à vérifier sur des images à haute résolution ou sur le terrain.</p><p>La perte de forêt (Hansen) ne dit pas ce qui l'a causée : agriculture, bois, mine. Aucune donnée ici ne voit le sous-sol : Eva reconnaît les traces de l'exploitation, pas le gisement.</p><p>Une seule graine (seed 0) a été lancée ; d'autres graines diraient l'écart de ces chiffres.</p>`,
+    h_method: "Les données et la méthode",
+    method: () => `<p>Données : Hansen Global Forest Change v1.13 (Landsat, 30 m, 2001-2025) ; JRC Global Surface Water v1.4 (1984-2021) ; NASA SRTM 30 m ; WorldPop 1 km (2000-2020) ; OpenStreetMap (rivières, routes, lieux, mines, 15 novembre 2026) ; Maus et al. 2022 (polygones miniers). Grille de 0,01° (${G.rows} × ${G.cols}).</p><p>Vitesse : pente de Sen et test de Mann-Kendall, taux de croissance par la pente de Sen du logarithme, rupture de Pettitt. Prévision : régression logistique, apprise sur 2010 et 2015, jugée sur 2021-2025. Différences : AUC avec intervalle par tirage de blocs de 0,2°. Eva : eva/envs/cells.py, checks/mining_eva.py, détective : detective/mining_land.py.</p>`,
+    tip: {loss: "Forêt perdue", lw: "dont près de l'eau", risk: "Risque 2026-2030", eva: "Rang Eva", dm: "Mine cartographiée à", km: "km", out: "hors analyse (lac)"},
+    zones: ["À moins de 1 km des mines", "De 1 à 10 km", "Au-delà de 10 km"],
+    tbl: {what: "Capteurs", eva: "Eva", reg: "Régression", sat: "Satellite (avec les habitants)", ter: "Terre seule", all: "Satellite + distances OSM", shuf: "Noms mélangés (satellite)", tshuf: "Noms mélangés (terre)"},
+    cand: {n: "#", where: "Position", cells: "Carrés", loss: "Forêt perdue", lw: "dont près de l'eau", dist: "Mine connue à", town: "Ville à"},
+  },
+  en: {
+    brand: "Eva · mining and the land of East Cameroon",
+    title: "Where is mining transforming the land, how fast, and where will it spread?",
+    lede: () => `The Lom and Kadéï gold belt, from Bertoua to Garoua-Boulaï and Kentzou: ${nf(G.rows * G.cols)} squares of about 1 km, followed from 2001 to 2025 by satellite (forest, water, relief, people). OpenStreetMap maps ${nf(D.mines.length)} squares touched by a mine or quarry. The Lom Pangar reservoir is set aside: its water drowned the forest without any mine.`,
+    tile1k: "Near mines", tile1: () => `${pc(near.cleared_share, 1)}`, tile1s: () => `of the land within 1 km of a mapped mine has lost its trees since 2001 (${pc(far.cleared_share, 1)} far from mines).`,
+    tile2k: "Speed", tile2: () => `+${pc(near.growth_per_year, 0)} / yr`, tile2s: () => `more clearing every year near mines: it doubles in ${nf(near.doubling_years, 1)} years. Elsewhere too, +${pc(far.growth_per_year, 0)} a year.`,
+    tile3k: "Eva on unseen places", tile3: () => `${pc(acc(ter), 0)}`, tile3s: () => `right answers, « mine nearby » or not, reading only the land, on map blocks she had never seen (with the names shuffled: ${pc(acc(tshuf), 0)}, chance).`,
+    layers: {loss: "Forest lost 2001-2025", year: "Year of loss", risk: "Clearing expected 2026-2030", eva: "What Eva suspects"},
+    layerText: {loss: "Share of each square whose trees disappeared between 2001 and 2025 (Hansen, Landsat satellites).",
+      year: "Mean year of the loss: light = early (2001), dark = recent (2025).",
+      risk: "Probability that at least 2 % of the square loses its trees in 2026-2030 (model checked on 2021-2025).",
+      eva: "Rank of Eva's « mine nearby » score, reading only the land: dark = the squares that change most like mining places. Each square is scored by an Eva that never saw its block."},
+    showMines: "Mapped mines (OpenStreetMap)", showCand: "Places Eva suspects (far from known mines)", showSites: "Towns and sites",
+    mapNote: "Hover a square to read its figures. The hatched rectangle is the Lom Pangar reservoir, set aside.",
+    h_where: "Where: what sets mining places apart",
+    where1: () => `${nf(D.where.cells_near)} squares within 1 km of a mapped mine are compared with ${nf(D.where.cells_far)} squares more than 10 km from any. Mines lie along rivers and streams, near tracks and villages, where the forest was a little less dense in 2000. They lost more forest (median ${pc(D.where.variables.find(v => v.variable === 'loss_2001_2025').near_mines_median, 1)} of the square against ${pc(D.where.variables.find(v => v.variable === 'loss_2001_2025').far_median, 1)}), and more of it recently.`,
+    whereTitle: "What differs in squares near mines", whereSub: "0.5 = no difference. Right: higher near mines; left: lower. The line spans 95 % of the 20 km block resamples.",
+    h_speed: "How fast",
+    speed1: () => `Near mines, ${nf(near.cleared_2001_2025_km2)} km² have lost their trees since 2001, ${pc(near.cleared_share, 1)} of that land. Clearing there grows by ${pc(near.growth_per_year, 0)} a year (between ${pc(near.growth_lo, 0)} and ${pc(near.growth_hi, 0)}) and jumped around ${near.break_year}. But it speeds up everywhere: 1 to 10 km from mines (+${pc(mid.growth_per_year, 0)}/yr) and beyond 10 km (+${pc(far.growth_per_year, 0)}/yr), where most of the lost forest is (${nf(far.cleared_2001_2025_km2)} km², mostly farming).`,
+    speedTitle: "Share of the land cleared each year", speedSub: "% of each zone's area",
+    waterTitle: "Share of the clearing within 300 m of water", waterSub: "The mark of gold panning: it digs the beds of the streams.",
+    speed2: () => `The mark of mining is elsewhere: near mines, the share of clearing at the water's edge rises from a few % in the early 2000s to ${pc(Math.max(...near.near_water_share.slice(10, 16)), 0)} around 2013-2015, then falls back to ${pc(near.near_water_share[near.near_water_share.length - 1], 0)} in 2025: clearing near mines now spreads away from the water. These data do not say why (sites on the hills, or fields around the camps). Beware: Landsat 8 detects forest loss better since 2013; part of the 2013 jump comes from that (the share at the water's edge does not depend on it).`,
+    h_spread: "Where it will spread",
+    spread1: () => `To forecast, each square is seen at the end of year T (how far the forest already lost is, what was cleared around, tracks, villages, rivers, relief, people) together with what happens to it over the next 5 years. The model learns on 2010 and 2015, then it is judged on 2021-2025 without having seen it. It ranks squares well: AUC ${nf(hl.auc, 2)} (${nf(hl.auc_baseline_distance_only, 2)} with only the distance to forest already lost). The 10 % of squares it judges most at risk received ${pc(hl.area_lost_in_top10pc, 0)} of the forest lost in 2021-2025; the top 20 %, ${pc(hl.area_lost_in_top20pc, 0)}. It expects ${pc(hl.calibration_ratio - 1, 0)} more squares touched than happened. For clearing at the water's edge alone, knowing where water flows is almost enough (AUC ${nf(hw.auc_baseline_distance_and_water, 2)}): the full model adds nothing there.`,
+    spread2: () => `The layer « Clearing expected 2026-2030 » applies this model to the state of 2025. It weighs mostly the closeness of forest already lost, of tracks and of villages: clearing advances step by step, along the tracks. Mapped mines are not used to forecast (they were mapped afterwards: that would be cheating).`,
+    h_eva: "What Eva learnt of mining places",
+    eva1: () => `Eva reads each square period by period (2001-2005, …, 2021-2025). Each sensor shows one variable: forest lost here and around, loss at the water's edge, people, water history, relief, tree cover. Three sensor sets: « satellite » (all of that), « land » (without the people), and « satellite + distances » to OpenStreetMap tracks, villages and rivers. Then she answers « mine » or « no mine ». Nobody tells her which variable matters. She learns on half of the 20 km blocks and answers on the other half, then the halves swap: every square is scored by an Eva that never saw its block.`,
+    evaScoreTitle: "On blocks never seen", evaScoreSub: "AUC: probability that a mining place scores above a place without a mine (0.5 = chance).",
+    evaVarTitle: "The variables that make her answer « mine »", evaVarSub: "Push toward « mine » on mining places, minus the same push elsewhere (« land » sensors).",
+    eva2: () => `With the satellite sensors, people included, Eva ranks places well (AUC ${nf(sat.auc, 2)}, against ${nf(sat.auc_logistic, 2)} for a logistic regression on the same variables). But what decides her most is the number of people: her best-scored places hold a median of ${nf(sat.towns.top_people_median)} people per square, against ${nf(sat.towns.mines_people_median)} near mapped mines, and her first patch is the town of Batouri. Mines are mapped where people live and travel; she had learnt « a town ringed by clearing ». Reading only the land, she falls to ${nf(ter.auc, 2)} (regression ${nf(ter.auc_logistic, 2)}), but what she reads is indeed a change: ${topVars.map(vname).join(', ')}. Her best-scored places then look like mining places (median ${nf(ter.towns.top_people_median)} people, ${pc(ter.towns.top_within_3km_of_town, 0)} within 3 km of a town, against ${pc(ter.towns.mines_within_3km_of_town, 0)} for mapped mines). With the names shuffled at random she falls to ${nf(tshuf.auc, 2)} and ${nf(shuf.auc, 2)}: what she learnt does come from the places. This « land » Eva is the one the map and the list below show.`,
+    candTitle: "The places Eva suspects", candSub: "The 2 % of squares Eva scores highest (« land » sensors) more than 5 km from any mapped mine, merged into patches. Click a row to see it on the map.",
+    h_limits: "What these results do not say",
+    limits: () => `<p>The « mining places » are those OpenStreetMap maps: 482 are « quarries » (landuse=quarry), stone quarries near towns among them. Many gold panning sites are not mapped, and those that are lie near tracks. A place Eva suspects is therefore not a proven mine: it is a place that changes like mining places, to be checked on high-resolution images or on the ground.</p><p>Forest loss (Hansen) does not say what caused it: farming, timber, mining. No data here sees underground: Eva recognises the traces of mining, not the deposit.</p><p>A single seed (seed 0) was run; other seeds would give the spread of these figures.</p>`,
+    h_method: "The data and the method",
+    method: () => `<p>Data: Hansen Global Forest Change v1.13 (Landsat, 30 m, 2001-2025); JRC Global Surface Water v1.4 (1984-2021); NASA SRTM 30 m; WorldPop 1 km (2000-2020); OpenStreetMap (rivers, roads, places, mines, 15 November 2026); Maus et al. 2022 (mining polygons). Grid of 0.01° (${G.rows} × ${G.cols}).</p><p>Speed: Sen slope and Mann-Kendall test, growth rate from the Sen slope of the logarithm, Pettitt break. Forecast: logistic regression learnt on 2010 and 2015, judged on 2021-2025. Differences: AUC with an interval from resampling 0.2° blocks. Eva: eva/envs/cells.py, checks/mining_eva.py; detective: detective/mining_land.py.</p>`,
+    tip: {loss: "Forest lost", lw: "of which near water", risk: "Risk 2026-2030", eva: "Eva rank", dm: "Mapped mine at", km: "km", out: "outside the analysis (lake)"},
+    zones: ["Within 1 km of mines", "1 to 10 km", "Beyond 10 km"],
+    tbl: {what: "Sensors", eva: "Eva", reg: "Regression", sat: "Satellite (with people)", ter: "Land only", all: "Satellite + OSM distances", shuf: "Names shuffled (satellite)", tshuf: "Names shuffled (land)"},
+    cand: {n: "#", where: "Position", cells: "Squares", loss: "Forest lost", lw: "of which near water", dist: "Known mine at", town: "Town at"},
+  },
+};
+const L = () => T[LANG];
+const val = v => typeof v === 'function' ? v() : v;
+
+// ------------------------------------------------------------ map
+const LAYERS = ['loss', 'year', 'risk', 'eva'];
+const RAMP = {loss: '--ramp-orange', year: '--ramp-blue', risk: '--ramp-orange', eva: '--ramp-violet'};
+let layer = 'loss', focus = null;
+const bytes = {};
+for (const k of LAYERS) bytes[k] = Uint8Array.from(atob(D.layers[k].b), c => c.charCodeAt(0));
+const SC = 4;
+const cv = document.getElementById('map');
+cv.width = G.cols * SC; cv.height = G.rows * SC;
+const ctx = cv.getContext('2d');
+const hex = h => { h = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
+const toXY = (lat, lon) => [(lon - G.west) / G.step * SC, (G.north - lat) / G.step * SC];
+
+function draw() {
+  const surf = hex(css('--surface')), end = hex(css(RAMP[layer])), muted = hex(css('--grid'));
+  const img = ctx.createImageData(G.cols, G.rows);
+  const b = bytes[layer];
+  for (let i = 0; i < b.length; i++) {
+    const v = b[i];
+    let c;
+    if (!v) c = muted; else { const t = (v - 1) / 254; c = surf.map((s, j) => s + (end[j] - s) * t); }
+    img.data[4 * i] = c[0]; img.data[4 * i + 1] = c[1]; img.data[4 * i + 2] = c[2]; img.data[4 * i + 3] = 255;
+  }
+  const off = document.createElement('canvas'); off.width = G.cols; off.height = G.rows;
+  off.getContext('2d').putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(off, 0, 0, cv.width, cv.height);
+  // the reservoir box, hatched
+  const [s, n, w, e] = D.reservoir;
+  const [x0, y0] = toXY(n, w), [x1, y1] = toXY(s, e);
+  ctx.save(); ctx.beginPath(); ctx.rect(x0, y0, x1 - x0, y1 - y0); ctx.clip();
+  ctx.strokeStyle = css('--muted'); ctx.globalAlpha = .35; ctx.lineWidth = 1;
+  for (let k = -cv.height; k < cv.width; k += 8) { ctx.beginPath(); ctx.moveTo(k, 0); ctx.lineTo(k + cv.height, cv.height); ctx.stroke(); }
+  ctx.restore();
+  const ink = css('--ink');
+  if (document.getElementById('showMines').checked) {
+    ctx.fillStyle = ink;
+    for (const [r, c] of D.mines) { ctx.beginPath(); ctx.arc(c * SC + SC / 2, r * SC + SC / 2, 1.6, 0, 6.3); ctx.fill(); }
+  }
+  if (document.getElementById('showCand').checked) {
+    ter.candidates.forEach((cd, i) => {
+      const [x, y] = toXY(cd.lat, cd.lon);
+      const rad = 6 + 2 * Math.sqrt(cd.cells);
+      ctx.lineWidth = focus === i ? 3 : 2; ctx.strokeStyle = css('--accent');
+      ctx.beginPath(); ctx.arc(x, y, rad, 0, 6.3); ctx.stroke();
+      ctx.fillStyle = css('--accent'); ctx.font = '700 12px "Atkinson Hyperlegible", sans-serif';
+      ctx.fillText(String(i + 1), x + rad + 2, y + 4);
+    });
+  }
+  if (document.getElementById('showSites').checked) {
+    ctx.font = '12px "Atkinson Hyperlegible", sans-serif';
+    for (const [name, la, lo] of D.sites) {
+      const [x, y] = toXY(la, lo);
+      ctx.fillStyle = ink; ctx.fillRect(x - 2, y - 2, 4, 4);
+      ctx.lineWidth = 3; ctx.strokeStyle = css('--surface'); ctx.strokeText(name, x + 5, y - 4);
+      ctx.fillText(name, x + 5, y - 4);
+    }
+  }
+}
+
+function legend() {
+  const l = L();
+  document.getElementById('layerText').textContent = l.layerText[layer];
+  document.getElementById('ramp').style.background = `linear-gradient(90deg, ${css('--surface')}, ${css(RAMP[layer])})`;
+  const lab = {loss: ['0 %', '100 %'], year: ['2001', '2025'], risk: ['0 %', '100 %'], eva: [LANG === 'fr' ? 'bas' : 'low', LANG === 'fr' ? 'haut' : 'high']}[layer];
+  document.getElementById('rampLab').innerHTML = `<span>${lab[0]}</span><span>${lab[1]}</span>`;
+  const box = document.getElementById('layers');
+  box.innerHTML = '';
+  for (const k of LAYERS) {
+    const b = document.createElement('button');
+    b.className = 'chip' + (k === layer ? ' on' : ''); b.textContent = l.layers[k];
+    b.onclick = () => { layer = k; legend(); draw(); };
+    box.appendChild(b);
+  }
+}
+
+const tip = document.getElementById('tip');
+cv.addEventListener('mousemove', ev => {
+  const r = cv.getBoundingClientRect();
+  const c = Math.floor((ev.clientX - r.left) / r.width * G.cols), row = Math.floor((ev.clientY - r.top) / r.height * G.rows);
+  if (c < 0 || row < 0 || c >= G.cols || row >= G.rows) { tip.style.display = 'none'; return; }
+  const i = row * G.cols + c, C = D.cells, t = L().tip;
+  const lat = (G.north - (row + .5) * G.step).toFixed(3), lon = (G.west + (c + .5) * G.step).toFixed(3);
+  let h = `<div class="num" style="color:var(--muted)">${lat}° N, ${lon}° E</div>`;
+  if (!C.ok[i]) h += `<div>${t.out}</div>`;
+  else h += [[t.loss, pc(C.loss[i], 1)], [t.lw, pc(C.lw[i], 1)], [t.risk, C.risk[i] < 0 ? '–' : pc(C.risk[i], 0)],
+             [t.eva, C.eva[i] < 0 ? '–' : pc(C.eva[i], 0)], [t.dm, nf(C.dm[i], 1) + ' ' + t.km]]
+           .map(([a, b]) => `<div class="r"><span>${a}</span><span class="num">${b}</span></div>`).join('');
+  tip.innerHTML = h; tip.style.display = 'block';
+  const box = cv.parentElement.getBoundingClientRect();
+  let x = ev.clientX - box.left + 14, y = ev.clientY - box.top + 14;
+  if (x + 210 > box.width) x -= 230;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+});
+cv.addEventListener('mouseleave', () => tip.style.display = 'none');
+for (const id of ['showMines', 'showCand', 'showSites']) document.getElementById(id).onchange = draw;
+
+// ------------------------------------------------------------ charts
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+
+function lines(holder, series, colors, names, fmt) {
+  const box = document.getElementById(holder); box.innerHTML = '';
+  const W = 520, H = 240, m = {l: 44, r: 12, t: 10, b: 26};
+  const svg = el('svg', {viewBox: `0 0 ${W} ${H}`}, box);
+  const ys = D.years, n = ys.length;
+  const ymax = Math.max(...series.flat()) * 1.08;
+  const X = i => m.l + i / (n - 1) * (W - m.l - m.r), Y = v => H - m.b - v / ymax * (H - m.t - m.b);
+  for (let k = 0; k <= 4; k++) {
+    const v = ymax * k / 4;
+    el('line', {x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: css('--grid'), 'stroke-width': 1}, svg);
+    el('text', {x: m.l - 6, y: Y(v) + 4, 'text-anchor': 'end'}, svg).textContent = fmt(v);
+  }
+  for (const yr of [2001, 2005, 2010, 2015, 2020, 2025]) el('text', {x: X(ys.indexOf(yr)), y: H - 8, 'text-anchor': 'middle'}, svg).textContent = yr;
+  series.forEach((s, j) => el('path', {d: s.map((v, i) => `${i ? 'L' : 'M'}${X(i)},${Y(v)}`).join(''), fill: 'none', stroke: colors[j], 'stroke-width': 2, 'stroke-linejoin': 'round'}, svg));
+  const cross = el('line', {y1: m.t, y2: H - m.b, stroke: css('--muted'), 'stroke-width': 1, visibility: 'hidden'}, svg);
+  const dots = series.map((_, j) => el('circle', {r: 4, fill: colors[j], stroke: css('--surface'), 'stroke-width': 2, visibility: 'hidden'}, svg));
+  const ct = box.parentElement.querySelector('.ctip');
+  const hit = el('rect', {x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: 'transparent'}, svg);
+  hit.addEventListener('mousemove', ev => {
+    const p = svg.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY;
+    const q = p.matrixTransform(svg.getScreenCTM().inverse());
+    const i = Math.max(0, Math.min(n - 1, Math.round((q.x - m.l) / (W - m.l - m.r) * (n - 1))));
+    cross.setAttribute('x1', X(i)); cross.setAttribute('x2', X(i)); cross.setAttribute('visibility', 'visible');
+    dots.forEach((d, j) => { d.setAttribute('cx', X(i)); d.setAttribute('cy', Y(series[j][i])); d.setAttribute('visibility', 'visible'); });
+    ct.innerHTML = `<b>${ys[i]}</b>` + series.map((s, j) => `<div><i style="display:inline-block;width:10px;height:3px;background:${colors[j]};vertical-align:middle;margin-right:6px"></i>${names[j]} <span class="num">${fmt(s[i], 2)}</span></div>`).join('');
+    ct.style.display = 'block';
+    const r = box.parentElement.getBoundingClientRect();
+    let x = ev.clientX - r.left + 12; if (x + 220 > r.width) x -= 240;
+    ct.style.left = x + 'px'; ct.style.top = (ev.clientY - r.top + 12) + 'px';
+  });
+  hit.addEventListener('mouseleave', () => { ct.style.display = 'none'; cross.setAttribute('visibility', 'hidden'); dots.forEach(d => d.setAttribute('visibility', 'hidden')); });
+}
+
+function legendRow(id, names, colors) {
+  document.getElementById(id).innerHTML = names.map((n, j) => `<span><i style="background:${colors[j]}"></i>${n}</span>`).join('');
+}
+
+function whereChart() {
+  const box = document.getElementById('whereChart'); box.innerHTML = '';
+  const rows = D.where.variables.filter(v => !['lost_permanent_water', 'lost_seasonal_water'].includes(v.variable)).slice(0, 14);
+  const W = 1000, rh = 26, m = {l: 260, r: 20, t: 8, b: 26}, H = m.t + m.b + rows.length * rh;
+  const svg = el('svg', {viewBox: `0 0 ${W} ${H}`}, box);
+  const X = a => m.l + (a - 0.15) / 0.7 * (W - m.l - m.r);
+  for (const a of [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]) {
+    el('line', {x1: X(a), x2: X(a), y1: m.t, y2: H - m.b, stroke: a === 0.5 ? css('--muted') : css('--grid'), 'stroke-width': 1}, svg);
+    el('text', {x: X(a), y: H - 8, 'text-anchor': 'middle'}, svg).textContent = a.toLocaleString(LANG);
+  }
+  rows.forEach((v, i) => {
+    const y = m.t + i * rh + rh / 2;
+    el('text', {x: m.l - 10, y: y + 4, 'text-anchor': 'end', class: 'lab'}, svg).textContent = WHERE_NAMES[LANG][v.variable] || v.variable;
+    el('line', {x1: X(v.auc_lo), x2: X(v.auc_hi), y1: y, y2: y, stroke: css('--s1'), 'stroke-width': 2, 'stroke-linecap': 'round', opacity: .55}, svg);
+    const c = el('circle', {cx: X(v.auc), cy: y, r: 5, fill: css('--s1'), stroke: css('--surface'), 'stroke-width': 2}, svg);
+    const t = el('title', {}, c); t.textContent = `AUC ${v.auc.toFixed(2)} [${v.auc_lo.toFixed(2)}, ${v.auc_hi.toFixed(2)}]`;
+  });
+}
+
+function evaTable() {
+  const t = L().tbl;
+  const rows = [[t.ter, ter], [t.sat, sat], [t.all, all], [t.tshuf, tshuf], [t.shuf, shuf]];
+  document.getElementById('evaTable').innerHTML = `<table><tr><th>${t.what}</th><th style="text-align:right">${t.eva}</th><th style="text-align:right">${t.reg}</th></tr>` +
+    rows.map(([n, r]) => `<tr><td>${n}</td><td class="n">${nf(r.auc, 3)}</td><td class="n">${nf(r.auc_logistic, 3)}</td></tr>`).join('') + '</table>';
+}
+
+function evaVars() {
+  const box = document.getElementById('evaVars'); box.innerHTML = '';
+  const rows = ter.by_variable.filter(v => v.variable !== "('W',)" && v.variable !== 'réponse').slice(0, 10);
+  const W = 520, rh = 24, m = {l: 190, r: 46, t: 6, b: 8}, H = m.t + m.b + rows.length * rh;
+  const svg = el('svg', {viewBox: `0 0 ${W} ${H}`}, box);
+  const mx = Math.max(...rows.map(r => Math.abs(r.separation)));
+  const mn = Math.min(0, ...rows.map(r => r.separation));
+  const X = v => m.l + (v - mn) / (mx - mn) * (W - m.l - m.r);
+  el('line', {x1: X(0), x2: X(0), y1: m.t, y2: H - m.b, stroke: css('--muted'), 'stroke-width': 1}, svg);
+  rows.forEach((r, i) => {
+    const y = m.t + i * rh;
+    el('text', {x: m.l - 8, y: y + rh / 2 + 4, 'text-anchor': 'end', class: 'lab'}, svg).textContent = vname(r.variable);
+    const x0 = Math.min(X(0), X(r.separation)), w = Math.abs(X(r.separation) - X(0));
+    el('rect', {x: x0, y: y + 5, width: Math.max(w, 1), height: rh - 10, rx: 3, fill: css('--s1')}, svg);
+  });
+}
+
+function candTable() {
+  const t = L().cand;
+  document.getElementById('candTable').innerHTML = `<table><tr><th>${t.n}</th><th>${t.where}</th><th style="text-align:right">${t.cells}</th><th style="text-align:right">${t.loss}</th><th style="text-align:right">${t.lw}</th><th style="text-align:right">${t.dist}</th><th style="text-align:right">${t.town}</th></tr>` +
+    ter.candidates.map((c, i) => `<tr class="cand" data-i="${i}"><td>${i + 1}</td><td class="num">${c.lat.toFixed(3)}° N, ${c.lon.toFixed(3)}° E</td><td class="n">${c.cells}</td><td class="n">${pc(c.loss_2001_2025, 1)}</td><td class="n">${pc(c.loss_near_water_2001_2025, 1)}</td><td class="n">${nf(c.dist_mine_km, 1)} km</td><td class="n">${nf(c.dist_town_km, 0)} km</td></tr>`).join('') + '</table>';
+  document.querySelectorAll('.cand').forEach(tr => tr.onclick = () => {
+    focus = +tr.dataset.i; layer = 'eva'; legend(); draw(); cv.scrollIntoView({behavior: 'smooth', block: 'center'});
+  });
+}
+
+function tiles() {
+  const l = L();
+  document.getElementById('tiles').innerHTML = [1, 2, 3].map(k => `<div class="tile"><div class="k">${l['tile' + k + 'k']}</div><div class="v num">${val(l['tile' + k])}</div><div class="s">${val(l['tile' + k + 's'])}</div></div>`).join('');
+}
+
+function render() {
+  document.documentElement.lang = LANG;
+  document.getElementById('lang').textContent = LANG === 'fr' ? 'English' : 'Français';
+  const l = L();
+  document.querySelectorAll('[data-t]').forEach(e => { const v = l[e.dataset.t]; if (v != null) e.innerHTML = val(v); });
+  tiles(); legend(); draw(); whereChart(); evaTable(); evaVars(); candTable();
+  const cols = [css('--s1'), css('--s2'), css('--s3')];
+  legendRow('speedLg', l.zones, cols);
+  lines('speedChart', Z.map(z => D.zones[z].share_by_year), cols, l.zones, (v, d = 1) => pc(v, d));
+  legendRow('waterLg', l.zones, cols);
+  lines('waterChart', Z.map(z => D.zones[z].near_water_share), cols, l.zones, (v, d = 0) => pc(v, d));
+}
+document.getElementById('lang').onclick = () => { LANG = LANG === 'fr' ? 'en' : 'fr'; render(); };
+document.getElementById('theme').onclick = () => {
+  const r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme = dark ? 'light' : 'dark'; render();
+};
+render();
+</script>
+</body>
+</html>

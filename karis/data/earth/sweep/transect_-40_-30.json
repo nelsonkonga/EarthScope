@@ -1,0 +1,218 @@
+[
+ {
+  "lat": [
+   -64,
+   -56
+  ],
+  "level": "proven",
+  "transform": "(x,-y)",
+  "sign": -1,
+  "lag": 0,
+  "hits": 24,
+  "expected": 9.633728887435975,
+  "p": 2.333076303511577e-05,
+  "z": 4.685614789923405,
+  "trends": {
+   "SLP": "falling / not significant",
+   "TROPT": "falling / not significant"
+  }
+ },
+ {
+  "lat": [
+   -52,
+   -44
+  ],
+  "level": "proven",
+  "transform": "(x,-y)",
+  "sign": -1,
+  "lag": 0,
+  "hits": 37,
+  "expected": 12.614534909534898,
+  "p": 9.061358570099057e-10,
+  "z": 7.788518125458602,
+  "trends": {
+   "SLP": "rising / not significant",
+   "TROPT": "falling / not significant"
+  }
+ },
+ {
+  "lat": [
+   -40,
+   -32
+  ],
+  "level": null,
+  "transform": null,
+  "sign": null,
+  "lag": null,
+  "hits": null,
+  "expected": null,
+  "p": null,
+  "z": null,
+  "trends": {
+   "SLP": "rising / not significant",
+   "TROPT": "rising / significant"
+  }
+ },
+ {
+  "lat": [
+   -28,
+   -20
+  ],
+  "level": null,
+  "transform": null,
+  "sign": null,
+  "lag": null,
+  "hits": null,
+  "expected": null,
+  "p": null,
+  "z": null,
+  "trends": {
+   "SLP": "rising / not significant",
+   "TROPT": "falling / not significant"
+  }
+ },
+ {
+  "lat": [
+   -16,
+   -8
+  ],
+  "level": "suggestive",
+  "transform": "(x,y)",
+  "sign": 1,
+  "lag": 0,
+  "hits": 23,
+  "expected": 12.885714285714277,
+  "p": 0.004021891251684086,
+  "z": 6.011616755977467,
+  "trends": {
+   "SLP": "rising / not significant",
+   "TROPT": "falling / suggestive"
+  }
+ },
+ {
+  "lat": [
+   -4,
+   4
+  ],
+  "level": null,
+  "transform": null,
+  "sign": null,
+  "lag": null,
+  "hits": null,
+  "expected": null,
+  "p": null,
+  "z": null,
+  "trends": {
+   "SLP": "rising / suggestive",
+   "TROPT": "falling / significant"
+  }
+ },
+ {
+  "lat": [
+   8,
+   16
+  ],
+  "level": null,
+  "transform": null,
+  "sign": null,
+  "lag": null,
+  "hits": null,
+  "expected": null,
+  "p": null,
+  "z": null,
+  "trends": {
+   "SLP": "rising / not significant",
+   "TROPT": "falling / not significant"
+  }
+ },
+ {
+  "lat": [
+   20,
+   28
+  ],
+  "level": "suggestive",
+  "transform": "(x,y)",
+  "sign": 1,
+  "lag": 0,
+  "hits": 28,
+  "expected": 15.337575757575754,
+  "p": 0.0010024646746458728,
+  "z": 5.034232330530952,
+  "trends": {
+   "SLP": "falling / not significant",
+   "TROPT": "falling / not significant"
+  }
+ },
+ {
+  "lat": [
+   32,
+   40
+  ],
+  "level": "proven",
+  "transform": "(x,-y)",
+  "sign": -1,
+  "lag": 0,
+  "hits": 39,
+  "expected": 12.96666666666666,
+  "p": 8.68036752278171e-11,
+  "z": 9.856545232281787,
+  "trends": {
+   "SLP": "falling / not significant",
+   "TROPT": "rising / suggestive"
+  }
+ },
+ {
+  "lat": [
+   44,
+   52
+  ],
+  "level": "proven",
+  "transform": "(x,-y)",
+  "sign": -1,
+  "lag": 0,
+  "hits": 58,
+  "expected": 12.255018315018305,
+  "p": 2.4021481678379612e-26,
+  "z": 14.996234560734461,
+  "trends": {
+   "SLP": "falling / not significant",
+   "TROPT": "rising / significant"
+  }
+ },
+ {
+  "lat": [
+   56,
+   64
+  ],
+  "level": "proven",
+  "transform": "(x,-y)",
+  "sign": -1,
+  "lag": 0,
+  "hits": 46,
+  "expected": 15.320126160389306,
+  "p": 1.2515902161847389e-12,
+  "z": 9.94772284828533,
+  "trends": {
+   "SLP": "falling / not significant",
+   "TROPT": "falling / not significant"
+  }
+ },
+ {
+  "lat": [
+   66,
+   74
+  ],
+  "level": "suggestive",
+  "transform": "(x,-y)",
+  "sign": -1,
+  "lag": 0,
+  "hits": 21,
+  "expected": 11.68666666666666,
+  "p": 0.005891087847212917,
+  "z": 2.4510561428401947,
+  "trends": {
+   "SLP": "rising / not significant",
+   "TROPT": "falling / not significant"
+  }
+ }
+]

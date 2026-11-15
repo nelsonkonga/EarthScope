@@ -1,0 +1,30 @@
+arctic    Air temperature (Barents Sea & Svalbard)  561 mailles,    0 transitions, hasard au plus 0 | témoin : 0
+arctic    Sea ice cover (Barents Sea & Svalbard)    520 mailles,  336 transitions, hasard au plus 16
+     type de types : level dropped → trend turned downward dans 52/520 mailles (p 0.01)
+     type de types : trend turned upward → level dropped dans 52/520 mailles (p 0.01)
+arctic    Surface temperature (Barents Sea & Svalb  561 mailles,   28 transitions, hasard au plus 0
+arctic    Snow depth (Barents Sea & Svalbard)       127 mailles,    1 transitions, hasard au plus 0
+arctic    Precipitation (Barents Sea & Svalbard)    561 mailles,   21 transitions, hasard au plus 0
+arctic    Sea-level pressure (Barents Sea & Svalba  561 mailles,    0 transitions, hasard au plus 0
+europe    Air temperature (Western Europe (France)  272 mailles,    0 transitions, hasard au plus 0 | témoin : 0
+europe    Precipitation (Western Europe (France))   272 mailles,    8 transitions, hasard au plus 0
+europe    Root-zone soil wetness (Western Europe (  268 mailles,   82 transitions, hasard au plus 1
+     Root-zone soil wetness (Western Europe (France)): around 1988, the trend turned upward in 31 of 268 grid cells together (chance gathers as many anywhere 1 % of the time or less)
+europe    Evaporation from land (Western Europe (F  268 mailles,   39 transitions, hasard au plus 1
+europe    Sunlight at the surface (Western Europe    80 mailles,    0 transitions, hasard au plus 0
+europe    Cloud cover (Western Europe (France))      80 mailles,    5 transitions, hasard au plus 0
+levels    Air temperature (Western Pacific warm po  357 mailles,    0 transitions, hasard au plus 0 | témoin : 0
+levels    Surface temperature (Western Pacific war  357 mailles,   25 transitions, hasard au plus 1
+levels    Tropopause temperature (Western Pacific   357 mailles,    0 transitions, hasard au plus 0
+levels    Water vapour in the air column (Western   357 mailles,   33 transitions, hasard au plus 0
+sahel     Precipitation (Central Sahel)             221 mailles,   10 transitions, hasard au plus 0 | témoin : 0
+sahel     Root-zone soil wetness (Central Sahel)    221 mailles,   32 transitions, hasard au plus 0
+sahel     Evaporation from land (Central Sahel)     221 mailles,   13 transitions, hasard au plus 0
+sahel     Air temperature (Central Sahel)           221 mailles,    5 transitions, hasard au plus 0
+sahel     Relative humidity (Central Sahel)         221 mailles,    9 transitions, hasard au plus 0
+sahel     Water vapour in the air column (Central   221 mailles,    0 transitions, hasard au plus 0
+two_seas  Sea ice cover (Ross Sea (Antarctica))     357 mailles,   21 transitions, hasard au plus 0 | témoin : 0
+two_seas  Air temperature (Ross Sea (Antarctica))   357 mailles,    8 transitions, hasard au plus 0
+
+24 variables × régions ; un changement prouvé dans 1 ; témoin (champs sans changement) : 0/5
+→ data/earth/dynamics/changes.json

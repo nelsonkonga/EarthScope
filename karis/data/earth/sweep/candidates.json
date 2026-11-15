@@ -1,0 +1,2170 @@
+[
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Air temperature",
+   "Surface temperature"
+  ],
+  "variables": [
+   "T2M",
+   "TS"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 104,
+  "expected": 19.879769725944165,
+  "p": 4.136569871388273e-64,
+  "z": 25.691237078366935,
+  "union": true,
+  "episodes": 57,
+  "longest": [
+   "2002-05 to 2002-09",
+   "1998-03 to 1998-06",
+   "2000-01 to 2000-05"
+  ],
+  "definitional": true,
+  "note": "the 2-metre air temperature of a reanalysis is computed from the surface temperature and the lowest model level: this link is partly the model's own arithmetic",
+  "text": "Air temperature and Surface temperature leave their norm in the same months, the same way: 104 times, where chance at the same moment of the record would give 20 (p = 4e-64; z = 25.7 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (87 % and 90 %), that Eva takes them for one dynamic seen through the identity: in 26 months one left its norm without the other."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Air temperature",
+   "Surface temperature"
+  ],
+  "variables": [
+   "T2M",
+   "TS"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 108,
+  "expected": 22.41430511487582,
+  "p": 2.2929983656515883e-63,
+  "z": 21.795578281137786,
+  "union": true,
+  "episodes": 64,
+  "longest": [
+   "1987-05 to 1987-10",
+   "1982-02 to 1982-05",
+   "2012-09 to 2013-01"
+  ],
+  "definitional": true,
+  "note": "the 2-metre air temperature of a reanalysis is computed from the surface temperature and the lowest model level: this link is partly the model's own arithmetic",
+  "text": "Air temperature and Surface temperature leave their norm in the same months, the same way: 108 times, where chance at the same moment of the record would give 22 (p = 2e-63; z = 21.8 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (89 % and 89 %), that Eva takes them for one dynamic seen through the identity: in 28 months one left its norm without the other."
+ },
+ {
+  "sweep": "bellingshausen",
+  "labels": [
+   "Air temperature",
+   "Surface temperature"
+  ],
+  "variables": [
+   "T2M",
+   "TS"
+  ],
+  "regions": [
+   "bellingshausen",
+   "bellingshausen"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 106,
+  "expected": 36.58712614870505,
+  "p": 1.6251287335959963e-34,
+  "z": 21.532776783831203,
+  "union": true,
+  "episodes": 52,
+  "longest": [
+   "2013-06 to 2013-12",
+   "2017-03 to 2017-10",
+   "1986-05 to 1986-09"
+  ],
+  "definitional": true,
+  "note": "the 2-metre air temperature of a reanalysis is computed from the surface temperature and the lowest model level: this link is partly the model's own arithmetic",
+  "text": "Air temperature and Surface temperature leave their norm in the same months, the same way: 106 times, where chance at the same moment of the record would give 37 (p = 2e-34; z = 21.5 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (76 % and 79 %), that Eva takes them for one dynamic seen through the identity: in 61 months one left its norm without the other."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Root-zone soil wetness",
+   "Evaporation from land"
+  ],
+  "variables": [
+   "GWETROOT",
+   "EVLAND"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 123,
+  "expected": 53.64626473831281,
+  "p": 1.699100720604478e-29,
+  "z": 15.305755355246404,
+  "union": true,
+  "episodes": 33,
+  "longest": [
+   "2012-07 to 2013-04",
+   "2024-07 to 2025-03",
+   "1994-08 to 1995-04"
+  ],
+  "definitional": true,
+  "note": "MERRA-2's land model computes evaporation from the water it holds in the soil, and is driven by observation-corrected precipitation: this link is partly the model's own land physics",
+  "text": "Root-zone soil wetness and Evaporation from land leave their norm in the same months, the same way: 123 times, where chance at the same moment of the record would give 54 (p = 2e-29; z = 15.3 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (78 % and 83 %), that Eva takes them for one dynamic seen through the identity: in 61 months one left its norm without the other."
+ },
+ {
+  "sweep": "bellingshausen",
+  "labels": [
+   "Air temperature",
+   "Water vapour in the air column"
+  ],
+  "variables": [
+   "T2M",
+   "TQV"
+  ],
+  "regions": [
+   "bellingshausen",
+   "bellingshausen"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 73,
+  "expected": 21.793934837092714,
+  "p": 1.1097254893797978e-23,
+  "z": 15.0826126052056,
+  "union": false,
+  "episodes": 50,
+  "longest": [
+   "2017-03 to 2017-09",
+   "1986-05 to 1986-09",
+   "1990-08 to 1990-11"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Air temperature and Water vapour in the air column leave their norm in the same months, the same way: 73 times, where chance at the same moment of the record would give 22 (p = 1e-23; z = 15.1 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "amazon",
+  "labels": [
+   "Air temperature",
+   "Surface temperature"
+  ],
+  "variables": [
+   "T2M",
+   "TS"
+  ],
+  "regions": [
+   "amazon",
+   "amazon"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 138,
+  "expected": 69.79140789379177,
+  "p": 3.9897187995989703e-35,
+  "z": 14.093719424661197,
+  "union": true,
+  "episodes": 31,
+  "longest": [
+   "2023-05 to 2024-12",
+   "2015-06 to 2016-11",
+   "1997-08 to 1998-09"
+  ],
+  "definitional": true,
+  "note": "the 2-metre air temperature of a reanalysis is computed from the surface temperature and the lowest model level: this link is partly the model's own arithmetic",
+  "text": "Air temperature and Surface temperature leave their norm in the same months, the same way: 138 times, where chance at the same moment of the record would give 70 (p = 4e-35; z = 14.1 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (98 % and 95 %), that Eva takes them for one dynamic seen through the identity: in 10 months one left its norm without the other."
+ },
+ {
+  "sweep": "sahel_cameroon",
+  "labels": [
+   "Sea-level pressure (Central Sahel)",
+   "Sea-level pressure (Central Cameroon)"
+  ],
+  "variables": [
+   "SLP",
+   "SLP"
+  ],
+  "regions": [
+   "sahel",
+   "cameroon"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 62,
+  "expected": 18.781139528275062,
+  "p": 4.992236444267358e-20,
+  "z": 13.956241635448695,
+  "union": false,
+  "episodes": 47,
+  "longest": [
+   "1986-07 to 1986-12",
+   "1987-04 to 1987-08",
+   "2015-11 to 2016-01"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Sea-level pressure (Central Sahel) and Sea-level pressure (Central Cameroon) leave their norm in the same months, the same way: 62 times, where chance at the same moment of the record would give 19 (p = 5e-20; z = 14.0 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Root-zone soil wetness",
+   "Evaporation from land"
+  ],
+  "variables": [
+   "GWETROOT",
+   "EVLAND"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 117,
+  "expected": 46.424107695709836,
+  "p": 1.455814991068595e-33,
+  "z": 12.315780984768773,
+  "union": true,
+  "episodes": 39,
+  "longest": [
+   "2013-06 to 2014-04",
+   "2021-05 to 2022-03",
+   "2022-10 to 2023-07"
+  ],
+  "definitional": true,
+  "note": "MERRA-2's land model computes evaporation from the water it holds in the soil, and is driven by observation-corrected precipitation: this link is partly the model's own land physics",
+  "text": "Root-zone soil wetness and Evaporation from land leave their norm in the same months, the same way: 117 times, where chance at the same moment of the record would give 46 (p = 1e-33; z = 12.3 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (81 % and 81 %), that Eva takes them for one dynamic seen through the identity: in 54 months one left its norm without the other."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Relative humidity",
+   "Water vapour in the air column"
+  ],
+  "variables": [
+   "RH2M",
+   "TQV"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 76,
+  "expected": 32.85895260398356,
+  "p": 8.188146787389451e-15,
+  "z": 11.770151853270637,
+  "union": false,
+  "episodes": 46,
+  "longest": [
+   "2019-09 to 2020-04",
+   "2025-05 to 2025-10",
+   "1982-01 to 1982-05"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Relative humidity and Water vapour in the air column leave their norm in the same months, the same way: 76 times, where chance at the same moment of the record would give 33 (p = 8e-15; z = 11.8 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "warmpool_amazon",
+  "labels": [
+   "Precipitation (Western Pacific warm pool)",
+   "Water vapour in the air column (Western Pacific warm pool)"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "TQV"
+  ],
+  "regions": [
+   "warm_pool",
+   "warm_pool"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 51,
+  "expected": 16.319999999999983,
+  "p": 2.386161889392005e-15,
+  "z": 11.57818623075936,
+  "union": false,
+  "episodes": 33,
+  "longest": [
+   "2022-05 to 2022-10",
+   "1998-01 to 1998-03",
+   "2003-06 to 2003-09"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Precipitation (Western Pacific warm pool) and Water vapour in the air column (Western Pacific warm pool) leave their norm in the same months, the same way: 51 times, where chance at the same moment of the record would give 16 (p = 2e-15; z = 11.6 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "warmpool_delhi",
+  "labels": [
+   "Precipitation (Western Pacific warm pool)",
+   "Water vapour in the air column (Western Pacific warm pool)"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "TQV"
+  ],
+  "regions": [
+   "warm_pool",
+   "warm_pool"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 51,
+  "expected": 16.319999999999983,
+  "p": 2.386161889392005e-15,
+  "z": 11.57818623075936,
+  "union": false,
+  "episodes": 33,
+  "longest": [
+   "2022-05 to 2022-10",
+   "1998-01 to 1998-03",
+   "2003-06 to 2003-09"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Precipitation (Western Pacific warm pool) and Water vapour in the air column (Western Pacific warm pool) leave their norm in the same months, the same way: 51 times, where chance at the same moment of the record would give 16 (p = 2e-15; z = 11.6 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Precipitation",
+   "Water vapour in the air column"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "TQV"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 57,
+  "expected": 21.175823390202176,
+  "p": 1.1316148972749539e-13,
+  "z": 11.46095045852998,
+  "union": false,
+  "episodes": 39,
+  "longest": [
+   "2025-05 to 2025-10",
+   "1982-01 to 1982-05",
+   "2010-08 to 2010-11"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Precipitation and Water vapour in the air column leave their norm in the same months, the same way: 57 times, where chance at the same moment of the record would give 21 (p = 1e-13; z = 11.5 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "warmpool_delhi",
+  "labels": [
+   "Precipitation (Indo-Gangetic Plain (Delhi))",
+   "Water vapour in the air column (Indo-Gangetic Plain (Delhi))"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "TQV"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 57,
+  "expected": 21.175823390202176,
+  "p": 1.1316148972749539e-13,
+  "z": 11.46095045852998,
+  "union": false,
+  "episodes": 39,
+  "longest": [
+   "2025-05 to 2025-10",
+   "1982-01 to 1982-05",
+   "2010-08 to 2010-11"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Precipitation (Indo-Gangetic Plain (Delhi)) and Water vapour in the air column (Indo-Gangetic Plain (Delhi)) leave their norm in the same months, the same way: 57 times, where chance at the same moment of the record would give 21 (p = 1e-13; z = 11.5 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Precipitation",
+   "Relative humidity"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "RH2M"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 72,
+  "expected": 30.113207872129667,
+  "p": 1.3234237250525121e-14,
+  "z": 11.415164575165903,
+  "union": false,
+  "episodes": 41,
+  "longest": [
+   "2025-05 to 2025-10",
+   "1982-01 to 1982-05",
+   "1987-05 to 1987-09"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Precipitation and Relative humidity leave their norm in the same months, the same way: 72 times, where chance at the same moment of the record would give 30 (p = 1e-14; z = 11.4 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Root-zone soil wetness",
+   "Relative humidity"
+  ],
+  "variables": [
+   "GWETROOT",
+   "RH2M"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 108,
+  "expected": 49.829638434321126,
+  "p": 1.2067111687768655e-22,
+  "z": 11.334305620898967,
+  "union": true,
+  "episodes": 39,
+  "longest": [
+   "2013-06 to 2014-04",
+   "2019-10 to 2020-06",
+   "2025-06 to 2025-12"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Root-zone soil wetness and Relative humidity leave their norm in the same months, the same way: 108 times, where chance at the same moment of the record would give 50 (p = 1e-22; z = 11.3 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (75 % and 73 %), that Eva takes them for one dynamic seen through the identity: in 75 months one left its norm without the other."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Root-zone soil wetness",
+   "Relative humidity"
+  ],
+  "variables": [
+   "GWETROOT",
+   "RH2M"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 82,
+  "expected": 39.70788802730446,
+  "p": 5.465857017611451e-13,
+  "z": 11.031595313095094,
+  "union": false,
+  "episodes": 32,
+  "longest": [
+   "2024-07 to 2025-03",
+   "2012-07 to 2012-12",
+   "2018-07 to 2018-12"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Root-zone soil wetness and Relative humidity leave their norm in the same months, the same way: 82 times, where chance at the same moment of the record would give 40 (p = 5e-13; z = 11.0 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "bellingshausen",
+  "labels": [
+   "Wind speed",
+   "Precipitation"
+  ],
+  "variables": [
+   "WS10M",
+   "PRECTOTCORR"
+  ],
+  "regions": [
+   "bellingshausen",
+   "bellingshausen"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 50,
+  "expected": 17.47261953904368,
+  "p": 6.018834839882213e-13,
+  "z": 10.883459201421118,
+  "union": false,
+  "episodes": 37,
+  "longest": [
+   "2020-11 to 2021-03",
+   "2025-04 to 2025-08",
+   "2021-11 to 2022-03"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Wind speed and Precipitation leave their norm in the same months, the same way: 50 times, where chance at the same moment of the record would give 17 (p = 6e-13; z = 10.9 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Precipitation",
+   "Evaporation from land"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "EVLAND"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x+1,y)",
+  "lag": 1,
+  "sign": 1,
+  "hits": 64,
+  "expected": 29.546733008993062,
+  "p": 3.9219634869876383e-11,
+  "z": 10.628782477420346,
+  "union": false,
+  "episodes": 39,
+  "longest": [
+   "2025-06 to 2025-11",
+   "1982-02 to 1982-06",
+   "2013-07 to 2013-11"
+  ],
+  "definitional": true,
+  "note": "MERRA-2's land model computes evaporation from the water it holds in the soil, and is driven by observation-corrected precipitation: this link is partly the model's own land physics",
+  "text": "Precipitation comes first: 1 month after it leaves its norm, Evaporation from land leaves its own the same way: 64 times, where chance at the same moment of the record would give 30 (p = 4e-11; z = 10.6 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "bellingshausen",
+  "labels": [
+   "Surface temperature",
+   "Water vapour in the air column"
+  ],
+  "variables": [
+   "TS",
+   "TQV"
+  ],
+  "regions": [
+   "bellingshausen",
+   "bellingshausen"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 56,
+  "expected": 21.433934837092718,
+  "p": 1.103102524185726e-12,
+  "z": 10.587805344487185,
+  "union": false,
+  "episodes": 35,
+  "longest": [
+   "2017-03 to 2017-09",
+   "1986-05 to 1986-09",
+   "1990-08 to 1990-11"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Surface temperature and Water vapour in the air column leave their norm in the same months, the same way: 56 times, where chance at the same moment of the record would give 21 (p = 1e-12; z = 10.6 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Relative humidity",
+   "Water vapour in the air column"
+  ],
+  "variables": [
+   "RH2M",
+   "TQV"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 63,
+  "expected": 23.45264832331933,
+  "p": 1.4643538624540998e-15,
+  "z": 10.557504061865517,
+  "union": false,
+  "episodes": 39,
+  "longest": [
+   "1982-03 to 1982-06",
+   "2010-07 to 2010-11",
+   "1991-03 to 1991-07"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Relative humidity and Water vapour in the air column leave their norm in the same months, the same way: 63 times, where chance at the same moment of the record would give 23 (p = 1e-15; z = 10.6 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Air temperature",
+   "Root-zone soil wetness"
+  ],
+  "variables": [
+   "T2M",
+   "GWETROOT"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 71,
+  "expected": 29.830412903529055,
+  "p": 2.352705465001489e-14,
+  "z": 9.874536309630503,
+  "union": false,
+  "episodes": 43,
+  "longest": [
+   "1987-05 to 1987-10",
+   "1982-02 to 1982-05",
+   "2023-04 to 2023-07"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Air temperature and Root-zone soil wetness leave their norm in the same months, in opposite directions: 71 times, where chance at the same moment of the record would give 30 (p = 2e-14; z = 9.9 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "amazon",
+  "labels": [
+   "Surface temperature",
+   "Relative humidity"
+  ],
+  "variables": [
+   "TS",
+   "RH2M"
+  ],
+  "regions": [
+   "amazon",
+   "amazon"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 102,
+  "expected": 61.03641306320095,
+  "p": 6.9594802736147664e-12,
+  "z": 9.854144527446394,
+  "union": true,
+  "episodes": 28,
+  "longest": [
+   "2015-06 to 2016-11",
+   "2023-08 to 2024-12",
+   "2025-05 to 2025-12"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Surface temperature and Relative humidity leave their norm in the same months, in opposite directions: 102 times, where chance at the same moment of the record would give 61 (p = 7e-12; z = 9.9 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (70 % and 69 %), that Eva takes them for one dynamic seen through a mirror: in 88 months one left its norm without the other."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Precipitation",
+   "Root-zone soil wetness"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "GWETROOT"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x+1,y)",
+  "lag": 1,
+  "sign": 1,
+  "hits": 65,
+  "expected": 29.956733868986174,
+  "p": 1.9766880433080774e-11,
+  "z": 9.771397543043989,
+  "union": false,
+  "episodes": 40,
+  "longest": [
+   "2025-06 to 2025-11",
+   "1982-02 to 1982-06",
+   "2020-01 to 2020-06"
+  ],
+  "definitional": true,
+  "note": "MERRA-2's land model computes evaporation from the water it holds in the soil, and is driven by observation-corrected precipitation: this link is partly the model's own land physics",
+  "text": "Precipitation comes first: 1 month after it leaves its norm, Root-zone soil wetness leaves its own the same way: 65 times, where chance at the same moment of the record would give 30 (p = 2e-11; z = 9.8 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Surface temperature",
+   "Root-zone soil wetness"
+  ],
+  "variables": [
+   "TS",
+   "GWETROOT"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 73,
+  "expected": 30.84272059583675,
+  "p": 7.896684650600256e-15,
+  "z": 9.762871646289259,
+  "union": false,
+  "episodes": 43,
+  "longest": [
+   "1987-05 to 1987-10",
+   "1982-02 to 1982-05",
+   "2021-11 to 2022-02"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Surface temperature and Root-zone soil wetness leave their norm in the same months, in opposite directions: 73 times, where chance at the same moment of the record would give 31 (p = 8e-15; z = 9.8 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "cameroon",
+  "labels": [
+   "Precipitation",
+   "Relative humidity"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "RH2M"
+  ],
+  "regions": [
+   "cameroon",
+   "cameroon"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 47,
+  "expected": 23.764065855175,
+  "p": 5.80027262868597e-07,
+  "z": 9.717621902975361,
+  "union": false,
+  "episodes": 29,
+  "longest": [
+   "1982-01 to 1982-10",
+   "2005-04 to 2005-07",
+   "2025-02 to 2025-05"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Precipitation and Relative humidity leave their norm in the same months, the same way: 47 times, where chance at the same moment of the record would give 24 (p = 6e-07; z = 9.7 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Air temperature",
+   "Precipitation"
+  ],
+  "variables": [
+   "T2M",
+   "PRECTOTCORR"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 52,
+  "expected": 19.69701371929396,
+  "p": 5.63729216426708e-12,
+  "z": 9.51960294770014,
+  "union": false,
+  "episodes": 37,
+  "longest": [
+   "1987-05 to 1987-09",
+   "1982-03 to 1982-05",
+   "2014-12 to 2015-03"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Air temperature and Precipitation leave their norm in the same months, in opposite directions: 52 times, where chance at the same moment of the record would give 20 (p = 6e-12; z = 9.5 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "warmpool_delhi",
+  "labels": [
+   "Air temperature (Indo-Gangetic Plain (Delhi))",
+   "Precipitation (Indo-Gangetic Plain (Delhi))"
+  ],
+  "variables": [
+   "T2M",
+   "PRECTOTCORR"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 52,
+  "expected": 19.69701371929396,
+  "p": 5.63729216426708e-12,
+  "z": 9.51960294770014,
+  "union": false,
+  "episodes": 37,
+  "longest": [
+   "1987-05 to 1987-09",
+   "1982-03 to 1982-05",
+   "2014-12 to 2015-03"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Air temperature (Indo-Gangetic Plain (Delhi)) and Precipitation (Indo-Gangetic Plain (Delhi)) leave their norm in the same months, in opposite directions: 52 times, where chance at the same moment of the record would give 20 (p = 6e-12; z = 9.5 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "amazon",
+  "labels": [
+   "Precipitation",
+   "Relative humidity"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "RH2M"
+  ],
+  "regions": [
+   "amazon",
+   "amazon"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 87,
+  "expected": 54.58394891340543,
+  "p": 7.11812341096857e-08,
+  "z": 9.513802366253767,
+  "union": false,
+  "episodes": 39,
+  "longest": [
+   "2023-08 to 2025-01",
+   "2015-06 to 2016-07",
+   "2025-05 to 2025-12"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Precipitation and Relative humidity leave their norm in the same months, the same way: 87 times, where chance at the same moment of the record would give 55 (p = 7e-08; z = 9.5 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "amazon",
+  "labels": [
+   "Air temperature",
+   "Relative humidity"
+  ],
+  "variables": [
+   "T2M",
+   "RH2M"
+  ],
+  "regions": [
+   "amazon",
+   "amazon"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 100,
+  "expected": 61.37355592034382,
+  "p": 1.0332069683839708e-10,
+  "z": 9.344978120841692,
+  "union": true,
+  "episodes": 27,
+  "longest": [
+   "2015-06 to 2016-11",
+   "2023-08 to 2024-12",
+   "2025-05 to 2025-12"
+  ],
+  "definitional": true,
+  "note": "relative humidity is computed from temperature and humidity: warmer air holding the same water is drier in relative terms, so part of this opposite link is arithmetic",
+  "text": "Air temperature and Relative humidity leave their norm in the same months, in opposite directions: 100 times, where chance at the same moment of the record would give 61 (p = 1e-10; z = 9.3 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (71 % and 68 %), that Eva takes them for one dynamic seen through a mirror: in 88 months one left its norm without the other."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Evaporation from land",
+   "Relative humidity"
+  ],
+  "variables": [
+   "EVLAND",
+   "RH2M"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 98,
+  "expected": 46.40519398987667,
+  "p": 2.0870061496937885e-18,
+  "z": 9.21050068690259,
+  "union": true,
+  "episodes": 37,
+  "longest": [
+   "2013-06 to 2014-04",
+   "2022-10 to 2023-07",
+   "2019-12 to 2020-06"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Evaporation from land and Relative humidity leave their norm in the same months, the same way: 98 times, where chance at the same moment of the record would give 46 (p = 2e-18; z = 9.2 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (68 % and 67 %), that Eva takes them for one dynamic seen through the identity: in 95 months one left its norm without the other."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Surface temperature",
+   "Precipitation"
+  ],
+  "variables": [
+   "TS",
+   "PRECTOTCORR"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 51,
+  "expected": 20.47855218083242,
+  "p": 7.754997217390731e-11,
+  "z": 9.123620254243445,
+  "union": false,
+  "episodes": 36,
+  "longest": [
+   "1987-05 to 1987-09",
+   "1982-03 to 1982-05",
+   "2014-12 to 2015-03"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Surface temperature and Precipitation leave their norm in the same months, in opposite directions: 51 times, where chance at the same moment of the record would give 20 (p = 8e-11; z = 9.1 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "bellingshausen",
+  "labels": [
+   "Air temperature",
+   "Sea ice cover"
+  ],
+  "variables": [
+   "T2M",
+   "FRSEAICE"
+  ],
+  "regions": [
+   "bellingshausen",
+   "bellingshausen"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 61,
+  "expected": 25.182506265664134,
+  "p": 2.165995760611346e-12,
+  "z": 8.922123237105776,
+  "union": false,
+  "episodes": 38,
+  "longest": [
+   "1986-06 to 1986-09",
+   "2013-08 to 2013-12",
+   "2015-07 to 2015-09"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Air temperature and Sea ice cover leave their norm in the same months, in opposite directions: 61 times, where chance at the same moment of the record would give 25 (p = 2e-12; z = 8.9 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Evaporation from land",
+   "Relative humidity"
+  ],
+  "variables": [
+   "EVLAND",
+   "RH2M"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 78,
+  "expected": 34.94788802730449,
+  "p": 2.354198524314136e-14,
+  "z": 8.865153478601002,
+  "union": false,
+  "episodes": 35,
+  "longest": [
+   "2024-07 to 2025-03",
+   "2012-07 to 2012-12",
+   "1983-09 to 1984-01"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Evaporation from land and Relative humidity leave their norm in the same months, the same way: 78 times, where chance at the same moment of the record would give 35 (p = 2e-14; z = 8.9 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Surface temperature",
+   "Evaporation from land"
+  ],
+  "variables": [
+   "TS",
+   "EVLAND"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 70,
+  "expected": 29.536886402510305,
+  "p": 4.806915870408969e-14,
+  "z": 8.79644579538558,
+  "union": false,
+  "episodes": 41,
+  "longest": [
+   "1987-05 to 1987-10",
+   "1982-02 to 1982-05",
+   "2021-11 to 2022-02"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Surface temperature and Evaporation from land leave their norm in the same months, in opposite directions: 70 times, where chance at the same moment of the record would give 30 (p = 5e-14; z = 8.8 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "amazon",
+  "labels": [
+   "Root-zone soil wetness",
+   "Relative humidity"
+  ],
+  "variables": [
+   "GWETROOT",
+   "RH2M"
+  ],
+  "regions": [
+   "amazon",
+   "amazon"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 104,
+  "expected": 68.10175750137151,
+  "p": 3.1614129365715667e-09,
+  "z": 8.78374711035924,
+  "union": true,
+  "episodes": 25,
+  "longest": [
+   "2023-08 to 2025-01",
+   "2015-06 to 2016-11",
+   "2025-05 to 2025-12"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Root-zone soil wetness and Relative humidity leave their norm in the same months, the same way: 104 times, where chance at the same moment of the record would give 68 (p = 3e-09; z = 8.8 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (69 % and 71 %), that Eva takes them for one dynamic seen through the identity: in 90 months one left its norm without the other."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Air temperature",
+   "Evaporation from land"
+  ],
+  "variables": [
+   "T2M",
+   "EVLAND"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 68,
+  "expected": 28.124578710202613,
+  "p": 6.804495671769603e-14,
+  "z": 8.750051604127096,
+  "union": false,
+  "episodes": 41,
+  "longest": [
+   "1987-05 to 1987-10",
+   "1982-02 to 1982-05",
+   "2023-04 to 2023-07"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Air temperature and Evaporation from land leave their norm in the same months, in opposite directions: 68 times, where chance at the same moment of the record would give 28 (p = 7e-14; z = 8.8 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Air temperature",
+   "Relative humidity"
+  ],
+  "variables": [
+   "T2M",
+   "RH2M"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 40,
+  "expected": 15.230776685960413,
+  "p": 4.528280198829553e-09,
+  "z": 8.689493191561679,
+  "union": false,
+  "episodes": 23,
+  "longest": [
+   "2002-06 to 2002-09",
+   "2020-08 to 2020-11",
+   "1991-05 to 1991-08"
+  ],
+  "definitional": true,
+  "note": "relative humidity is computed from temperature and humidity: warmer air holding the same water is drier in relative terms, so part of this opposite link is arithmetic",
+  "text": "Air temperature and Relative humidity leave their norm in the same months, in opposite directions: 40 times, where chance at the same moment of the record would give 15 (p = 5e-09; z = 8.7 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Sea-level pressure",
+   "Tropopause temperature"
+  ],
+  "variables": [
+   "SLP",
+   "TROPT"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 44,
+  "expected": 18.983823529411747,
+  "p": 2.5094662791153372e-08,
+  "z": 8.444110308670075,
+  "union": false,
+  "episodes": 32,
+  "longest": [
+   "2000-10 to 2001-01",
+   "2020-08 to 2020-10",
+   "1984-05 to 1984-06"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Sea-level pressure and Tropopause temperature leave their norm in the same months, the same way: 44 times, where chance at the same moment of the record would give 19 (p = 3e-08; z = 8.4 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Air temperature",
+   "Relative humidity"
+  ],
+  "variables": [
+   "T2M",
+   "RH2M"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 60,
+  "expected": 28.744819593741383,
+  "p": 2.2908764454049984e-09,
+  "z": 8.29306768699419,
+  "union": false,
+  "episodes": 36,
+  "longest": [
+   "1987-05 to 1987-10",
+   "1982-02 to 1982-05",
+   "2023-04 to 2023-07"
+  ],
+  "definitional": true,
+  "note": "relative humidity is computed from temperature and humidity: warmer air holding the same water is drier in relative terms, so part of this opposite link is arithmetic",
+  "text": "Air temperature and Relative humidity leave their norm in the same months, in opposite directions: 60 times, where chance at the same moment of the record would give 29 (p = 2e-09; z = 8.3 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Root-zone soil wetness",
+   "Water vapour in the air column"
+  ],
+  "variables": [
+   "GWETROOT",
+   "TQV"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x-1,y)",
+  "lag": -1,
+  "sign": 1,
+  "hits": 56,
+  "expected": 30.45745687748783,
+  "p": 9.427594103699057e-07,
+  "z": 8.194637424263641,
+  "union": false,
+  "episodes": 30,
+  "longest": [
+   "2019-09 to 2020-04",
+   "2025-05 to 2025-10",
+   "1982-01 to 1982-05"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Water vapour in the air column comes first: 1 month after it leaves its norm, Root-zone soil wetness leaves its own the same way: 56 times, where chance at the same moment of the record would give 30 (p = 9e-07; z = 8.2 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Air temperature",
+   "Sea-level pressure"
+  ],
+  "variables": [
+   "T2M",
+   "SLP"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 41,
+  "expected": 13.045976578274324,
+  "p": 1.1802405949613046e-11,
+  "z": 7.976010031409622,
+  "union": false,
+  "episodes": 27,
+  "longest": [
+   "1986-09 to 1986-12",
+   "1987-04 to 1987-07",
+   "2000-01 to 2000-04"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Air temperature and Sea-level pressure leave their norm in the same months, in opposite directions: 41 times, where chance at the same moment of the record would give 13 (p = 1e-11; z = 8.0 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "sahel_cameroon",
+  "labels": [
+   "Air temperature (Central Sahel)",
+   "Sea-level pressure (Central Sahel)"
+  ],
+  "variables": [
+   "T2M",
+   "SLP"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 41,
+  "expected": 13.045976578274324,
+  "p": 1.1802405949613046e-11,
+  "z": 7.976010031409622,
+  "union": false,
+  "episodes": 27,
+  "longest": [
+   "1986-09 to 1986-12",
+   "1987-04 to 1987-07",
+   "2000-01 to 2000-04"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Air temperature (Central Sahel) and Sea-level pressure (Central Sahel) leave their norm in the same months, in opposite directions: 41 times, where chance at the same moment of the record would give 13 (p = 1e-11; z = 8.0 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "amazon",
+  "labels": [
+   "Surface temperature",
+   "Root-zone soil wetness"
+  ],
+  "variables": [
+   "TS",
+   "GWETROOT"
+  ],
+  "regions": [
+   "amazon",
+   "amazon"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 99,
+  "expected": 71.56,
+  "p": 3.9090513965368815e-06,
+  "z": 7.955408664800056,
+  "union": true,
+  "episodes": 24,
+  "longest": [
+   "2015-06 to 2016-11",
+   "2023-08 to 2024-12",
+   "1997-08 to 1998-04"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Surface temperature and Root-zone soil wetness leave their norm in the same months, in opposite directions: 99 times, where chance at the same moment of the record would give 72 (p = 4e-06; z = 8.0 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (68 % and 66 %), that Eva takes them for one dynamic seen through a mirror: in 98 months one left its norm without the other."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Precipitation",
+   "Relative humidity"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "RH2M"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 46,
+  "expected": 18.023481781376514,
+  "p": 4.717759355269024e-10,
+  "z": 7.9104022568159325,
+  "union": false,
+  "episodes": 35,
+  "longest": [
+   "2024-07 to 2024-10",
+   "1982-03 to 1982-05",
+   "1984-07 to 1984-08"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Precipitation and Relative humidity leave their norm in the same months, the same way: 46 times, where chance at the same moment of the record would give 18 (p = 5e-10; z = 7.9 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Precipitation",
+   "Water vapour in the air column"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "TQV"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 45,
+  "expected": 15.621546173125111,
+  "p": 1.3245699208829681e-11,
+  "z": 7.909150505754296,
+  "union": false,
+  "episodes": 33,
+  "longest": [
+   "2024-06 to 2024-11",
+   "1982-03 to 1982-05",
+   "1984-07 to 1984-08"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Precipitation and Water vapour in the air column leave their norm in the same months, the same way: 45 times, where chance at the same moment of the record would give 16 (p = 1e-11; z = 7.9 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "amazon",
+  "labels": [
+   "Air temperature",
+   "Root-zone soil wetness"
+  ],
+  "variables": [
+   "T2M",
+   "GWETROOT"
+  ],
+  "regions": [
+   "amazon",
+   "amazon"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 98,
+  "expected": 71.80000000000001,
+  "p": 1.0235179975910332e-05,
+  "z": 7.896806047250843,
+  "union": true,
+  "episodes": 23,
+  "longest": [
+   "2015-06 to 2016-11",
+   "2023-08 to 2024-12",
+   "1997-08 to 1998-04"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Air temperature and Root-zone soil wetness leave their norm in the same months, in opposite directions: 98 times, where chance at the same moment of the record would give 72 (p = 1e-05; z = 7.9 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (70 % and 65 %), that Eva takes them for one dynamic seen through a mirror: in 96 months one left its norm without the other."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Surface temperature",
+   "Sea-level pressure"
+  ],
+  "variables": [
+   "TS",
+   "SLP"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 39,
+  "expected": 12.365976578274328,
+  "p": 4.214318057736472e-11,
+  "z": 7.836226889040001,
+  "union": false,
+  "episodes": 28,
+  "longest": [
+   "1986-09 to 1986-12",
+   "1982-05 to 1982-06",
+   "1983-01 to 1983-03"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Surface temperature and Sea-level pressure leave their norm in the same months, in opposite directions: 39 times, where chance at the same moment of the record would give 12 (p = 4e-11; z = 7.8 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Surface temperature",
+   "Relative humidity"
+  ],
+  "variables": [
+   "TS",
+   "RH2M"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 40,
+  "expected": 15.110776685960413,
+  "p": 3.6053555926984344e-09,
+  "z": 7.757088500854104,
+  "union": false,
+  "episodes": 24,
+  "longest": [
+   "2002-06 to 2002-09",
+   "2020-08 to 2020-11",
+   "1991-05 to 1991-08"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Surface temperature and Relative humidity leave their norm in the same months, in opposite directions: 40 times, where chance at the same moment of the record would give 15 (p = 4e-09; z = 7.8 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Surface temperature",
+   "Relative humidity"
+  ],
+  "variables": [
+   "TS",
+   "RH2M"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 62,
+  "expected": 30.114050362972154,
+  "p": 1.4885724516331837e-09,
+  "z": 7.708605157018463,
+  "union": false,
+  "episodes": 36,
+  "longest": [
+   "1987-05 to 1987-10",
+   "1982-02 to 1982-05",
+   "2021-11 to 2022-02"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Surface temperature and Relative humidity leave their norm in the same months, in opposite directions: 62 times, where chance at the same moment of the record would give 30 (p = 1e-09; z = 7.7 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "bellingshausen",
+  "labels": [
+   "Sea-level pressure",
+   "Tropopause temperature"
+  ],
+  "variables": [
+   "SLP",
+   "TROPT"
+  ],
+  "regions": [
+   "bellingshausen",
+   "bellingshausen"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 36,
+  "expected": 12.417391304347818,
+  "p": 2.0341697944237205e-09,
+  "z": 7.590181117291038,
+  "union": false,
+  "episodes": 29,
+  "longest": [
+   "1989-02 to 1989-06",
+   "1982-03 to 1982-04",
+   "1988-08 to 1988-10"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Sea-level pressure and Tropopause temperature leave their norm in the same months, in opposite directions: 36 times, where chance at the same moment of the record would give 12 (p = 2e-09; z = 7.6 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "bellingshausen",
+  "labels": [
+   "Surface temperature",
+   "Sea ice cover"
+  ],
+  "variables": [
+   "TS",
+   "FRSEAICE"
+  ],
+  "regions": [
+   "bellingshausen",
+   "bellingshausen"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 63,
+  "expected": 24.98250626566414,
+  "p": 7.582608767927932e-14,
+  "z": 7.480383908223955,
+  "union": false,
+  "episodes": 38,
+  "longest": [
+   "1986-06 to 1986-09",
+   "2009-07 to 2009-11",
+   "2013-08 to 2013-12"
+  ],
+  "definitional": true,
+  "note": "the sea ice and the sea-surface temperature are given to MERRA-2 from observations, and the surface over ice is the ice itself: when the ice retreats, the surface warms partly by construction",
+  "text": "Surface temperature and Sea ice cover leave their norm in the same months, in opposite directions: 63 times, where chance at the same moment of the record would give 25 (p = 8e-14; z = 7.5 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "bellingshausen",
+  "labels": [
+   "Sea-level pressure",
+   "Precipitation"
+  ],
+  "variables": [
+   "SLP",
+   "PRECTOTCORR"
+  ],
+  "regions": [
+   "bellingshausen",
+   "bellingshausen"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 42,
+  "expected": 17.763478260869555,
+  "p": 3.655190530085208e-08,
+  "z": 7.374951459349315,
+  "union": false,
+  "episodes": 32,
+  "longest": [
+   "2020-11 to 2021-03",
+   "2022-10 to 2023-02",
+   "1989-04 to 1989-05"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Sea-level pressure and Precipitation leave their norm in the same months, in opposite directions: 42 times, where chance at the same moment of the record would give 18 (p = 4e-08; z = 7.4 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "delhi",
+  "labels": [
+   "Evaporation from land",
+   "Water vapour in the air column"
+  ],
+  "variables": [
+   "EVLAND",
+   "TQV"
+  ],
+  "regions": [
+   "delhi",
+   "delhi"
+  ],
+  "transform": "(x-1,y)",
+  "lag": -1,
+  "sign": 1,
+  "hits": 55,
+  "expected": 29.476280406899594,
+  "p": 7.794641435595961e-07,
+  "z": 6.927659583765136,
+  "union": false,
+  "episodes": 31,
+  "longest": [
+   "2025-05 to 2025-10",
+   "1982-01 to 1982-05",
+   "2019-11 to 2020-04"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Water vapour in the air column comes first: 1 month after it leaves its norm, Evaporation from land leaves its own the same way: 55 times, where chance at the same moment of the record would give 29 (p = 8e-07; z = 6.9 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "amazon",
+  "labels": [
+   "Water vapour in the air column",
+   "Wind speed"
+  ],
+  "variables": [
+   "TQV",
+   "WS10M"
+  ],
+  "regions": [
+   "amazon",
+   "amazon"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 33,
+  "expected": 13.959999999999988,
+  "p": 1.7385129261946717e-06,
+  "z": 6.842555687335884,
+  "union": false,
+  "episodes": 24,
+  "longest": [
+   "2023-09 to 2023-11",
+   "2024-08 to 2024-10",
+   "2005-02 to 2005-03"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Water vapour in the air column and Wind speed leave their norm in the same months, in opposite directions: 33 times, where chance at the same moment of the record would give 14 (p = 2e-06; z = 6.8 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "cameroon",
+  "labels": [
+   "Root-zone soil wetness",
+   "Relative humidity"
+  ],
+  "variables": [
+   "GWETROOT",
+   "RH2M"
+  ],
+  "regions": [
+   "cameroon",
+   "cameroon"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 68,
+  "expected": 45.38912166702145,
+  "p": 2.5200381468162404e-06,
+  "z": 6.791085608399697,
+  "union": true,
+  "episodes": 21,
+  "longest": [
+   "2024-05 to 2025-09",
+   "1981-12 to 1982-12",
+   "2005-04 to 2005-12"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Root-zone soil wetness and Relative humidity leave their norm in the same months, the same way: 68 times, where chance at the same moment of the record would give 45 (p = 3e-06; z = 6.8 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (71 % and 69 %), that Eva takes them for one dynamic seen through the identity: in 58 months one left its norm without the other."
+ },
+ {
+  "sweep": "cameroon",
+  "labels": [
+   "Air temperature",
+   "Surface temperature"
+  ],
+  "variables": [
+   "T2M",
+   "TS"
+  ],
+  "regions": [
+   "cameroon",
+   "cameroon"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 93,
+  "expected": 49.42873312020236,
+  "p": 1.869322158410432e-19,
+  "z": 6.594957842467439,
+  "union": true,
+  "episodes": 25,
+  "longest": [
+   "2004-08 to 2006-02",
+   "2023-07 to 2024-09",
+   "2024-12 to 2025-09"
+  ],
+  "definitional": true,
+  "note": "the 2-metre air temperature of a reanalysis is computed from the surface temperature and the lowest model level: this link is partly the model's own arithmetic",
+  "text": "Air temperature and Surface temperature leave their norm in the same months, the same way: 93 times, where chance at the same moment of the record would give 49 (p = 2e-19; z = 6.6 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each). So often, both ways (89 % and 92 %), that Eva takes them for one dynamic seen through the identity: in 19 months one left its norm without the other."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Surface temperature",
+   "Root-zone soil wetness"
+  ],
+  "variables": [
+   "TS",
+   "GWETROOT"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 41,
+  "expected": 19.06064342441782,
+  "p": 1.661850849449765e-06,
+  "z": 6.554817015671042,
+  "union": false,
+  "episodes": 23,
+  "longest": [
+   "2002-06 to 2002-09",
+   "2020-08 to 2020-11",
+   "1990-11 to 1991-02"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Surface temperature and Root-zone soil wetness leave their norm in the same months, in opposite directions: 41 times, where chance at the same moment of the record would give 19 (p = 2e-06; z = 6.6 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Air temperature",
+   "Root-zone soil wetness"
+  ],
+  "variables": [
+   "T2M",
+   "GWETROOT"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 39,
+  "expected": 18.420643424417822,
+  "p": 4.7564443590719525e-06,
+  "z": 6.380995302600433,
+  "union": false,
+  "episodes": 24,
+  "longest": [
+   "2002-06 to 2002-09",
+   "2020-08 to 2020-11",
+   "2012-07 to 2012-09"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Air temperature and Root-zone soil wetness leave their norm in the same months, in opposite directions: 39 times, where chance at the same moment of the record would give 18 (p = 5e-06; z = 6.4 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "sahel_cameroon",
+  "labels": [
+   "Root-zone soil wetness (Central Sahel)",
+   "Air temperature (Central Sahel)"
+  ],
+  "variables": [
+   "GWETROOT",
+   "T2M"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 39,
+  "expected": 18.529411785773306,
+  "p": 4.7564443590719525e-06,
+  "z": 6.380995302600433,
+  "union": false,
+  "episodes": 24,
+  "longest": [
+   "2002-06 to 2002-09",
+   "2020-08 to 2020-11",
+   "2012-07 to 2012-09"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Root-zone soil wetness (Central Sahel) and Air temperature (Central Sahel) leave their norm in the same months, in opposite directions: 39 times, where chance at the same moment of the record would give 19 (p = 5e-06; z = 6.4 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "bellingshausen",
+  "labels": [
+   "Water vapour in the air column",
+   "Tropopause temperature"
+  ],
+  "variables": [
+   "TQV",
+   "TROPT"
+  ],
+  "regions": [
+   "bellingshausen",
+   "bellingshausen"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 32,
+  "expected": 13.535859870263883,
+  "p": 2.9196695063599317e-06,
+  "z": 6.296230606815033,
+  "union": false,
+  "episodes": 26,
+  "longest": [
+   "1998-04 to 1998-06",
+   "2017-02 to 2017-04",
+   "1988-08 to 1988-10"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Water vapour in the air column and Tropopause temperature leave their norm in the same months, in opposite directions: 32 times, where chance at the same moment of the record would give 14 (p = 3e-06; z = 6.3 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "cameroon",
+  "labels": [
+   "Relative humidity",
+   "Water vapour in the air column"
+  ],
+  "variables": [
+   "RH2M",
+   "TQV"
+  ],
+  "regions": [
+   "cameroon",
+   "cameroon"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 33,
+  "expected": 14.22409306660046,
+  "p": 3.0204181858250106e-06,
+  "z": 5.956428638320034,
+  "union": false,
+  "episodes": 25,
+  "longest": [
+   "2006-11 to 2007-03",
+   "1981-12 to 1982-01",
+   "1988-10 to 1988-12"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Relative humidity and Water vapour in the air column leave their norm in the same months, the same way: 33 times, where chance at the same moment of the record would give 14 (p = 3e-06; z = 6.0 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Precipitation",
+   "Evaporation from land"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "EVLAND"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 45,
+  "expected": 21.536363986890297,
+  "p": 7.564260592058696e-07,
+  "z": 5.949226199663195,
+  "union": false,
+  "episodes": 34,
+  "longest": [
+   "2024-07 to 2024-10",
+   "1982-02 to 1982-05",
+   "1984-07 to 1984-08"
+  ],
+  "definitional": true,
+  "note": "MERRA-2's land model computes evaporation from the water it holds in the soil, and is driven by observation-corrected precipitation: this link is partly the model's own land physics",
+  "text": "Precipitation and Evaporation from land leave their norm in the same months, the same way: 45 times, where chance at the same moment of the record would give 22 (p = 8e-07; z = 5.9 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "bellingshausen",
+  "labels": [
+   "Air temperature",
+   "Precipitation"
+  ],
+  "variables": [
+   "T2M",
+   "PRECTOTCORR"
+  ],
+  "regions": [
+   "bellingshausen",
+   "bellingshausen"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 34,
+  "expected": 15.697309941520452,
+  "p": 1.0312137473339806e-05,
+  "z": 5.698243338593812,
+  "union": false,
+  "episodes": 31,
+  "longest": [
+   "1986-05 to 1986-07",
+   "1989-07 to 1989-08",
+   "2025-04 to 2025-06"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Air temperature and Precipitation leave their norm in the same months, the same way: 34 times, where chance at the same moment of the record would give 16 (p = 1e-05; z = 5.7 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "sahel_wide",
+  "labels": [
+   "Evaporation from land",
+   "Water vapour in the air column"
+  ],
+  "variables": [
+   "EVLAND",
+   "TQV"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x-1,y)",
+  "lag": -1,
+  "sign": 1,
+  "hits": 51,
+  "expected": 27.56071534745446,
+  "p": 3.62935640167896e-06,
+  "z": 5.560310793798322,
+  "union": false,
+  "episodes": 30,
+  "longest": [
+   "2019-07 to 2019-11",
+   "2024-06 to 2024-09",
+   "1982-03 to 1982-05"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Water vapour in the air column comes first: 1 month after it leaves its norm, Evaporation from land leaves its own the same way: 51 times, where chance at the same moment of the record would give 28 (p = 4e-06; z = 5.6 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "bellingshausen",
+  "labels": [
+   "Sea-level pressure",
+   "Wind speed"
+  ],
+  "variables": [
+   "SLP",
+   "WS10M"
+  ],
+  "regions": [
+   "bellingshausen",
+   "bellingshausen"
+  ],
+  "transform": "(x,-y)",
+  "lag": 0,
+  "sign": -1,
+  "hits": 30,
+  "expected": 13.250434782608687,
+  "p": 1.4522494175061177e-05,
+  "z": 5.3110511452668865,
+  "union": false,
+  "episodes": 25,
+  "longest": [
+   "1989-05 to 1989-06",
+   "1999-02 to 1999-04",
+   "1999-12 to 2000-01"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Sea-level pressure and Wind speed leave their norm in the same months, in opposite directions: 30 times, where chance at the same moment of the record would give 13 (p = 1e-05; z = 5.3 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "bellingshausen",
+  "labels": [
+   "Precipitation",
+   "Water vapour in the air column"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "TQV"
+  ],
+  "regions": [
+   "bellingshausen",
+   "bellingshausen"
+  ],
+  "transform": "(x,y)",
+  "lag": 0,
+  "sign": 1,
+  "hits": 38,
+  "expected": 18.210027028355185,
+  "p": 5.537040022806305e-06,
+  "z": 5.129540776034406,
+  "union": false,
+  "episodes": 33,
+  "longest": [
+   "2025-04 to 2025-08",
+   "1986-05 to 1986-07",
+   "1998-04 to 1998-06"
+  ],
+  "definitional": false,
+  "note": "both series come from the MERRA-2 reanalysis, not from two independent instruments: confirm it with an independent dataset before calling it a finding",
+  "text": "Precipitation and Water vapour in the air column leave their norm in the same months, the same way: 38 times, where chance at the same moment of the record would give 18 (p = 6e-06; z = 5.1 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "sahel_cameroon",
+  "labels": [
+   "Precipitation (Central Sahel)",
+   "Root-zone soil wetness (Central Sahel)"
+  ],
+  "variables": [
+   "PRECTOTCORR",
+   "GWETROOT"
+  ],
+  "regions": [
+   "sahel",
+   "sahel"
+  ],
+  "transform": "(x+1,y)",
+  "lag": 1,
+  "sign": 1,
+  "hits": 44,
+  "expected": 23.240000000000006,
+  "p": 1.9952017535535217e-05,
+  "z": 5.0146733266613515,
+  "union": false,
+  "episodes": 26,
+  "longest": [
+   "2024-07 to 2024-11",
+   "1982-03 to 1982-06",
+   "1984-07 to 1984-09"
+  ],
+  "definitional": true,
+  "note": "MERRA-2's land model computes evaporation from the water it holds in the soil, and is driven by observation-corrected precipitation: this link is partly the model's own land physics",
+  "text": "Precipitation (Central Sahel) comes first: 1 month after it leaves its norm, Root-zone soil wetness (Central Sahel) leaves its own the same way: 44 times, where chance at the same moment of the record would give 23 (p = 2e-05; z = 5.0 against the same reading with one of them moved 1 to 5 years, beyond the shared trend and the persistence of each)."
+ },
+ {
+  "sweep": "warmpool_delhi",
+  "same_process": {
+   "variables": [
+    "PRECTOTCORR",
+    "TQV"
+   ],
+   "transform": "(x,y)",
+   "regions": [
+    "Western Pacific warm pool",
+    "Indo-Gangetic Plain (Delhi)"
+   ],
+   "links": [
+    [
+     "PRECTOTCORR@warm_pool",
+     "TQV@warm_pool"
+    ],
+    [
+     "PRECTOTCORR@delhi",
+     "TQV@delhi"
+    ]
+   ]
+  }
+ }
+]

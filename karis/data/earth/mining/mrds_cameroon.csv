@@ -1,0 +1,12 @@
+dep_id,lat,lon,site_name,code_list,dev_stat,fips_code,huc_code,quad_code,url
+10022479,5.68709,12.74501,Dschang,AL,Occurrence,fCM,,,https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10022479
+10038677,3.00136,11.00144,Unknown,FE CR PGE_PT V TI_M,Occurrence,fCM,,,https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10038677
+10068644,4.83454,10.00144,Bauxite - Cameroon,AL,Occurrence,fCM,,,https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10068644
+10068646,6.50107,13.25142,Bauxite - Cameroon,AL,Producer,fCM,,,https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10068646
+10068647,7.00104,13.00144,Bauxite - Cameroon,AL,Producer,fCM,,,https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10068647
+10110364,7.00104,13.00144,Bauxite - Cameroon,AL,Producer,fCM,,,https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10110364
+10135000,3.21804,10.78473,Edea,AL,Producer,fCM,,,https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10135000
+10183336,10.45075,13.63474,(Facility) Kimbo Refinery,AL,Plant,fCM,,,https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10183336
+10183524,6.93434,12.96813,Minim Martap,AL SIL,Prospect,fCM,,,https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10183524
+10207467,2.60139,10.00144,Les Mamelles Prospect,FE,Prospect,fCM,,,https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10207467
+10280275,3.21804,10.78473,Edea,AL,Producer,fCM,,,https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10280275
