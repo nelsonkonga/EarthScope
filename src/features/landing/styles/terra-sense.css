@@ -465,7 +465,7 @@ html:has(body[data-surface='landing']) { scroll-behavior: smooth; }
 /* Hero: the photograph is the plate, the conceptual soil section sits on it as a field note. */
 .ts-hero--photo .ts-hero__visual { display: grid; }
 .ts-hero--photo .ts-hero__photo { grid-area: 1 / 1; aspect-ratio: 5 / 6; width: 100%; max-width: 620px; margin-left: auto; border-radius: 6px; border: 1px solid var(--ts-line); box-shadow: var(--ts-shadow); }
-.ts-hero--photo .ts-hero-art { grid-area: 1 / 1; align-self: end; justify-self: start; width: 64%; min-height: 0; margin: 0 0 -28px -36px; padding: 12px 14px 22px; background: color-mix(in srgb, var(--ts-surface-raised) 93%, transparent); box-shadow: var(--ts-shadow); }
+.ts-hero--photo .ts-hero-art { grid-area: 1 / 1; align-self: end; justify-self: start; width: 64%; min-height: 0; margin: 0 0 -28px -36px; padding: 12px 14px 22px; background: var(--ts-surface-raised); box-shadow: var(--ts-shadow); }
 .ts-hero--photo .ts-hero-art__label--left, .ts-hero--photo .ts-hero-art__label--bottom { display: none; }
 .ts-hero--photo .ts-hero__visual-note { margin-top: 44px; }
 
