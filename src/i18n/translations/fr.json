@@ -44,6 +44,16 @@
     "scrollNext": "Défiler pour explorer",
     "sequence": "OBSERVER / COMPRENDRE / EXPLORER"
   },
+  "film": {
+    "eyebrow": "Le film",
+    "title": "Terra Sense en deux minutes et demie",
+    "description": "De 45 ans d'archives de la NASA à un verdict, lieu par lieu : comment nous mettons chaque tendance à l'épreuve, ce que nous avons trouvé au Cameroun, et comment chacun peut l'explorer.",
+    "watch": "Voir le film",
+    "play": "Lire le film Terra Sense (2 min 27 s, narration en anglais sous-titrée)",
+    "playerTitle": "Terra Sense, le film du projet sur YouTube",
+    "note": "Narration en anglais, sous-titres dans l'image.",
+    "youtube": "Voir sur YouTube"
+  },
   "problem": {
     "eyebrow": "Le problème",
     "title": "Que se passe-t-il lorsque le sol perd son équilibre ?",

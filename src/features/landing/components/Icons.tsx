@@ -6,6 +6,7 @@ export function ArrowUpRight({ size = 16, strokeWidth = 1.8 }: IconProps) { retu
 export function ArrowRight({ size = 16, strokeWidth = 1.8 }: IconProps) { return <svg {...base(size, strokeWidth)}><path d="M4 12h15m-6-6 6 6-6 6" /></svg>; }
 export function SunMoon({ size = 18 }: IconProps) { return <svg {...base(size, 1.6)}><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>; }
 export function GlobeIcon({ size = 18 }: IconProps) { return <svg {...base(size, 1.6)}><circle cx="12" cy="12" r="9"/><path d="M3.5 9h17M3.5 15h17M12 3c2.4 2.5 3.5 5.5 3.5 9S14.4 18.5 12 21c-2.4-2.5-3.5-5.5-3.5-9S9.6 5.5 12 3Z"/></svg>; }
+export function PlayIcon({ size = 22 }: IconProps) { return <svg {...base(size, 1.6)}><path d="M8 5.5v13l10.5-6.5L8 5.5Z" fill="currentColor"/></svg>; }
 export function MessageIcon({ size = 18 }: IconProps) { return <svg {...base(size, 1.6)}><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-1.5 2v-6.2A7.5 7.5 0 1 1 20 11.5Z"/><path d="M8 11.5h8M8 8.5h5"/></svg>; }
 export function MenuIcon({ size = 20 }: IconProps) { return <svg {...base(size, 1.7)}><path d="M4 7h16M4 12h16M4 17h16"/></svg>; }
 export function CloseIcon({ size = 18 }: IconProps) { return <svg {...base(size, 1.8)}><path d="m6 6 12 12M18 6 6 18"/></svg>; }
