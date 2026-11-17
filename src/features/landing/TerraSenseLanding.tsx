@@ -3,6 +3,7 @@ import { useLandingLanguage, useLandingTheme } from './context/LandingContext';
 import { useLandingCatalog } from './api/landingData';
 import { SiteHeader } from './components/SiteHeader';
 import { HeroSection } from './components/HeroSection';
+import { FilmSection } from './components/FilmSection';
 import { ProblemSection, MissionSection, ScienceSection } from './components/Sections';
 import { AboutDialog } from './components/AboutDialog';
 import { AssistantDialog, type AssistantController } from './components/AssistantDialog';
@@ -57,6 +58,7 @@ export default function TerraSenseLanding({ onNavigateToApp, assistantController
       <SiteHeader onAbout={() => openAbout()} onAssistant={() => setAssistantOpen(true)} onNavigate={navigate} />
       <main id="ts-main" tabIndex={-1}>
         <HeroSection onNavigate={navigate} catalog={catalog} />
+        <FilmSection />
         <ProblemSection />
         <MissionSection onAssistant={() => setAssistantOpen(true)} />
         <ScienceSection catalog={catalog} />

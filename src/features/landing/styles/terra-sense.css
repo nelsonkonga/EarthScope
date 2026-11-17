@@ -317,6 +317,24 @@ html:has(body[data-surface='landing']) { scroll-behavior: smooth; }
 .ts-assistant__form .ts-button { min-height: 44px; padding-inline: 15px; }
 
 /* Reveal */
+/* Film: a local poster until play, then the YouTube player in the same 16:9 frame. */
+.ts-film { position: relative; overflow: hidden; max-width: 1040px; margin-inline: auto; aspect-ratio: 16 / 9; border: 1px solid var(--ts-line); border-radius: var(--ts-radius-large); background: #0B120E; box-shadow: var(--ts-shadow); }
+.ts-film iframe, .ts-film__poster { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.ts-film__poster { display: block; padding: 0; background: none; cursor: pointer; }
+.ts-film__poster img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s cubic-bezier(.2,.65,.25,1), filter .3s ease; }
+.ts-film__poster:hover img { transform: scale(1.02); filter: brightness(1.06); }
+.terra-sense-site .ts-film__poster:focus-visible { outline-offset: -5px; }
+.ts-film__cue { position: absolute; bottom: 22px; left: 24px; display: inline-flex; align-items: center; gap: 12px; padding: 7px 18px 7px 7px; border-radius: 999px; background: rgba(245, 248, 245, .94); color: #2B3A33; font-size: 15px; font-weight: 600; box-shadow: 0 12px 40px rgba(0, 0, 0, .35); transition: transform .2s ease, background .2s ease; }
+.ts-film__play { display: grid; place-items: center; width: 40px; height: 40px; padding-left: 2px; border-radius: 50%; background: #4F7F6E; color: #FFFFFF; }
+.ts-film__duration { color: #5E6E66; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ts-film__poster:hover .ts-film__cue, .ts-film__poster:focus-visible .ts-film__cue { transform: translateY(-2px); background: #FFFFFF; }
+.ts-film__note { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 22px; margin: 22px 0 0; color: var(--ts-ink-muted); font-size: 14px; }
+@media (max-width: 640px) {
+  .ts-film { border-radius: var(--ts-radius); }
+  .ts-film__cue { bottom: 12px; left: 12px; gap: 10px; padding-right: 14px; font-size: 14px; }
+  .ts-film__play { width: 34px; height: 34px; }
+}
+
 .ts-reveal { opacity: 0; transform: translateY(18px); transition: opacity .65s ease var(--reveal-delay, 0ms), transform .65s cubic-bezier(.2,.65,.25,1) var(--reveal-delay, 0ms); }
 .ts-reveal.is-visible { opacity: 1; transform: translateY(0); }
 @keyframes ts-fade-in { from { opacity: 0; } to { opacity: 1; } }

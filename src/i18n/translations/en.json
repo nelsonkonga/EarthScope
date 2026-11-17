@@ -44,6 +44,16 @@
     "scrollNext": "Scroll to explore",
     "sequence": "OBSERVE / UNDERSTAND / EXPLORE"
   },
+  "film": {
+    "eyebrow": "The film",
+    "title": "Terra Sense in two and a half minutes",
+    "description": "From 45 years of NASA records to a verdict, place by place: how we put every trend on trial, what we found in Cameroon, and how anyone can explore it.",
+    "watch": "Watch the film",
+    "play": "Play the Terra Sense film (2 min 27 s, English narration with subtitles)",
+    "playerTitle": "Terra Sense, the project film on YouTube",
+    "note": "English narration, subtitles in the picture.",
+    "youtube": "Watch on YouTube"
+  },
   "problem": {
     "eyebrow": "The problem",
     "title": "What happens when the soil loses its balance?",
